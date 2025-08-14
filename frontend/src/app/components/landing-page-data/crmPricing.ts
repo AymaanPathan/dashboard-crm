@@ -1,0 +1,48 @@
+export const crmPricingPlans = [
+  {
+    name: "Starter",
+    price: "$29",
+    period: "per user/month",
+    description: "Perfect for small teams getting started",
+    features: [
+      "Up to 5 users",
+      "1,000 leads",
+      "Basic pipeline",
+      "Email support",
+      "Basic reporting",
+    ],
+    popular: false,
+  },
+  {
+    name: "Professional",
+    price: "$59",
+    period: "per user/month",
+    description: "Everything you need to scale your business",
+    features: [
+      "Up to 25 users",
+      "10,000 leads",
+      "Advanced pipeline",
+      "Priority support",
+      "Advanced analytics",
+      "API access",
+      "Custom integrations",
+    ],
+    popular: true,
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    period: "contact us",
+    description: "For large organizations with custom needs",
+    features: [
+      "Unlimited users",
+      "Unlimited leads",
+      "Custom workflows",
+      "24/7 dedicated support",
+      "Advanced security",
+      "SSO integration",
+      "Custom development",
+    ],
+    popular: false,
+  },
+];
