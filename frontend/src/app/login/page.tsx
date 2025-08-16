@@ -1,9 +1,19 @@
 "use client";
+import { RootDispatch } from "@/store";
+import { loginUser } from "@/store/slices/authSlice";
 import { BarChart3, Mail, Lock, EyeOff, Eye } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 const LoginPage: React.FC = () => {
+  const dispatch: RootDispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async () => {
+    await dispatch(loginUser({ email, password }));
+  };
 
   return (
     <div className="min-h-screen bg-white flex">
@@ -35,6 +45,8 @@ const LoginPage: React.FC = () => {
                 </label>
                 <div className="mt-1 relative">
                   <input
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     id="email"
                     name="email"
                     type="email"
@@ -56,6 +68,8 @@ const LoginPage: React.FC = () => {
                 </label>
                 <div className="mt-1 relative">
                   <input
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
@@ -106,7 +120,8 @@ const LoginPage: React.FC = () => {
 
               <div>
                 <button
-                  type="submit"
+                  onClick={handleLogin}
+                  type="button"
                   className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors"
                 >
                   <Lock className="w-4 h-4 mr-2" />
