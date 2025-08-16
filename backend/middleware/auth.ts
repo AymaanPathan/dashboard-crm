@@ -1,8 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
 
 interface AuthRequest extends Request {
   user?: {
@@ -11,48 +8,36 @@ interface AuthRequest extends Request {
   };
 }
 
-export const authenticateToken = async (
+interface JwtPayload {
+  userId: string;
+  email: string;
+}
+
+export const verifyToken = (
   req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
   try {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "Access token required",
-      });
-    }
-
-    const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
-
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
-
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-    });
-
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string
+    ) as JwtPayload;
     req.user = {
-      userId: decoded.userId,
+      userId: Number(decoded.userId),
       email: decoded.email,
     };
-
     next();
   } catch (error) {
-    return res.status(403).json({
-      success: false,
-      message: "Invalid or expired token",
-    });
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
 
