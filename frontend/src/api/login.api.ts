@@ -5,5 +5,5 @@ export const handleLoginApi = async (email: string, password: string) => {
     email,
     password,
   });
-  return { token: data.data, role: data.user.role, user: data.user };
+  return { token: data.data, user: data.user };
 };

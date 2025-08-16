@@ -1,19 +1,12 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { handleLoginApi } from "../../api/login.api";
-import {
-  getToken,
-  getRole,
-  setToken,
-  getUserId,
-  getUser,
-  getMobileNumber,
-} from "../../utils/auth";
+
 import { IUser } from "@/models/user.model";
+import { handleRegisterApi } from "@/api/register.api";
 
 interface AuthState {
   // user: any;
   token: string | null;
-  role: string | null;
   loading: boolean;
   error: string | null;
   userId: string;
@@ -23,14 +16,13 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  token: getToken() || null,
-  role: getRole() || null,
+  token: null,
   loading: false,
   error: null,
-  userId: getUserId() || "",
-  userName: getUser(),
-  mobileNumber: getMobileNumber() || "",
-  manager: getUser()?.manager ?? null,
+  userId: "",
+  userName: null,
+  mobileNumber: "",
+  manager: null,
 };
 
 export const loginUser = createAsyncThunk(
@@ -40,12 +32,28 @@ export const loginUser = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const { token, role, user } = await handleLoginApi(email, password);
+      const { token, user } = await handleLoginApi(email, password);
 
-      return { token, role, user };
+      return { token, user };
     } catch (error: unknown) {
       return rejectWithValue("Login failed");
     }
+  }
+);
+
+export const registerUser = createAsyncThunk(
+  "auth/registerUser",
+  async ({
+    username,
+    email,
+    password,
+  }: {
+    username: string;
+    email: string;
+    password: string;
+  }) => {
+    const response = await handleRegisterApi(username, email, password);
+    return response;
   }
 );
 
@@ -61,20 +69,30 @@ const authSlice = createSlice({
       })
       .addCase(
         loginUser.fulfilled,
-        (
-          state,
-          action: PayloadAction<{ token: string; role: string; user: IUser }>
-        ) => {
-          const { token, role, user } = action.payload;
-          setToken(token, role, user);
+        (state, action: PayloadAction<{ token: string; user: IUser }>) => {
+          const { token, user } = action.payload;
           state.loading = false;
           state.token = token;
-          state.role = role;
-          state.userId = user._id || "";
           state.userName = user;
         }
       )
       .addCase(loginUser.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(registerUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        registerUser.fulfilled,
+        (state, action: PayloadAction<{ token: string; user: IUser }>) => {
+          const { token, user } = action.payload;
+          state.loading = false;
+          state.token = token;
+          state.userName = user;
+        }
+      )
+      .addCase(registerUser.rejected, (state) => {
         state.loading = false;
       });
   },
