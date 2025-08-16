@@ -9,7 +9,7 @@ export const loginUser = async (req: Request, res: Response) => {
     message: "Login successful",
     statusCode: 200,
     data: null,
-    showMessage: true
+    showMessage: true,
   };
   try {
     const { email, password } = req.body;
@@ -28,7 +28,7 @@ export const loginUser = async (req: Request, res: Response) => {
     }
     // Check if user with the same email already exists
     const userFindbyEmailID = await prisma.user.findUnique({
-      where: { email },
+      where: { email, isVerified: true },
     });
 
     // If Registered User Not Found

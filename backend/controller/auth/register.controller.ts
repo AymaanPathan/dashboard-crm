@@ -1,15 +1,19 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import prisma from "../../utils/prisma";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-const registerUser = async (req: Request, res: Response) => {
+const registerUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const response: ResponseModel = {
     statusCode: 200,
     message: "User registered successfully",
     data: null,
-    showMessage: true
+    showMessage: true,
   };
 
   try {
@@ -55,12 +59,12 @@ const registerUser = async (req: Request, res: Response) => {
       },
     });
 
-    // ✅ Generate JWT Token
     const token = jwt.sign(
       { userId: newUser.id, email: newUser.email },
       process.env.JWT_SECRET as string,
       { expiresIn: "1d" }
     );
+    req.user = newUser;
 
     response.data = {
       token,
@@ -71,7 +75,7 @@ const registerUser = async (req: Request, res: Response) => {
       },
     };
 
-    return sendResponse(res, response);
+    return next();
   } catch (error: any) {
     response.statusCode = 500;
     response.message = "Internal server error";
