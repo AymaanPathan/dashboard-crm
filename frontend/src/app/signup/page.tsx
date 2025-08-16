@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import OtpPage from "./OtpPage";
 import { RootDispatch } from "@/store";
 import { useDispatch } from "react-redux";
-import { registerUser } from "@/store/slices/authSlice";
+import { handleVerifyOtp, registerUser } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +20,7 @@ import {
 const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showOtpVerification, setShowOtpVerification] = useState(false);
-  const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
+  const [otpDigits, setOtpDigits] = useState("");
   const dispatch: RootDispatch = useDispatch();
 
   // Form state
@@ -30,43 +30,27 @@ const Signup: React.FC = () => {
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const handleSignup = async () => {
-    await dispatch(registerUser({ username, email, password })).unwrap();
-    setShowOtpVerification(true);
-  };
-
-  const handleOtpChange = (index: number, value: string) => {
-    if (value.length > 1) return;
-    const newOtpDigits = [...otpDigits];
-    newOtpDigits[index] = value;
-    setOtpDigits(newOtpDigits);
-
-    // Auto-focus next input
-    if (value && index < 5) {
-      const nextInput = document.getElementById(`otp-${index + 1}`);
-      nextInput?.focus();
+    try {
+      console.log("Signing up..."); // for debugging
+      await dispatch(registerUser({ username, email, password })).unwrap();
+      console.log("Signup success"); // check if this logs
+      setShowOtpVerification(true);
+    } catch (err) {
+      console.error("Signup failed:", err); // show error if any
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !otpDigits[index] && index > 0) {
-      const prevInput = document.getElementById(`otp-${index - 1}`);
-      prevInput?.focus();
-    }
+  const handleOtpVerification = async () => {
+    await dispatch(handleVerifyOtp({ email, otp: otpDigits })).unwrap();
+    setOtpDigits("");
+    setShowOtpVerification(false);
   };
-
-  const handleOtpVerification = () => {
-    const otpCode = otpDigits.join("");
-    console.log("Verifying OTP:", otpCode);
-    // Handle OTP verification logic here
-  };
-
   if (showOtpVerification) {
     return (
       <OtpPage
         email={email}
-        otpDigits={otpDigits}
-        handleOtpChange={handleOtpChange}
-        handleKeyDown={handleKeyDown}
+        otp={otpDigits}
+        setOtp={setOtpDigits}
         handleOtpVerification={handleOtpVerification}
         setShowOtpVerification={setShowOtpVerification}
       />
@@ -177,16 +161,12 @@ const Signup: React.FC = () => {
                 </a>
               </Label>
             </div>
-
             <Button
-              type="button"
               onClick={handleSignup}
-              disabled={!username || !email || !password || !termsAccepted}
-              className="w-full"
               size="lg"
+              className="w-full"
             >
-              Create account
-              <ArrowRight className="ml-2 h-4 w-4" />
+              Create an account
             </Button>
           </div>
 
@@ -211,3 +191,4 @@ const Signup: React.FC = () => {
 };
 
 export default Signup;
+

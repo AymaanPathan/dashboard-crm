@@ -3,6 +3,7 @@ import { handleLoginApi } from "../../api/login.api";
 
 import { IUser } from "@/models/user.model";
 import { handleRegisterApi } from "@/api/register.api";
+import { handleVerifyOtpApi } from "@/api/verifyOtp";
 
 interface AuthState {
   // user: any;
@@ -56,6 +57,13 @@ export const registerUser = createAsyncThunk(
     return response;
   }
 );
+export const handleVerifyOtp = createAsyncThunk(
+  "auth/handleVerifyOtp",
+  async ({ email, otp }: { email: string; otp: string }) => {
+    const response = await handleVerifyOtpApi(email, otp);
+    return response;
+  }
+);
 
 const authSlice = createSlice({
   name: "auth",
@@ -93,6 +101,19 @@ const authSlice = createSlice({
         }
       )
       .addCase(registerUser.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(handleVerifyOtp.fulfilled, (state, action) => {
+        state.loading = false;
+        // Optionally handle response data here, e.g.:
+        // state.token = action.payload.token;
+        // state.userName = action.payload.user;
+      })
+      .addCase(handleVerifyOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(handleVerifyOtp.rejected, (state) => {
         state.loading = false;
       });
   },
