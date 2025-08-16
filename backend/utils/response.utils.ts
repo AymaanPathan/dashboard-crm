@@ -6,21 +6,13 @@ export interface ErrorDetail {
   details?: string;
 }
 
-interface ResponseModel {
+export interface ResponseModel {
   statusCode: number;
   message: string;
   data: any;
   error: ErrorDetail;
 }
 
-export const sendResponse = (
-  res: Response,
-  { statusCode, message, data, error }: ResponseModel
-) => {
-  res.status(statusCode).json({
-    statusCode,
-    message,
-    data,
-    error,
-  });
+export const sendResponse = (res: Response, response: ResponseModel) => {
+  res.status(response.statusCode).json(response);
 };
