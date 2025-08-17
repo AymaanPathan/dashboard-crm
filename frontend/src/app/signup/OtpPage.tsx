@@ -1,8 +1,12 @@
 import { ArrowRight, Mail } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { RootDispatch } from "@/store";
 import { useDispatch } from "react-redux";
 import { handleResendOtp } from "@/store/slices/authSlice";
@@ -51,11 +55,6 @@ const OtpPage: React.FC<OtpPageProps> = ({
     };
   }, [resendTimer]);
 
-  const handleOtpChange = (value: string) => {
-    const numericValue = value.replace(/\D/g, "").slice(0, 6);
-    setOtp(numericValue);
-  };
-
   const handleResendOtpToEmail = async () => {
     await dispatch(handleResendOtp({ email }));
 
@@ -97,17 +96,22 @@ const OtpPage: React.FC<OtpPageProps> = ({
             <Label htmlFor="otp" className="text-center block">
               Enter verification code
             </Label>
-            <Input
-              id="otp"
-              type="text"
-              inputMode="numeric"
-              value={otp}
-              onChange={(e) => handleOtpChange(e.target.value)}
-              className="text-center text-lg font-mono tracking-widest"
-              placeholder="000000"
-              maxLength={6}
-              autoComplete="one-time-code"
-            />
+            <div className="flex justify-center">
+              <InputOTP
+                maxLength={6}
+                value={otp}
+                onChange={(value: string) => setOtp(value)}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
             <p className="text-xs text-muted-foreground text-center">
               {otp.length}/6 digits
             </p>
@@ -117,7 +121,6 @@ const OtpPage: React.FC<OtpPageProps> = ({
             <ButtonLoading content="Verifying..." />
           ) : (
             <Button
-            
               type="button"
               onClick={handleOtpVerification}
               disabled={otp.length !== 6}

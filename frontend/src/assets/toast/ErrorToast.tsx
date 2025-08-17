@@ -10,8 +10,13 @@ const ErrorToast = ({ title, description, duration = 5000 }: ToastProps) => {
   toast.error(title, {
     description,
     duration,
-    className:
-      "bg-red-50 text-red-800 border border-red-400 shadow-sm rounded-md px-4 py-3",
+    style: {
+        color: "#ff4d4f", 
+    },
+    action: {
+      label: "close",
+      onClick: () => console.log("close"),
+    },
   });
 };
 

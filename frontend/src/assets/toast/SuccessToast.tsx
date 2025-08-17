@@ -10,6 +10,9 @@ const SuccessToast = ({ title, description, duration = 3000 }: ToastProps) => {
   toast.success(title, {
     description,
     duration,
+    style: {
+      color: "#2e8b57",
+    },
     className:
       "bg-green-50 text-green-800 border border-green-400 shadow-sm rounded-md px-4 py-3",
   });
