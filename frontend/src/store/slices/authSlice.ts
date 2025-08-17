@@ -5,6 +5,7 @@ import { handleLoginApi } from "../../api/login.api";
 import { IUser } from "@/models/user.model";
 import { handleRegisterApi } from "@/api/register.api";
 import { handleVerifyOtpApi } from "@/api/verifyOtp";
+import { handleResendOtpApi } from "@/api/resendOtp";
 
 interface AuthState {
   // user: any;
@@ -67,6 +68,14 @@ export const handleVerifyOtp = createAsyncThunk(
   }
 );
 
+export const handleResendOtp = createAsyncThunk(
+  "auth/handleResendOtp",
+  async ({ email }: { email: string }) => {
+    const response = await handleResendOtpApi(email);
+    return response;
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -92,11 +101,11 @@ const authSlice = createSlice({
       })
       .addCase(
         registerUser.fulfilled,
-        (state, action: PayloadAction<{ token: string; user: IUser }>) => {
-          const { token, user } = action.payload;
+        (state, action) => {
+          const res  = action.payload;
           state.loading = false;
-          state.token = token;
-          state.userName = user;
+          state.token = res?.token;
+          state.userName = res?.user;
         }
       )
       .addCase(registerUser.rejected, (state) => {
@@ -113,6 +122,19 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(handleVerifyOtp.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(handleResendOtp.fulfilled, (state, action) => {
+        state.loading = false;
+        // Optionally handle response data here, e.g.:
+        // state.token = action.payload.token;
+        // state.userName = action.payload.user;
+      })
+      .addCase(handleResendOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(handleResendOtp.rejected, (state) => {
         state.loading = false;
       });
   },

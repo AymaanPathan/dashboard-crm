@@ -3,20 +3,19 @@ import ErrorToast from "@/assets/toast/ErrorToast";
 import axiosSetup from "../utils/axiosSetup";
 import SuccessToast from "@/assets/toast/SuccessToast";
 
-export const handleVerifyOtpApi = async (email: string, otp: string) => {
+export const handleResendOtpApi = async (email: string) => {
   try {
-    const res = await axiosSetup.post("/verifyotp", {
+    const res = await axiosSetup.post("/resendotp", {
       email,
-      otp,
     });
     SuccessToast({
-      title: "Registration successful",
-      description: "Your email has been verified successfully.",
+      title: "OTP Resent Successfully",
+      description: "A new OTP has been sent to your email.",
     });
     return res.data;
   } catch (error: any) {
     ErrorToast({
-      title: "Verification failed",
+      title: "Resend OTP failed",
       description: error?.response.data.message,
     });
   }

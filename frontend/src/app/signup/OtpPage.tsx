@@ -1,8 +1,11 @@
 import { ArrowRight, Mail } from "lucide-react";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RootDispatch } from "@/store";
+import { useDispatch } from "react-redux";
+import { handleResendOtp } from "@/store/slices/authSlice";
 
 interface OtpPageProps {
   email: string;
@@ -19,10 +22,50 @@ const OtpPage: React.FC<OtpPageProps> = ({
   handleOtpVerification,
   setShowOtpVerification,
 }) => {
+  const dispatch: RootDispatch = useDispatch();
+  const [resendTimer, setResendTimer] = useState<number>(0);
+  const [isResendDisabled, setIsResendDisabled] = useState<boolean>(false);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prevTimer) => {
+          if (prevTimer <= 1) {
+            setIsResendDisabled(false);
+            return 0;
+          }
+          return prevTimer - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [resendTimer]);
+
   const handleOtpChange = (value: string) => {
     // Only allow numbers and limit to 6 digits
     const numericValue = value.replace(/\D/g, "").slice(0, 6);
     setOtp(numericValue);
+  };
+
+  const handleResendOtpToEmail = async () => {
+    await dispatch(handleResendOtp({ email }));
+
+    // Start the 1-minute (60 seconds) timer
+    setResendTimer(60);
+    setIsResendDisabled(true);
+  };
+
+  const formatTimer = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -84,8 +127,15 @@ const OtpPage: React.FC<OtpPageProps> = ({
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
             Didn&apos;t receive the code?{" "}
-            <Button variant="link" className="p-0 h-auto font-medium">
-              Resend
+            <Button
+              onClick={handleResendOtpToEmail}
+              variant="link"
+              className="p-0 h-auto font-medium"
+              disabled={isResendDisabled}
+            >
+              {isResendDisabled
+                ? `Resend in ${formatTimer(resendTimer)}`
+                : "Resend"}
             </Button>
           </p>
         </div>
