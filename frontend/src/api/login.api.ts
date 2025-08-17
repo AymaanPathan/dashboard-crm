@@ -4,13 +4,17 @@ import axiosSetup from "../utils/axiosSetup";
 
 export const handleLoginApi = async (email: string, password: string) => {
   try {
-    const { data } = await axiosSetup.post("/login", {
+    const res = await axiosSetup.post("/login", {
       email,
       password,
     });
-    return { token: data.data, user: data.user };
+    return res.data;
   } catch (error: any) {
     console.error("Login API error:", error);
-    ErrorToast({ title: "Login failed", description: error?.response.data.message });
+    ErrorToast({
+      title: "Login failed",
+      description: error?.response.data.message,
+    });
+    throw error;
   }
 };

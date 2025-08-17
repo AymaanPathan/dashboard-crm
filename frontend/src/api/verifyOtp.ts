@@ -19,5 +19,6 @@ export const handleVerifyOtpApi = async (email: string, otp: string) => {
       title: "Verification failed",
       description: error?.response.data.message,
     });
+    throw error;
   }
 };

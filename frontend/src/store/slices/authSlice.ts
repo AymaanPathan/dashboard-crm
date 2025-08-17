@@ -99,19 +99,13 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(
-        registerUser.fulfilled,
-        (state, action) => {
-          const res  = action.payload;
-          state.loading = false;
-          state.token = res?.token;
-          state.userName = res?.user;
-        }
-      )
+      .addCase(registerUser.fulfilled, (state) => {
+        state.loading = false;
+      })
       .addCase(registerUser.rejected, (state) => {
         state.loading = false;
       })
-      .addCase(handleVerifyOtp.fulfilled, (state, action) => {
+      .addCase(handleVerifyOtp.fulfilled, (state) => {
         state.loading = false;
         // Optionally handle response data here, e.g.:
         // state.token = action.payload.token;

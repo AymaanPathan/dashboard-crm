@@ -18,5 +18,6 @@ export const handleResendOtpApi = async (email: string) => {
       title: "Resend OTP failed",
       description: error?.response.data.message,
     });
+    throw error;
   }
 };

@@ -9,7 +9,7 @@ export const handleRegisterApi = async (
   password: string
 ) => {
   try {
-    const { data } = await axiosSetup.post("/register", {
+    const res = await axiosSetup.post("/register", {
       username,
       email,
       password,
@@ -19,12 +19,13 @@ export const handleRegisterApi = async (
       description: "An OTP has been sent to your email for verification.",
     });
 
-    return { token: data.data, user: data.user };
+    return res.data;
   } catch (error: any) {
     console.error("Register API error:", error);
     ErrorToast({
       title: "Registration failed",
       description: error?.response.data.message,
     });
+    throw error;
   }
 };

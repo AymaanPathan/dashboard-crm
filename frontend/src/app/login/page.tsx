@@ -5,8 +5,9 @@ import { loginUser } from "@/store/slices/authSlice";
 import { BarChart3, Mail, Lock, EyeOff, Eye } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
-import { toast } from "sonner";
 import { useDispatch } from "react-redux";
+import { isValidEmail } from "@/utils/validation.utils";
+import ErrorToast from "@/assets/toast/ErrorToast";
 const LoginPage: React.FC = () => {
   const dispatch: RootDispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
@@ -14,6 +15,10 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
+    if (!email) return ErrorToast({ title: "Email is required" });
+    if (!isValidEmail(email)) return ErrorToast({ title: "Invalid email" });
+    if (!password) return ErrorToast({ title: "Password is required" });
+
     await dispatch(loginUser({ email, password }));
   };
 

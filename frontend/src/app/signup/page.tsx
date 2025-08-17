@@ -16,6 +16,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import ErrorToast from "@/assets/toast/ErrorToast";
+import { isValidEmail } from "@/utils/validation.utils";
 
 const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -30,13 +32,18 @@ const Signup: React.FC = () => {
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const handleSignup = async () => {
+    if (!username) return ErrorToast({ title: "Username is required" });
+    if (!isValidEmail(email)) return ErrorToast({ title: "Invalid email" });
+    if (!password) return ErrorToast({ title: "Password is required" });
+
     try {
-      console.log("Signing up..."); // for debugging
-      await dispatch(registerUser({ username, email, password })).unwrap();
-      console.log("Signup success"); // check if this logs
-      setShowOtpVerification(true);
+      const res = await dispatch(registerUser({ username, email, password }));
+      console.log("Signup success", res);
+      if (res.meta.requestStatus === "fulfilled") {
+        setShowOtpVerification(true);
+      }
     } catch (err) {
-      console.error("Signup failed:", err); // show error if any
+      console.error("Signup failed:", err);
     }
   };
 
