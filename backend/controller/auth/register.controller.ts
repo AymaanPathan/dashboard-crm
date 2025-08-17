@@ -22,7 +22,7 @@ const registerUser = async (
     if (!validator.isEmail(email)) {
       response.statusCode = 400;
       response.message = "Invalid email format";
-      response.data = null
+      response.data = null;
       return sendResponse(res, response);
     }
 
@@ -46,7 +46,7 @@ const registerUser = async (
 
     const existingUser = await prisma.user.findFirst({
       where: {
-        OR: [{ email }, { username }],
+        AND: [{ email }, { isVerified: true }],
       },
     });
 
@@ -84,6 +84,7 @@ const registerUser = async (
 
     return next();
   } catch (error: any) {
+    console.error("Error during user registration:", error);
     response.statusCode = 500;
     response.message = "Internal server error";
     return sendResponse(res, response);
