@@ -21,13 +21,15 @@
     "ioredis": "^5.7.0",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^7.0.5",
-    "prisma": "^6.14.0"
+    "prisma": "^6.14.0",
+    "validator": "^13.15.15"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^24.2.1",
     "@types/nodemailer": "^7.0.0",
+    "@types/validator": "^13.15.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   },

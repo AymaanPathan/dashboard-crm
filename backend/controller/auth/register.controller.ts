@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import prisma from "../../utils/prisma";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
 import bcrypt from "bcryptjs";
+import validator from "validator";
 import jwt from "jsonwebtoken";
 
 const registerUser = async (
@@ -18,6 +19,12 @@ const registerUser = async (
 
   try {
     const { username, email, password } = req.body;
+    if (!validator.isEmail(email)) {
+      response.statusCode = 400;
+      response.message = "Invalid email format";
+      response.data = null
+      return sendResponse(res, response);
+    }
 
     if (!username) {
       response.statusCode = 400;
