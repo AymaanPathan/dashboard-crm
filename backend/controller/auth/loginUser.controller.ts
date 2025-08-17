@@ -35,7 +35,7 @@ export const loginUser = async (req: Request, res: Response) => {
     if (!userFindbyEmailID) {
       response.data = null;
       response.message = "User not found";
-      response.statusCode = 404;
+      response.statusCode = 400
       response.message = "User with the provided email does not exist";
       return sendResponse(res, response);
     }
@@ -46,7 +46,7 @@ export const loginUser = async (req: Request, res: Response) => {
     );
     // Check Password
     if (!isPassMatched) {
-      response.statusCode = 401;
+      response.statusCode = 400;
       response.message = "Invalid credentials";
       response.data = null;
       return sendResponse(res, response);

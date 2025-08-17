@@ -12,6 +12,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
 
   try {
     const { email, otp } = req.body;
+    console.log("Received OTP verification request:", { email, otp });
 
     if (!email || !otp) {
       response.statusCode = 400;
