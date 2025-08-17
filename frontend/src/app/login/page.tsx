@@ -8,11 +8,16 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { isValidEmail } from "@/utils/validation.utils";
 import ErrorToast from "@/assets/toast/ErrorToast";
+import { useLoginLoading } from "@/assets/loadingStates/auth.loading.state";
+import { ButtonLoading } from "@/components/ui/ButtonLoading";
 const LoginPage: React.FC = () => {
   const dispatch: RootDispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // Loading
+  const isLoginLoading = useLoginLoading();
 
   const handleLogin = async () => {
     if (!email) return ErrorToast({ title: "Email is required" });
@@ -126,14 +131,18 @@ const LoginPage: React.FC = () => {
               </div>
 
               <div>
-                <button
-                  onClick={handleLogin}
-                  type="button"
-                  className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors"
-                >
-                  <Lock className="w-4 h-4 mr-2" />
-                  Sign in
-                </button>
+                {isLoginLoading ? (
+                  <ButtonLoading content="Signing in..." />
+                ) : (
+                  <button
+                    onClick={handleLogin}
+                    type="button"
+                    className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors"
+                  >
+                    <Lock className="w-4 h-4 mr-2" />
+                    Sign in
+                  </button>
+                )}
               </div>
 
               <div className="text-center">

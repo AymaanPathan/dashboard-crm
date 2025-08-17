@@ -1,5 +1,6 @@
 "use client";
-import { ArrowRight, Eye, EyeOff, Mail, User, Lock } from "lucide-react";
+import { ChevronRightIcon } from "lucide-react";
+import { Eye, EyeOff, Mail, User, Lock } from "lucide-react";
 import React, { useState } from "react";
 import OtpPage from "./OtpPage";
 import { RootDispatch } from "@/store";
@@ -18,12 +19,17 @@ import {
 } from "@/components/ui/card";
 import ErrorToast from "@/assets/toast/ErrorToast";
 import { isValidEmail } from "@/utils/validation.utils";
+import { useRegisterLoading } from "@/assets/loadingStates/auth.loading.state";
+import { ButtonLoading } from "@/components/ui/ButtonLoading";
 
 const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showOtpVerification, setShowOtpVerification] = useState(false);
   const [otpDigits, setOtpDigits] = useState("");
   const dispatch: RootDispatch = useDispatch();
+  // Loading
+  const isRegisterLoading = useRegisterLoading();
+  console.log("isRegisterLoading:", isRegisterLoading);
 
   // Form state
   const [username, setUsername] = useState("");
@@ -166,9 +172,18 @@ const Signup: React.FC = () => {
                 </a>
               </Label>
             </div>
-            <Button onClick={handleSignup} size="lg" className="w-full">
-              Create an account
-            </Button>
+            {isRegisterLoading ? (
+              <ButtonLoading content="Creating account..." />
+            ) : (
+              <Button
+                variant="secondary"
+                onClick={handleSignup}
+                size="icon"
+                className="w-full cursor-pointer"
+              >
+                Create an account <ChevronRightIcon />
+              </Button>
+            )}
           </div>
 
           <div className="text-center">

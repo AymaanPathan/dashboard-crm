@@ -10,7 +10,12 @@ import { handleResendOtpApi } from "@/api/resendOtp";
 interface AuthState {
   // user: any;
   token: string | null;
-  loading: boolean;
+  loadingState: {
+    login: boolean;
+    register: boolean;
+    verifyOtp: boolean;
+    resendOtp: boolean;
+  };
   error: string | null;
   userId: string;
   userName: IUser | null;
@@ -20,7 +25,12 @@ interface AuthState {
 
 const initialState: AuthState = {
   token: null,
-  loading: false,
+  loadingState: {
+    login: false,
+    register: false,
+    verifyOtp: false,
+    resendOtp: false,
+  },
   error: null,
   userId: "",
   userName: null,
@@ -83,53 +93,53 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(loginUser.pending, (state) => {
-        state.loading = true;
+        state.loadingState.login = true;
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         const res = action.payload;
-        state.loading = false;
+        state.loadingState.login = false;
         state.token = res?.token;
         state.userName = res?.user;
       })
       .addCase(loginUser.rejected, (state) => {
-        state.loading = false;
+        state.loadingState.login = false;
       })
       .addCase(registerUser.pending, (state) => {
-        state.loading = true;
+        state.loadingState.register = true;
         state.error = null;
       })
       .addCase(registerUser.fulfilled, (state) => {
-        state.loading = false;
+        state.loadingState.register = false;
       })
       .addCase(registerUser.rejected, (state) => {
-        state.loading = false;
+        state.loadingState.register = false;
       })
       .addCase(handleVerifyOtp.fulfilled, (state) => {
-        state.loading = false;
+        state.loadingState.verifyOtp = false;
         // Optionally handle response data here, e.g.:
         // state.token = action.payload.token;
         // state.userName = action.payload.user;
       })
       .addCase(handleVerifyOtp.pending, (state) => {
-        state.loading = true;
+        state.loadingState.verifyOtp = true;
         state.error = null;
       })
       .addCase(handleVerifyOtp.rejected, (state) => {
-        state.loading = false;
+        state.loadingState.verifyOtp = false;
       })
       .addCase(handleResendOtp.fulfilled, (state, action) => {
-        state.loading = false;
+        state.loadingState.resendOtp = false;
         // Optionally handle response data here, e.g.:
         // state.token = action.payload.token;
         // state.userName = action.payload.user;
       })
       .addCase(handleResendOtp.pending, (state) => {
-        state.loading = true;
+        state.loadingState.resendOtp = true;
         state.error = null;
       })
       .addCase(handleResendOtp.rejected, (state) => {
-        state.loading = false;
+        state.loadingState.resendOtp = false;
       });
   },
 });

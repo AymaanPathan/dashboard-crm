@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { RootDispatch } from "@/store";
 import { useDispatch } from "react-redux";
 import { handleResendOtp } from "@/store/slices/authSlice";
+import { useVerifyLoading } from "@/assets/loadingStates/auth.loading.state";
+import { ButtonLoading } from "@/components/ui/ButtonLoading";
 
 interface OtpPageProps {
   email: string;
@@ -25,6 +27,7 @@ const OtpPage: React.FC<OtpPageProps> = ({
   const dispatch: RootDispatch = useDispatch();
   const [resendTimer, setResendTimer] = useState<number>(0);
   const [isResendDisabled, setIsResendDisabled] = useState<boolean>(false);
+  const isVerifyingOtp = useVerifyLoading();
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -110,16 +113,21 @@ const OtpPage: React.FC<OtpPageProps> = ({
             </p>
           </div>
 
-          <Button
-            type="button"
-            onClick={handleOtpVerification}
-            disabled={otp.length !== 6}
-            className="w-full"
-            size="default"
-          >
-            Verify & Continue
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+          {isVerifyingOtp ? (
+            <ButtonLoading content="Verifying..." />
+          ) : (
+            <Button
+            
+              type="button"
+              onClick={handleOtpVerification}
+              disabled={otp.length !== 6}
+              className="w-full cursor-pointer"
+              size="default"
+            >
+              Verify & Continue
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          )}
         </div>
 
         {/* Resend */}
