@@ -42,8 +42,6 @@ const Signup: React.FC = () => {
 
   const handleOtpVerification = async () => {
     await dispatch(handleVerifyOtp({ email, otp: otpDigits })).unwrap();
-    setOtpDigits("");
-    setShowOtpVerification(false);
   };
   if (showOtpVerification) {
     return (
@@ -161,11 +159,7 @@ const Signup: React.FC = () => {
                 </a>
               </Label>
             </div>
-            <Button
-              onClick={handleSignup}
-              size="lg"
-              className="w-full"
-            >
+            <Button onClick={handleSignup} size="lg" className="w-full">
               Create an account
             </Button>
           </div>
@@ -191,4 +185,3 @@ const Signup: React.FC = () => {
 };
 
 export default Signup;
-

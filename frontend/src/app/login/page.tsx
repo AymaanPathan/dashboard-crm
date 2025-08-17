@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { RootDispatch } from "@/store";
 import { loginUser } from "@/store/slices/authSlice";
 import { BarChart3, Mail, Lock, EyeOff, Eye } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
+import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 const LoginPage: React.FC = () => {
   const dispatch: RootDispatch = useDispatch();

@@ -36,10 +36,10 @@ api.interceptors.response.use(
     if (response) {
       // Handle known status codes
       switch (response.status) {
-        case 401:
+        case 400:
           toast.error(response.data.message || "Bad Request: Invalid input.");
           break;
-        case 400:
+        case 401:
           toast.error(response.data.message || "Unauthorized: Please log in.");
           // clearToken(); // Clear token on 401 error
           window.location.href = "/login"; // Redirect to login page

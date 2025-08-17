@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { handleLoginApi } from "../../api/login.api";
 
@@ -33,11 +34,12 @@ export const loginUser = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const { token, user } = await handleLoginApi(email, password);
+      const res = await handleLoginApi(email, password);
 
-      return { token, user };
-    } catch (error: unknown) {
-      return rejectWithValue("Login failed");
+      return res;
+    } catch (error: any) {
+      console.log("err", error);
+      return rejectWithValue(error.response.data.message || "Login failed");
     }
   }
 );
@@ -75,15 +77,12 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(
-        loginUser.fulfilled,
-        (state, action: PayloadAction<{ token: string; user: IUser }>) => {
-          const { token, user } = action.payload;
-          state.loading = false;
-          state.token = token;
-          state.userName = user;
-        }
-      )
+      .addCase(loginUser.fulfilled, (state, action) => {
+        const res = action.payload;
+        state.loading = false;
+        state.token = res?.token;
+        state.userName = res?.user;
+      })
       .addCase(loginUser.rejected, (state) => {
         state.loading = false;
       })
