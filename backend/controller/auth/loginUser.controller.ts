@@ -27,15 +27,18 @@ export const loginUser = async (req: Request, res: Response) => {
       return sendResponse(res, response);
     }
     // Check if user with the same email already exists
-    const userFindbyEmailID = await prisma.user.findUnique({
-      where: { email, isVerified: true },
+    const userFindbyEmailID = await prisma.user.findFirst({
+      where: {
+        email,
+        isVerified: true,
+      },
     });
 
     // If Registered User Not Found
     if (!userFindbyEmailID) {
       response.data = null;
       response.message = "User not found";
-      response.statusCode = 400
+      response.statusCode = 400;
       response.message = "User with the provided email does not exist";
       return sendResponse(res, response);
     }

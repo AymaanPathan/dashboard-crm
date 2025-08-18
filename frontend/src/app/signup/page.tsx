@@ -1,5 +1,5 @@
 "use client";
-import { ChevronRightIcon } from "lucide-react";
+import { ChevronRight, ChevronRightIcon } from "lucide-react";
 import { Eye, EyeOff, Mail, User, Lock } from "lucide-react";
 import React, { useState } from "react";
 import OtpPage from "./OtpPage";
@@ -68,142 +68,285 @@ const Signup: React.FC = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center space-y-2">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-            <div className="h-6 w-6 rounded-md bg-foreground" />
-          </div>
-          <CardTitle className="text-2xl font-semibold">
-            Create your account
-          </CardTitle>
-          <CardDescription>
-            Get started with your free account today
-          </CardDescription>
-        </CardHeader>
+return (
+  <div className="grid lg:grid-cols-2 min-h-screen bg-white">
+    {/* Left Side - Form */}
+    <div className="flex items-center justify-center p-8 lg:p-12">
+      <div className="mx-auto flex w-full flex-col justify-center space-y-8 sm:w-[400px]">
+        <div className="flex flex-col space-y-3 text-left">
+          <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
+            Create account
+          </h1>
+          <p className="text-sm text-gray-600">
+            Enter your details below to create your account
+          </p>
+        </div>
 
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+        <div className="grid gap-6">
+          <div className="grid gap-5">
+            <div className="grid gap-2">
+              <label
+                className="text-sm font-medium text-gray-900"
+                htmlFor="username"
+              >
+                Username
+              </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
+                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <input
                   id="username"
-                  type="text"
+                  className="flex h-11 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-4 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
                   placeholder="Enter your username"
+                  type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="pl-10"
-                  required
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+            <div className="grid gap-2">
+              <label
+                className="text-sm font-medium text-gray-900"
+                htmlFor="email"
+              >
+                Email
+              </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <input
                   id="email"
+                  className="flex h-11 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-4 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="name@example.com"
                   type="email"
-                  placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  required
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+            <div className="grid gap-2">
+              <label
+                className="text-sm font-medium text-gray-900"
+                htmlFor="password"
+              >
+                Password
+              </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <input
                   id="password"
+                  className="flex h-11 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-12 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
                   type={showPassword ? "text" : "password"}
                   placeholder="Create a password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10"
-                  required
                 />
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    <EyeOff className="h-4 w-4" />
                   ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    <Eye className="h-4 w-4" />
                   )}
-                </Button>
+                </button>
               </div>
             </div>
 
-            <div className="flex items-start space-x-2 pt-2">
-              <Checkbox
+            <div className="flex items-start space-x-3 pt-1">
+              <input
+                type="checkbox"
                 id="terms"
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900 focus:ring-1"
                 checked={termsAccepted}
-                onCheckedChange={(checked) =>
-                  setTermsAccepted(checked as boolean)
-                }
-                className="mt-0.5"
+                onChange={(e) => setTermsAccepted(e.target.checked)}
               />
-              <Label htmlFor="terms" className="text-sm leading-5">
+              <label
+                htmlFor="terms"
+                className="text-sm text-gray-600 leading-relaxed"
+              >
                 I agree to the{" "}
                 <a
                   href="#"
-                  className="font-medium text-primary hover:underline"
+                  className="font-medium text-gray-900 underline underline-offset-4 hover:text-gray-700 transition-colors"
                 >
-                  Terms of Service
+                  terms of service
                 </a>{" "}
                 and{" "}
                 <a
                   href="#"
-                  className="font-medium text-primary hover:underline"
+                  className="font-medium text-gray-900 underline underline-offset-4 hover:text-gray-700 transition-colors"
                 >
-                  Privacy Policy
+                  privacy policy
                 </a>
-              </Label>
+              </label>
             </div>
-            {isRegisterLoading ? (
-              <ButtonLoading content="Creating account..." />
-            ) : (
-              <Button
-                variant="secondary"
-                onClick={handleSignup}
-                size="icon"
-                className="w-full cursor-pointer"
-              >
-                Create an account <ChevronRightIcon />
-              </Button>
-            )}
-          </div>
 
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Button variant="link" className="p-0 h-auto font-medium">
-                Sign in
-              </Button>
-            </p>
+            <button
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-900 disabled:pointer-events-none disabled:opacity-50 bg-gray-900 text-white hover:bg-gray-800 h-11 px-6 py-2 shadow-sm"
+              type="submit"
+              onClick={handleSignup}
+              disabled={isRegisterLoading || !termsAccepted}
+            >
+              {isRegisterLoading ? (
+                <>
+                  <svg
+                    className="mr-2 h-4 w-4 animate-spin"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 0 1 8-8v8z"
+                    />
+                  </svg>
+                  Creating account...
+                </>
+              ) : (
+                <>
+                  Create account
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </button>
           </div>
+        </div>
 
-          <div className="border-t pt-6">
-            <p className="text-center text-xs text-muted-foreground">
-              Free to get started • No credit card required
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+        <p className="text-center text-sm text-gray-600">
+          Already have an account?{" "}
+          <a
+            href="#"
+            className="font-medium text-gray-900 underline underline-offset-4 hover:text-gray-700 transition-colors"
+          >
+            Sign in
+          </a>
+        </p>
+      </div>
     </div>
-  );
+
+    {/* Right Side - Hero Section */}
+    <div className="hidden bg-gray-50 lg:block border-l border-gray-100">
+      <div className="flex h-full items-center justify-center p-12">
+        <div className="mx-auto flex w-full max-w-lg flex-col justify-center space-y-8 text-center">
+          <div className="flex justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-900 shadow-sm">
+              <svg
+                className="h-8 w-8 text-white"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                width="24"
+              >
+                <path d="m8 3 4 8 5-5v11H5V6l3-3z" />
+              </svg>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold tracking-tight text-gray-900">
+              Welcome to CRM Pro
+            </h2>
+            <p className="text-base text-gray-600 leading-relaxed">
+              The modern CRM solution for growing teams. Manage customers, track
+              sales, and scale your business with confidence.
+            </p>
+          </div>
+
+          <div className="grid gap-6 text-left">
+            <div className="flex items-start space-x-4">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 flex-shrink-0 mt-0.5">
+                <svg
+                  className="h-3 w-3 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-gray-900">
+                  Advanced Analytics
+                </p>
+                <p className="text-sm text-gray-600">
+                  Real-time insights into your sales performance and customer
+                  behavior
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 flex-shrink-0 mt-0.5">
+                <svg
+                  className="h-3 w-3 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-gray-900">
+                  Team Collaboration
+                </p>
+                <p className="text-sm text-gray-600">
+                  Seamless workflows and communication tools for your entire
+                  team
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 flex-shrink-0 mt-0.5">
+                <svg
+                  className="h-3 w-3 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-gray-900">
+                  Smart Automation
+                </p>
+                <p className="text-sm text-gray-600">
+                  Automate repetitive tasks and focus on what matters most
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 };
 
 export default Signup;
