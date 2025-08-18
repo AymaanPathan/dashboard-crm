@@ -12,6 +12,7 @@ import { useDispatch } from "react-redux";
 import { handleResendOtp } from "@/store/slices/authSlice";
 import { useVerifyLoading } from "@/assets/loadingStates/auth.loading.state";
 import { ButtonLoading } from "@/components/ui/ButtonLoading";
+import Link from "next/link";
 
 interface OtpPageProps {
   email: string;
@@ -150,15 +151,16 @@ const OtpPage: React.FC<OtpPageProps> = ({
           </p>
         </div>
 
-        {/* Back to signup */}
         <div className="text-center">
-          <Button
-            variant="ghost"
-            onClick={() => setShowOtpVerification(false)}
-            className="text-sm"
-          >
-            ← Back to signup
-          </Button>
+          <Link  href={"/"}>
+            <Button
+              variant="ghost"
+              onClick={() => setShowOtpVerification(false)}
+              className="text-sm"
+            >
+              ← Back to Home
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

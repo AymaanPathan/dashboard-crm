@@ -158,7 +158,7 @@ const LoginPage: React.FC = () => {
                         d="M4 12a8 8 0 0 1 8-8v8z"
                       />
                     </svg>
-                    Signing in...
+                    Signig in...
                   </button>
                 ) : (
                   <button
