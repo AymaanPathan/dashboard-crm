@@ -44,9 +44,12 @@ const registerUser = async (
       return sendResponse(res, response);
     }
 
+    // we added @unqiue prisma file so this is okay but prisma even not allow duplicate
+    // with @unique
     const existingUser = await prisma.user.findFirst({
       where: {
-        AND: [{ email }, { isVerified: true }],
+        email: email,
+        isVerified: true,
       },
     });
 
@@ -84,6 +87,11 @@ const registerUser = async (
 
     return next();
   } catch (error: any) {
+    if (error.code === "P2002" && error.meta?.target?.includes("email")) {
+      response.statusCode = 400;
+      response.message = "Email already exists";
+      return sendResponse(res, response);
+    }
     console.error("Error during user registration:", error);
     response.statusCode = 500;
     response.message = "Internal server error";
