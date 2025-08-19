@@ -4,6 +4,9 @@ import { ResponseModel, sendResponse } from "../../utils/response.utils";
 import bcrypt from "bcryptjs";
 import validator from "validator";
 import jwt from "jsonwebtoken";
+import deleteUnverifiedUsersQueue, {
+  queueName,
+} from "../../utils/queues/deleteUnverifiedUsersQueue";
 
 const registerUser = async (
   req: Request,
@@ -61,6 +64,15 @@ const registerUser = async (
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Prisma will delete the user if exist if its not verified
+    await prisma.user.deleteMany({
+      where: {
+        email: email,
+        isVerified: false,
+      },
+    });
+
+    // creates new one always
     const newUser = await prisma.user.create({
       data: {
         username,
@@ -68,6 +80,12 @@ const registerUser = async (
         password: hashedPassword,
       },
     });
+
+    await deleteUnverifiedUsersQueue.add(
+      queueName,
+      { userId: newUser.id },
+      { delay: 15 * 60 * 1000 } // Wait 15 minutes before processing after adding to the queue
+    );
 
     const token = jwt.sign(
       { userId: newUser.id, email: newUser.email },
