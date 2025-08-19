@@ -9,8 +9,11 @@ import { useDispatch } from "react-redux";
 import { isValidEmail } from "@/utils/validation.utils";
 import ErrorToast from "@/assets/toast/ErrorToast";
 import { useLoginLoading } from "@/assets/loadingStates/auth.loading.state";
-import { ButtonLoading } from "@/components/ui/ButtonLoading";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ButtonLoading } from "@/components/ui/ButtonLoading";
+
 const LoginPage: React.FC = () => {
   const dispatch: RootDispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
@@ -31,16 +34,11 @@ const LoginPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white flex">
       <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
+        <Link href={"/"} className="w-full mb-8">
+          ← Back to homepage
+        </Link>
         <div className="mx-auto w-full max-w-sm lg:w-96">
           <div>
-            <div className="flex items-center space-x-3 mb-10">
-              <div className="w-9 h-9 bg-gray-900 rounded-lg flex items-center justify-center shadow-sm">
-                <BarChart3 className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-semibold text-gray-900">
-                CRMFlow
-              </span>
-            </div>
             <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">
               Welcome back
             </h2>
@@ -52,14 +50,14 @@ const LoginPage: React.FC = () => {
           <div className="mt-10">
             <div className="space-y-6">
               <div>
-                <label
+                <Label
                   htmlFor="email"
                   className="block text-sm font-medium text-gray-900 mb-2"
                 >
                   Email address
-                </label>
+                </Label>
                 <div className="relative">
-                  <input
+                  <Input
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     id="email"
@@ -75,14 +73,14 @@ const LoginPage: React.FC = () => {
               </div>
 
               <div>
-                <label
+                <Label
                   htmlFor="password"
                   className="block text-sm font-medium text-gray-900 mb-2"
                 >
                   Password
-                </label>
+                </Label>
                 <div className="relative">
-                  <input
+                  <Input
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     id="password"
@@ -93,102 +91,46 @@ const LoginPage: React.FC = () => {
                     className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-4 pr-12 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="Enter your password"
                   />
-                  <button
-                    type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
+
+                  {!showPassword ? (
+                    <EyeOff
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 "
+                      onClick={() => setShowPassword(!showPassword)}
+                    />
+                  ) : (
+                    <Eye
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 "
+                      onClick={() => setShowPassword(!showPassword)}
+                    />
+                  )}
                 </div>
               </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input
-                    id="remember-me"
-                    name="remember-me"
-                    type="checkbox"
-                    className="h-4 w-4 text-gray-900 focus:ring-gray-900 focus:ring-1 border-gray-300 rounded"
-                  />
-                  <label
-                    htmlFor="remember-me"
-                    className="ml-3 block text-sm text-gray-600"
-                  >
-                    Remember me
-                  </label>
-                </div>
-
-                <div className="text-sm">
-                  <a
-                    href="#"
-                    className="font-medium text-gray-900 hover:text-gray-700 transition-colors"
-                  >
-                    Forgot password?
-                  </a>
-                </div>
-              </div>
-
               <div>
                 {isLoginLoading ? (
-                  <button
-                    disabled
-                    className="group relative w-full flex justify-center items-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gray-900 opacity-75 cursor-not-allowed"
-                  >
-                    <svg
-                      className="mr-2 h-4 w-4 animate-spin"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        fill="none"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 0 1 8-8v8z"
-                      />
-                    </svg>
-                    Signig in...
-                  </button>
+                  <ButtonLoading content="Signing in..." />
                 ) : (
-                  <button
+                  <Button
                     onClick={handleLogin}
                     type="button"
                     className="group relative w-full flex justify-center items-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-900 transition-colors shadow-sm"
                   >
                     <Lock className="w-4 h-4 mr-2" />
                     Sign in
-                  </button>
+                  </Button>
                 )}
               </div>
 
               <div className="text-center">
                 <p className="text-sm text-gray-600">
                   Don&apos;t have an account?{" "}
-                  <button
-                    type="button"
+                  <Link
+                    href="/signup"
                     className="font-medium text-gray-900 hover:text-gray-700 transition-colors"
                   >
                     Sign up
-                  </button>
+                  </Link>
                 </p>
               </div>
-            </div>
-
-            <div className="mt-8">
-              <button className="w-full text-center text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                ← Back to homepage
-              </button>
             </div>
           </div>
         </div>

@@ -37,15 +37,12 @@ export default function Navbar() {
             >
               Testimonials
             </a>
-            <Link href="/login">
-              <button className="text-gray-600 hover:text-gray-900 text-sm font-medium">
-                Login
-              </button>
-            </Link>
-            <Link href="/signup">
-              <button className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
-                Get Started
-              </button>
+            <Link href="/login">Login</Link>
+            <Link
+              href="/signup"
+              className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800"
+            >
+              Get Started
             </Link>
           </div>
 

@@ -1,5 +1,5 @@
 "use client";
-import { ChevronRight, ChevronRightIcon } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Eye, EyeOff, Mail, User, Lock } from "lucide-react";
 import React, { useState } from "react";
 import OtpPage from "./OtpPage";
@@ -9,18 +9,11 @@ import { handleVerifyOtp, registerUser } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
 import ErrorToast from "@/assets/toast/ErrorToast";
 import { isValidEmail } from "@/utils/validation.utils";
 import { useRegisterLoading } from "@/assets/loadingStates/auth.loading.state";
-import { ButtonLoading } from "@/components/ui/ButtonLoading";
+import Link from "next/link";
 
 const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -58,8 +51,11 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="grid lg:grid-cols-2 min-h-screen bg-white">
-      <div className="flex items-center justify-center p-8 lg:p-12">
+    <div className="min-h-screen bg-white flex">
+      <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
+        <Link href={"/"} className="w-full mb-12">
+          ← Back to homepage
+        </Link>
         <div
           className={`transition-all duration-500 ease-in-out ${
             showOtpVerification
@@ -86,18 +82,18 @@ const Signup: React.FC = () => {
                 </p>
               </div>
 
-              <div className="grid gap-6">
+              <div className="grid gap-6 select-none">
                 <div className="grid gap-5">
                   <div className="grid gap-2">
-                    <label
+                    <Label
                       className="text-sm font-medium text-gray-900"
                       htmlFor="username"
                     >
                       Username
-                    </label>
+                    </Label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                      <input
+                      <Input
                         id="username"
                         className="flex h-11 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-4 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
                         placeholder="Enter your username"
@@ -109,15 +105,15 @@ const Signup: React.FC = () => {
                   </div>
 
                   <div className="grid gap-2">
-                    <label
+                    <Label
                       className="text-sm font-medium text-gray-900"
                       htmlFor="email"
                     >
                       Email
-                    </label>
+                    </Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                      <input
+                      <Input
                         id="email"
                         className="flex h-11 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-4 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
                         placeholder="name@example.com"
@@ -129,15 +125,15 @@ const Signup: React.FC = () => {
                   </div>
 
                   <div className="grid gap-2">
-                    <label
+                    <Label
                       className="text-sm font-medium text-gray-900"
                       htmlFor="password"
                     >
                       Password
-                    </label>
+                    </Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                      <input
+                      <Input
                         id="password"
                         className="flex h-11 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-12 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
                         type={showPassword ? "text" : "password"}
@@ -145,29 +141,29 @@ const Signup: React.FC = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                       />
-                      <button
-                        type="button"
-                        className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
+                      {!showPassword ? (
+                        <EyeOff
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 "
+                          onClick={() => setShowPassword(!showPassword)}
+                        />
+                      ) : (
+                        <Eye
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 "
+                          onClick={() => setShowPassword(!showPassword)}
+                        />
+                      )}
                     </div>
                   </div>
 
                   <div className="flex items-start space-x-3 pt-1">
-                    <input
+                    <Input
                       type="checkbox"
                       id="terms"
                       className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900 focus:ring-1"
                       checked={termsAccepted}
                       onChange={(e) => setTermsAccepted(e.target.checked)}
                     />
-                    <label
+                    <Label
                       htmlFor="terms"
                       className="text-sm text-gray-600 leading-relaxed"
                     >
@@ -185,10 +181,10 @@ const Signup: React.FC = () => {
                       >
                         privacy policy
                       </a>
-                    </label>
+                    </Label>
                   </div>
 
-                  <button
+                  <Button
                     className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-900 disabled:pointer-events-none disabled:opacity-50 bg-gray-900 text-white hover:bg-gray-800 h-11 px-6 py-2 shadow-sm w-full"
                     type="submit"
                     onClick={handleSignup}
@@ -223,18 +219,18 @@ const Signup: React.FC = () => {
                         <ChevronRight className="ml-2 h-4 w-4" />
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
 
               <p className="text-center text-sm text-gray-600">
                 Already have an account?{" "}
-                <a
-                  href="#"
+                <Link
+                  href="/login"
                   className="font-medium text-gray-900 underline underline-offset-4 hover:text-gray-700 transition-colors"
                 >
                   Sign in
-                </a>
+                </Link>
               </p>
             </div>
           )}
@@ -242,7 +238,7 @@ const Signup: React.FC = () => {
       </div>
 
       {/* Right Side - Hero Section */}
-      <div className="hidden bg-gray-50 lg:block border-l border-gray-100">
+      <div className="hidden w-full bg-gray-50 lg:block border-l border-gray-100">
         <div className="flex h-full items-center justify-center p-12">
           <div className="mx-auto flex w-full max-w-lg flex-col justify-center space-y-8 text-center">
             <div className="flex justify-center">
