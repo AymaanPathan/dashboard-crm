@@ -1,8 +1,14 @@
 import { CheckCircle, Globe } from "lucide-react";
 import React from "react";
 
+interface FeatureProps {
+  icon: React.ElementType;
+  title: string;
+  description: string;
+}
+
 interface Feature {
-  features: any[];
+  features: FeatureProps[];
 }
 
 export const FeaturesSection: React.FC<Feature> = ({ features }) => {

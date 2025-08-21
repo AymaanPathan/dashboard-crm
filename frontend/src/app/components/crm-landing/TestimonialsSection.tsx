@@ -1,7 +1,16 @@
 import { Star } from "lucide-react";
 import React from "react";
+
+type Testimonial = {
+  name: string;
+  role: string;
+  company: string;
+  content: string;
+  rating: number;
+};
+
 interface TestimonialsProps {
-  testimonials: any[];
+  testimonials: Testimonial[];
 }
 
 export const TestimonialsSection: React.FC<TestimonialsProps> = ({

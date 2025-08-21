@@ -1,14 +1,24 @@
 import { CheckCircle } from "lucide-react";
 import React from "react";
 
+type Plan = {
+  name: string;
+  price: string;
+  period: string; // ✅ changed to string
+  description: string;
+  features: string[]; // ✅ kept as string[]
+  popular: boolean;
+};
+
 interface PricingProps {
-  pricingPlans: any[];
+  pricingPlans: Plan[];
 }
 
 export const PricingSection: React.FC<PricingProps> = ({ pricingPlans }) => {
   return (
     <section id="pricing" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
             Simple, transparent pricing
@@ -18,6 +28,7 @@ export const PricingSection: React.FC<PricingProps> = ({ pricingPlans }) => {
           </p>
         </div>
 
+        {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {pricingPlans.map((plan, index) => (
             <div
@@ -26,6 +37,7 @@ export const PricingSection: React.FC<PricingProps> = ({ pricingPlans }) => {
                 plan.popular ? "border-black" : "border-gray-200"
               }`}
             >
+              {/* Popular Badge */}
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                   <span className="bg-black text-white px-3 py-1 rounded-full text-sm font-medium">
@@ -33,13 +45,15 @@ export const PricingSection: React.FC<PricingProps> = ({ pricingPlans }) => {
                   </span>
                 </div>
               )}
+
+              {/* Title / Price */}
               <div className="text-center">
                 <h3 className="text-xl font-semibold text-gray-900">
                   {plan.name}
                 </h3>
                 <div className="mt-4">
                   <span className="text-4xl font-bold text-gray-900">
-                    {plan.price}
+                    ${plan.price}
                   </span>
                   {plan.period && (
                     <span className="text-gray-600 ml-1">/{plan.period}</span>
@@ -48,8 +62,9 @@ export const PricingSection: React.FC<PricingProps> = ({ pricingPlans }) => {
                 <p className="mt-2 text-gray-600">{plan.description}</p>
               </div>
 
+              {/* Features */}
               <ul className="mt-8 space-y-3">
-                {plan.features.map((feature: any, featureIndex: any) => (
+                {plan.features.map((feature, featureIndex) => (
                   <li key={featureIndex} className="flex items-center">
                     <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mr-3" />
                     <span className="text-gray-700">{feature}</span>
@@ -57,6 +72,7 @@ export const PricingSection: React.FC<PricingProps> = ({ pricingPlans }) => {
                 ))}
               </ul>
 
+              {/* CTA Button */}
               <button
                 className={`w-full mt-8 py-3 px-4 rounded-md font-medium transition-colors ${
                   plan.popular
