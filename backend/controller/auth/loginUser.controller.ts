@@ -3,6 +3,7 @@ import prisma from "../../utils/prisma";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import validator from "validator";
 
 export const loginUser = async (req: Request, res: Response) => {
   const response: ResponseModel = {
@@ -12,15 +13,22 @@ export const loginUser = async (req: Request, res: Response) => {
     showMessage: true,
   };
   try {
-    const { email, password } = req.body;
-    if (!email) {
+    const { email = "", password = "" } = req.body;
+    if (!email.trim()) {
       response.data = null;
       response.statusCode = 400;
       response.message = "Email is required";
       return sendResponse(res, response);
     }
 
-    if (!password) {
+    if (!validator.isEmail(email)) {
+      response.statusCode = 400;
+      response.message = "Invalid email format";
+      response.data = null;
+      return sendResponse(res, response);
+    }
+
+    if (!password.trim()) {
       response.data = null;
       response.statusCode = 400;
       response.message = "Password is required";
@@ -81,7 +89,7 @@ export const loginUser = async (req: Request, res: Response) => {
     response.statusCode = 500;
     response.message = "An unexpected error occurred";
     response.data = null;
-    response.message = "Internal server error";
+    response.message = error.message;
     return sendResponse(res, response);
   }
 };

@@ -46,15 +46,14 @@ export const resendOtp = async (req: Request, res: Response) => {
       data: { otp, otpExpiry: expiry },
     });
 
-    
     await sendOTPEmail(email, otp);
     await redis.set(key, "1", "EX", 60);
 
     return sendResponse(res, response);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Resend OTP error:", error);
     response.statusCode = 500;
-    response.message = "Internal server error";
+    response.message = error.message;
     return sendResponse(res, response);
   }
 };

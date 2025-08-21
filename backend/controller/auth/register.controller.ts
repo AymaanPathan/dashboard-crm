@@ -8,11 +8,7 @@ import deleteUnverifiedUsersQueue, {
   queueName,
 } from "../../utils/queues/deleteUnverifiedUsersQueue";
 
-const registerUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const registerUser = async (req: Request, res: Response) => {
   const response: ResponseModel = {
     statusCode: 200,
     message: "User registered successfully",
@@ -21,23 +17,29 @@ const registerUser = async (
   };
 
   try {
-    const { username, email, password } = req.body;
-    if (!validator.isEmail(email)) {
-      response.statusCode = 400;
-      response.message = "Invalid email format";
-      response.data = null;
-      return sendResponse(res, response);
-    }
-
-    if (!username) {
+    const { username = "", email = "", password = "" } = req.body || {};
+    if (!username.trim()) {
       response.statusCode = 400;
       response.message = "Username is required";
       return sendResponse(res, response);
     }
 
-    if (!email) {
+    if (!email.trim()) {
       response.statusCode = 400;
       response.message = "Email is required";
+      return sendResponse(res, response);
+    }
+
+    if (!email.trim()) {
+      response.statusCode = 400;
+      response.message = "Email is required";
+      return sendResponse(res, response);
+    }
+
+    if (!validator.isEmail(email)) {
+      response.statusCode = 400;
+      response.message = "Invalid email format";
+      response.data = null;
       return sendResponse(res, response);
     }
 
@@ -103,16 +105,16 @@ const registerUser = async (
       },
     };
 
-    return next();
+    return sendResponse(res, response);
   } catch (error: any) {
     if (error.code === "P2002" && error.meta?.target?.includes("email")) {
       response.statusCode = 400;
       response.message = "Email already exists";
       return sendResponse(res, response);
     }
-    console.error("Error during user registration:", error);
+
     response.statusCode = 500;
-    response.message = "Internal server error";
+    response.message = error.message;
     return sendResponse(res, response);
   }
 };

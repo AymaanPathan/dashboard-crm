@@ -44,10 +44,10 @@ export const verifyOtp = async (req: Request, res: Response) => {
     });
 
     return sendResponse(res, response);
-  } catch (error) {
+  } catch (error: any) {
     console.error("OTP verification error:", error);
     response.statusCode = 500;
-    response.message = "Internal server error";
+    response.message = error.message;
     return sendResponse(res, response);
   }
 };
