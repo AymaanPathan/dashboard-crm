@@ -88,7 +88,7 @@ const registerUser = async (req: Request, res: Response) => {
     await deleteUnverifiedUsersQueue.add(
       queueName,
       { userId: newUser.id },
-      { delay: 15 * 60 * 1000 } // Wait 15 minutes before processing after adding to the queue
+      { delay: 15 * 60 * 1000 } 
     );
 
     const token = jwt.sign(
