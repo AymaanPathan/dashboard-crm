@@ -84,6 +84,7 @@ export const loginUser = async (req: Request, res: Response) => {
         },
       },
     };
+    req.user = userFindbyEmailID;
     return sendResponse(res, response);
   } catch (error: any) {
     response.statusCode = 500;

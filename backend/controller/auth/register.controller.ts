@@ -88,7 +88,7 @@ const registerUser = async (req: Request, res: Response) => {
     await deleteUnverifiedUsersQueue.add(
       queueName,
       { userId: newUser.id },
-      { delay: 15 * 60 * 1000 } 
+      { delay: 15 * 60 * 1000 }
     );
 
     const token = jwt.sign(
@@ -125,7 +125,7 @@ const registerUser = async (req: Request, res: Response) => {
         otpExpiry: expiry,
       },
     });
-
+    req.user = user;
     await sendOTPEmail(user.email, otp);
     return sendResponse(res, response);
   } catch (error: any) {
