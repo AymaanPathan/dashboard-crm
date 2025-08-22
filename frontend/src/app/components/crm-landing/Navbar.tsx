@@ -6,7 +6,7 @@ import { MobileMenu } from "./MobileMenu";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const token = getToken
+  
 
   return (
     <nav className="border-b border-gray-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
@@ -38,13 +38,13 @@ export default function Navbar() {
             >
               Testimonials
             </a>
-          {  <Link href="/login">Login</Link>
+          <Link href="/login">Login</Link>
             <Link
               href="/signup"
               className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800"
             >
               Get Started
-            </Link>}
+            </Link>
           </div>
 
           <button

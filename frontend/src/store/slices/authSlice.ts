@@ -6,6 +6,7 @@ import { IUser } from "@/models/user.model";
 import { handleRegisterApi } from "@/api/register.api";
 import { handleVerifyOtpApi } from "@/api/verifyOtp";
 import { handleResendOtpApi } from "@/api/resendOtp";
+import { setToken } from "@/utils/auth.utils";
 
 interface AuthState {
   // user: any;
@@ -97,10 +98,13 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        const res = action.payload;
+        const token = action.payload.data.data.token;
+        const user = action.payload.data.data.user;
+        const username = action.payload.data.data.user.username;
+        setToken(token, user);
         state.loadingState.login = false;
-        state.token = res?.token;
-        state.userName = res?.user;
+        state.token = token;
+        state.userName = username;
       })
       .addCase(loginUser.rejected, (state) => {
         state.loadingState.login = false;
