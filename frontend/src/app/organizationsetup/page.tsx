@@ -19,6 +19,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
+import { createOrganization } from "@/store/slices/orgSlice";
+import { IOrganization } from "@/models/org.model";
 
 // Industry options
 const INDUSTRIES = [
@@ -54,12 +56,13 @@ const OrganizationSetupPage: React.FC = () => {
   const router = useRouter();
   const dispatch: RootDispatch = useDispatch();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<IOrganization>({
+    id: "",
     organization_name: "",
     company_website: "",
     industry: "",
     company_size: "",
-    expected_leads_per_month: "",
+    employees: [],
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -92,11 +95,6 @@ const OrganizationSetupPage: React.FC = () => {
       return false;
     }
 
-    if (!formData.expected_leads_per_month) {
-      ErrorToast({ title: "Please select expected leads per month" });
-      return false;
-    }
-
     return true;
   };
 
@@ -115,23 +113,14 @@ const OrganizationSetupPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Prepare the data for submission
       const submitData = {
         ...formData,
-        organization_name: formData.organization_name.trim(),
-        company_website: formData.company_website.trim() || undefined,
+        organization_name: formData?.organization_name?.trim(),
+        company_website: formData?.company_website?.trim() || null,
       };
 
-      // TODO: Replace with your actual API call
-      // const result = await dispatch(setupOrganization(submitData)).unwrap();
+      await dispatch(createOrganization(submitData)).unwrap();
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      SuccessToast({ title: "Organization setup completed successfully!" });
-
-      // Navigate to dashboard or next step
-      router.replace("/dashboard");
     } catch (error: any) {
       ErrorToast({
         title: "Setup failed",
@@ -197,7 +186,7 @@ const OrganizationSetupPage: React.FC = () => {
                 </Label>
                 <div className="relative">
                   <Input
-                    value={formData.company_website}
+                    value={formData?.company_website?.trim() || ""}
                     onChange={(e) =>
                       handleInputChange("company_website", e.target.value)
                     }
@@ -259,33 +248,6 @@ const OrganizationSetupPage: React.FC = () => {
                     {COMPANY_SIZES.map((size) => (
                       <SelectItem key={size} value={size}>
                         {size} employees
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Expected Leads Per Month */}
-              <div>
-                <Label
-                  htmlFor="expected_leads"
-                  className="block text-sm font-medium text-gray-900 mb-2"
-                >
-                  Expected Leads Per Month *
-                </Label>
-                <Select
-                  value={formData.expected_leads_per_month}
-                  onValueChange={(value) =>
-                    handleInputChange("expected_leads_per_month", value)
-                  }
-                >
-                  <SelectTrigger className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm transition-colors focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900">
-                    <SelectValue placeholder="Select expected leads" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {LEADS_PER_MONTH.map((range) => (
-                      <SelectItem key={range} value={range}>
-                        {range} leads
                       </SelectItem>
                     ))}
                   </SelectContent>

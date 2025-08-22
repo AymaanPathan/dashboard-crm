@@ -1,25 +1,26 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 import getUrl from "./getUrl";
+import { getToken } from "./auth.utils";
 // import { showApiError } from "./showApiError";
 
 const api = axios.create({
   baseURL: getUrl(),
 });
 // Axios request interceptor
-// api.interceptors.request.use(
-//   (config) => {
-//     const token = getToken();
-//     if (token) {
-//       config.headers["Authorization"] = `Bearer ${token}`;
-//       // config.headers["Content-Type"] = "application/json";
-//     }
-//     return config;
-//   },
-//   (error) => {
-//     return Promise.reject(error);
-//   }
-// );
+api.interceptors.request.use(
+  (config) => {
+    const token = getToken();
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+      // config.headers["Content-Type"] = "application/json";
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 // Axios response interceptor
 api.interceptors.response.use(
