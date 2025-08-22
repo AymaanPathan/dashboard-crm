@@ -3,64 +3,98 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { BarChart3, Menu, X } from "lucide-react";
 import { MobileMenu } from "./MobileMenu";
+import { getToken } from "@/utils/auth.utils";
 
 export default function Navbar() {
+  const token = getToken();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
 
-  return (
-    <nav className="border-b border-gray-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-black rounded-md flex items-center justify-center">
-              <BarChart3 className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-semibold text-gray-900">CRMFlow</span>
+return (
+  <nav className="border-b border-gray-200/60 bg-white/95 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
+    <div className=" mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="flex justify-between items-center h-16">
+        {/* Logo Section */}
+        <div className="flex items-center space-x-3">
+          <div className="w-9 h-9 bg-gradient-to-br from-gray-900 to-black rounded-lg flex items-center justify-center shadow-md">
+            <BarChart3 className="w-5 h-5 text-white" />
           </div>
-
-          <div className="hidden md:flex items-center space-x-8">
-            <a
-              href="#features"
-              className="text-gray-600 hover:text-gray-900 text-sm font-medium"
-            >
-              Features
-            </a>
-            <a
-              href="#pricing"
-              className="text-gray-600 hover:text-gray-900 text-sm font-medium"
-            >
-              Pricing
-            </a>
-            <a
-              href="#testimonials"
-              className="text-gray-600 hover:text-gray-900 text-sm font-medium"
-            >
-              Testimonials
-            </a>
-          <Link href="/login">Login</Link>
-            <Link
-              href="/signup"
-              className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800"
-            >
-              Get Started
-            </Link>
-          </div>
-
-          <button
-            className="md:hidden p-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
-          </button>
+          <span className="text-xl font-bold text-gray-900 tracking-tight">
+            CRMFlow
+          </span>
         </div>
-      </div>
 
-      {mobileMenuOpen && <MobileMenu />}
-    </nav>
-  );
+        {/* Center Navigation */}
+        <div className="hidden md:flex items-center space-x-1 absolute left-1/2 transform -translate-x-1/2">
+          <a
+            href="#features"
+            className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+          >
+            Features
+          </a>
+          <a
+            href="#pricing"
+            className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+          >
+            Pricing
+          </a>
+          <a
+            href="#testimonials"
+            className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+          >
+            Testimonials
+          </a>
+        </div>
+
+        {/* Right Side Buttons */}
+        <div className="hidden md:flex items-center space-x-2">
+          {!token ? (
+            <>
+              <Link
+                href="/login"
+                className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                Get Started
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/organizationsetup"
+                className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-gray-200 hover:border-gray-300"
+              >
+                Setup Organization
+              </Link>
+              <Link
+                href="/"
+                className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                Logout
+              </Link>
+            </>
+          )}
+        </div>
+
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        >
+          {mobileMenuOpen ? (
+            <X className="w-6 h-6 text-gray-600" />
+          ) : (
+            <Menu className="w-6 h-6 text-gray-600" />
+          )}
+        </button>
+      </div>
+    </div>
+
+    {mobileMenuOpen && <MobileMenu />}
+  </nav>
+);
 }
