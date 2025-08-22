@@ -7,6 +7,8 @@ import jwt from "jsonwebtoken";
 import deleteUnverifiedUsersQueue, {
   queueName,
 } from "../../utils/queues/deleteUnverifiedUsersQueue";
+import { generateOTP } from "../../utils/generateOtp";
+import { sendOTPEmail } from "../../utils/sendEmail";
 
 const registerUser = async (req: Request, res: Response) => {
   const response: ResponseModel = {
@@ -105,6 +107,26 @@ const registerUser = async (req: Request, res: Response) => {
       },
     };
 
+    const user = req.user;
+    if (!user) {
+      response.statusCode = 401;
+      response.message = "User not found";
+      response.showMessage = true;
+      return sendResponse(res, response);
+    }
+
+    const otp = generateOTP();
+    const expiry = new Date(Date.now() + 10 * 60 * 1000);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        otp,
+        otpExpiry: expiry,
+      },
+    });
+
+    await sendOTPEmail(user.email, otp);
     return sendResponse(res, response);
   } catch (error: any) {
     if (error.code === "P2002" && error.meta?.target?.includes("email")) {
