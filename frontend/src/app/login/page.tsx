@@ -13,8 +13,10 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ButtonLoading } from "@/components/ui/ButtonLoading";
+import { useRouter } from "next/navigation";
 
 const LoginPage: React.FC = () => {
+  const router = useRouter();
   const dispatch: RootDispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -28,7 +30,12 @@ const LoginPage: React.FC = () => {
     if (!isValidEmail(email)) return ErrorToast({ title: "Invalid email" });
     if (!password) return ErrorToast({ title: "Password is required" });
 
-    await dispatch(loginUser({ email, password }));
+    const result = await dispatch(loginUser({ email, password })).unwrap();
+    const token = result?.data?.data?.token;
+
+    if (token) {
+      router.replace("/organizationsetup");
+    }
   };
 
   return (
