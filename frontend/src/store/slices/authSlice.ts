@@ -47,7 +47,10 @@ export const loginUser = createAsyncThunk(
   ) => {
     try {
       const res = await handleLoginApi(email, password);
+      const token = res.data.data.token;
+      const user = res.data.data.user;
 
+      setToken(token, user);
       return res;
     } catch (error: any) {
       console.log("err", error);
@@ -68,6 +71,9 @@ export const registerUser = createAsyncThunk(
     password: string;
   }) => {
     const response = await handleRegisterApi(username, email, password);
+    const token = response.data.token;
+    const user = response.data.user;
+    setToken(token, user);
     return response;
   }
 );
@@ -99,9 +105,8 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         const token = action.payload.data.data.token;
-        const user = action.payload.data.data.user;
         const username = action.payload.data.data.user.username;
-        setToken(token, user);
+
         state.loadingState.login = false;
         state.token = token;
         state.userName = username;
@@ -113,14 +118,19 @@ const authSlice = createSlice({
         state.loadingState.register = true;
         state.error = null;
       })
-      .addCase(registerUser.fulfilled, (state) => {
+      .addCase(registerUser.fulfilled, (state, action) => {
         state.loadingState.register = false;
+        const token = action.payload.data.token;
+        const username = action.payload.data.user.username;
+        state.token = token;
+        state.userName = username;
       })
       .addCase(registerUser.rejected, (state) => {
         state.loadingState.register = false;
       })
       .addCase(handleVerifyOtp.fulfilled, (state) => {
         state.loadingState.verifyOtp = false;
+
         // Optionally handle response data here, e.g.:
         // state.token = action.payload.token;
         // state.userName = action.payload.user;
