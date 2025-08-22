@@ -10,7 +10,7 @@ datasource db{
 
 
 model user {
-  id         String   @id @default(uuid())
+  id         String   @id @default(uuid())  // primary key
   username   String
   email      String   @unique
   password   String
@@ -19,10 +19,8 @@ model user {
   isVerified Boolean  @default(false)
   otp        String?
   otpExpiry  DateTime?
-  organizationId String?
-  currentOrganization   Organization? @relation(fields: [organizationId], references: [id])
-  allOrganizations Organization[] @relation("OrgMembers")
-  ownedOrganizations Organization[] @relation("OrgOwnedBy")
+  currentOrganizationId String? 
+  currentOrganization   Organization? @relation(fields: [currentOrganizationId], references: [id])
 }
 
 
@@ -37,8 +35,5 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   employees  user[] 
-  members    user[] @relation("OrgMembers")
-  owner      user? @relation("OrgOwnedBy", fields: [ownerId], references: [id])
-  ownerId    String?
 }
 
