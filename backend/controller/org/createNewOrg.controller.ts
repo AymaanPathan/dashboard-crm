@@ -107,6 +107,8 @@ const createOrganization = async (req: Request, res: Response) => {
 
     response.data = {
       organization: newOrganization,
+      status: "created",
+      currentOrg: newOrganization,
     };
 
     return sendResponse(res, response);
