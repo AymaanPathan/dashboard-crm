@@ -126,7 +126,7 @@ const createOrganization = async (req: Request, res: Response) => {
         currentOrg: newOrganization,
       };
       if (req.user) {
-        req.user.organizationId = newOrganization.id;
+        req.user.organizationId! = newOrganization.id;
       }
     } else {
       response.statusCode = 400;

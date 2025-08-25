@@ -13,7 +13,8 @@ export const getOrgInfo = async (
     showMessage: true,
   };
   try {
-    const currentUserOrgId = req.user?.organizationId;
+    const currentUserOrgId = req.user?.currentOrganizationId;
+    console.log("Current User Org ID:", currentUserOrgId);
     if (!currentUserOrgId) {
       response.statusCode = 400;
       response.message = "User does not belong to any organization";
@@ -39,6 +40,7 @@ export const getOrgInfo = async (
       },
     });
     response.data = orgData;
+    console.log("Fetched Organization Data:", orgData);
     return sendResponse(res, response);
   } catch (err: any) {
     response.statusCode = 500;
