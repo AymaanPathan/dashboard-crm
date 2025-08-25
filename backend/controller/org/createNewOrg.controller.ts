@@ -125,6 +125,9 @@ const createOrganization = async (req: Request, res: Response) => {
         status: "created",
         currentOrg: newOrganization,
       };
+      if (req.user) {
+        req.user.organizationId = newOrganization.id;
+      }
     } else {
       response.statusCode = 400;
       response.message = "Owner user not found";

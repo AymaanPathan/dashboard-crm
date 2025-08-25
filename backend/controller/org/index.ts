@@ -1,2 +1,3 @@
 import createOrganization from "./createNewOrg.controller";
-export { createOrganization };
+import { getOrgInfo } from "./fetchOrgData.controller";
+export { createOrganization, getOrgInfo };

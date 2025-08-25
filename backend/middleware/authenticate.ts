@@ -47,6 +47,7 @@ try {
   }
 
   req.user = user;
+  console.log("Authenticated user:", user);
   return next();
 } catch (error) {
   console.error("Authentication error:", error);

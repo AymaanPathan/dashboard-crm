@@ -4,5 +4,5 @@ import { authenticate } from "../../../middleware/authenticate";
 const orgRouter = express.Router();
 
 orgRouter.post("/create", authenticate, orgController.createOrganization);
-
+orgRouter.get("/info", authenticate, orgController.getOrgInfo);
 export default orgRouter;
