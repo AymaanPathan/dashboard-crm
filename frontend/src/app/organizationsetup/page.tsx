@@ -119,8 +119,12 @@ const OrganizationSetupPage: React.FC = () => {
         company_website: formData?.company_website?.trim() || null,
       };
 
-      await dispatch(createOrganization(submitData)).unwrap();
-
+      const res = await dispatch(createOrganization(submitData)).unwrap();
+      console.log(res.organization);
+      if (res.status === "created") {
+        SuccessToast({ title: "Organization created successfully" });
+        router.push(`/leaddashboard`);
+      }
     } catch (error: any) {
       ErrorToast({
         title: "Setup failed",
