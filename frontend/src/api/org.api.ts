@@ -6,7 +6,18 @@ export const createNewOrgApi = async (orgData: IOrganization) => {
   try {
     const response = await axiosSetup.post("org/create", orgData);
     SuccessToast({ title: "Organization setup completed successfully!" });
-    
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getOrgDataApi = async () => {
+  try {
+    const response = await axiosSetup.get(`org/info`);
+    SuccessToast({ title: "Organization information retrieved successfully!" });
+
     return response.data;
   } catch (error) {
     throw error;

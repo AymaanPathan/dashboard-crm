@@ -79,7 +79,7 @@ export default function Navbar() {
                   Setup Organization
                 </Link>
                 <Link
-                  onClick={handleLogout}
+                  onClick={handleLogout }
                   href="/"
                   className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                 >

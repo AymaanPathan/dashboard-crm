@@ -123,7 +123,7 @@ const OrganizationSetupPage: React.FC = () => {
       console.log(res.organization);
       if (res.status === "created") {
         SuccessToast({ title: "Organization created successfully" });
-        router.push(`/leaddashboard`);
+        router.push(`/dashboard`);
       }
     } catch (error: any) {
       ErrorToast({

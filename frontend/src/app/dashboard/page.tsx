@@ -1,5 +1,5 @@
-"use client"
-import React, { useState } from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import {
   Search,
   Plus,
@@ -14,12 +14,29 @@ import {
   User,
   MapPin,
 } from "lucide-react";
+import { RootDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { getOrganizationInfo } from "@/store/slices/orgSlice";
 
 const LeadsDashboard = () => {
   const [selectedView, setSelectedView] = useState("kanban");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Sample leads data
+  const dispatch: RootDispatch = useDispatch();
+  const currentOrganization = useSelector(
+    (state: RootState) => state.org.currentOrganization
+  );
+
+  useEffect(() => {
+    const getOrganizationData = async () => {
+      await dispatch(getOrganizationInfo());
+    };
+
+    getOrganizationData();
+  }, [ dispatch]);
+
+  console.log(currentOrganization);
+
   const leads = [
     {
       id: 1,
@@ -346,7 +363,7 @@ const LeadsDashboard = () => {
       </div>
 
       {/* Success Toast */}
-      <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2">
+      <div className="fixed bottom-4 right-4` bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2">
         <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
           <span className="text-green-500 text-xs">✓</span>
         </div>
@@ -355,5 +372,4 @@ const LeadsDashboard = () => {
     </div>
   );
 };
-
 export default LeadsDashboard;

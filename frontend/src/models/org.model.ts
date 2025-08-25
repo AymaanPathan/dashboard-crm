@@ -1,5 +1,10 @@
 import { IUser } from "./user.model";
 
+interface Status {
+  name: string;
+  leadIds: string[];
+}
+
 export interface IOrganization {
   id: string;
   ownerId?: string;
@@ -11,4 +16,5 @@ export interface IOrganization {
   owner?: IUser | null;
   createdAt?: Date;
   updatedAt?: Date;
+  statuses?: Status | null;
 }
