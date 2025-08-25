@@ -63,10 +63,37 @@ const createOrganization = async (req: Request, res: Response) => {
       return sendResponse(res, response);
     }
 
-    // If ownerId is provided, verify the user exists
     if (ownerId) {
       const userExists = await prisma.user.findUnique({
         where: { id: ownerId },
+      });
+      // Create the organization
+      const newOrganization = await prisma.organization.create({
+        data: {
+          organization_name: organization_name?.trim(),
+          company_website: company_website?.trim() || null,
+          industry: industry?.trim(),
+          company_size: company_size?.trim(),
+          ownerId: ownerId || null,
+        },
+        include: {
+          owner: ownerId
+            ? {
+                select: {
+                  id: true,
+                  username: true,
+                  email: true,
+                },
+              }
+            : false,
+          employees: {
+            select: {
+              id: true,
+              username: true,
+              email: true,
+            },
+          },
+        },
       });
 
       if (!userExists) {
@@ -74,42 +101,21 @@ const createOrganization = async (req: Request, res: Response) => {
         response.message = "Owner user not found";
         return sendResponse(res, response);
       }
+      await prisma.user.update({
+        where: { id: ownerId },
+        data: { currentOrganizationId: newOrganization.id },
+      });
+      response.data = {
+        organization: newOrganization,
+        status: "created",
+        currentOrg: newOrganization,
+      };
+    } else {
+      response.statusCode = 400;
+      response.message = "Owner user not found";
+      response.showMessage = true;
+      return sendResponse(res, response);
     }
-
-    // Create the organization
-    const newOrganization = await prisma.organization.create({
-      data: {
-        organization_name: organization_name?.trim(),
-        company_website: company_website?.trim() || null,
-        industry: industry?.trim(),
-        company_size: company_size?.trim(),
-        ownerId: ownerId || null,
-      },
-      include: {
-        owner: ownerId
-          ? {
-              select: {
-                id: true,
-                username: true,
-                email: true,
-              },
-            }
-          : false,
-        employees: {
-          select: {
-            id: true,
-            username: true,
-            email: true,
-          },
-        },
-      },
-    });
-
-    response.data = {
-      organization: newOrganization,
-      status: "created",
-      currentOrg: newOrganization,
-    };
 
     return sendResponse(res, response);
   } catch (error: any) {
