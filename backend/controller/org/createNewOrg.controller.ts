@@ -105,6 +105,21 @@ const createOrganization = async (req: Request, res: Response) => {
         where: { id: ownerId },
         data: { currentOrganizationId: newOrganization.id },
       });
+
+      await prisma.organization.update({
+        where: { id: newOrganization.id },
+        data: {
+          statuses: {
+            create: [
+              { name: "New Lead", leadIds: [] },
+              { name: "Contacted", leadIds: [] },
+              { name: "Negotiation", leadIds: [] },
+              { name: "Closed", leadIds: [] },
+            ],
+          },
+        },
+      });
+
       response.data = {
         organization: newOrganization,
         status: "created",
