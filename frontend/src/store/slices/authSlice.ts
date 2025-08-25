@@ -6,7 +6,7 @@ import { IUser } from "@/models/user.model";
 import { handleRegisterApi } from "@/api/register.api";
 import { handleVerifyOtpApi } from "@/api/verifyOtp";
 import { handleResendOtpApi } from "@/api/resendOtp";
-import { setToken } from "@/utils/auth.utils";
+import { clearToken, setToken } from "@/utils/auth.utils";
 
 interface AuthState {
   // user: any;
@@ -93,6 +93,11 @@ export const handleResendOtp = createAsyncThunk(
   }
 );
 
+export const logoutUser = createAsyncThunk("auth/logoutUser", async () => {
+  clearToken();
+  return Promise.resolve();
+});
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -154,6 +159,10 @@ const authSlice = createSlice({
       })
       .addCase(handleResendOtp.rejected, (state) => {
         state.loadingState.resendOtp = false;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.token = null;
+        state.userName = null;
       });
   },
 });
