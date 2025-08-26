@@ -91,15 +91,7 @@ const registerUser = async (req: Request, res: Response) => {
       { delay: 15 * 60 * 1000 }
     );
 
-    const token = jwt.sign(
-      { userId: newUser.id, email: newUser.email },
-      process.env.JWT_SECRET as string,
-      { expiresIn: "1d" }
-    );
-    req.user = newUser;
-
     response.data = {
-      token,
       user: {
         id: newUser.id,
         username: newUser.username,
@@ -107,26 +99,17 @@ const registerUser = async (req: Request, res: Response) => {
       },
     };
 
-    const user = req.user;
-    if (!user) {
-      response.statusCode = 401;
-      response.message = "User not found";
-      response.showMessage = true;
-      return sendResponse(res, response);
-    }
-
     const otp = generateOTP();
     const expiry = new Date(Date.now() + 10 * 60 * 1000);
 
     await prisma.user.update({
-      where: { id: user.id },
+      where: { id: newUser.id },
       data: {
         otp,
         otpExpiry: expiry,
       },
     });
-    req.user = user;
-    await sendOTPEmail(user.email, otp);
+    await sendOTPEmail(newUser.email, otp);
     return sendResponse(res, response);
   } catch (error: any) {
     if (error.code === "P2002" && error.meta?.target?.includes("email")) {

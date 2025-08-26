@@ -120,7 +120,6 @@ const OrganizationSetupPage: React.FC = () => {
       };
 
       const res = await dispatch(createOrganization(submitData)).unwrap();
-      console.log(res.organization);
       if (res.status === "created") {
         SuccessToast({ title: "Organization created successfully" });
         router.push(`/dashboard`);

@@ -3,8 +3,8 @@ import { ChevronRight } from "lucide-react";
 import { Eye, EyeOff, Mail, User, Lock } from "lucide-react";
 import React, { useState } from "react";
 import OtpPage from "./OtpPage";
-import { RootDispatch } from "@/store";
-import { useDispatch } from "react-redux";
+import { RootDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
 import { handleVerifyOtp, registerUser } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,9 +20,9 @@ const Signup: React.FC = () => {
   const [showOtpVerification, setShowOtpVerification] = useState(false);
   const [otpDigits, setOtpDigits] = useState("");
   const dispatch: RootDispatch = useDispatch();
+  const step = useSelector((state: RootState) => state.auth.step);
   // Loading
   const isRegisterLoading = useRegisterLoading();
-  console.log("isRegisterLoading:", isRegisterLoading);
 
   // Form state
   const [username, setUsername] = useState("");
@@ -37,7 +37,6 @@ const Signup: React.FC = () => {
 
     try {
       const res = await dispatch(registerUser({ username, email, password }));
-      console.log("Signup success", res);
       if (res.meta.requestStatus === "fulfilled") {
         setShowOtpVerification(true);
       }
@@ -47,8 +46,11 @@ const Signup: React.FC = () => {
   };
 
   const handleOtpVerification = async () => {
-    await dispatch(handleVerifyOtp({ email, otp: otpDigits })).unwrap();
+    const res = await dispatch(
+      handleVerifyOtp({ email, otp: otpDigits })
+    ).unwrap();
   };
+
 
   return (
     <div className="min-h-screen bg-white flex">
@@ -63,7 +65,7 @@ const Signup: React.FC = () => {
               : "opacity-100 translate-x-0"
           }`}
         >
-          {showOtpVerification ? (
+          {step === "otp" ? (
             <OtpPage
               email={email}
               otp={otpDigits}

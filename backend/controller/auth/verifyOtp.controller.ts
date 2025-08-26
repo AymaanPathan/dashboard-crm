@@ -1,19 +1,18 @@
 import { Request, Response } from "express";
 import prisma from "../../utils/prisma";
 import { sendResponse, ResponseModel } from "../../utils/response.utils";
+import jwt from "jsonwebtoken";
 
 export const verifyOtp = async (req: Request, res: Response) => {
   const response: ResponseModel = {
     statusCode: 200,
-    message: "Email verified successfully",
+    message: "OTP verified successfully",
     data: null,
     showMessage: true,
   };
 
   try {
     const { email, otp } = req.body;
-    console.log("Received OTP verification request:", { email, otp });
-
     if (!email || !otp) {
       response.statusCode = 400;
       response.message = "Email and OTP are required";
@@ -34,14 +33,31 @@ export const verifyOtp = async (req: Request, res: Response) => {
       return sendResponse(res, response);
     }
 
-    await prisma.user.update({
-      where: { email: email },
+    // mark user as verified
+    const updatedUser = await prisma.user.update({
+      where: { email },
       data: {
         isVerified: true,
         otp: null,
         otpExpiry: null,
       },
     });
+
+    const token = jwt.sign(
+      { userId: updatedUser.id, email: updatedUser.email },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "1d" }
+    );
+
+    response.data = {
+      token,
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        isVerified: updatedUser.isVerified,
+        username: updatedUser.username,
+      },
+    };
 
     return sendResponse(res, response);
   } catch (error: any) {
