@@ -14,13 +14,17 @@ import ErrorToast from "@/assets/toast/ErrorToast";
 import { isValidEmail } from "@/utils/validation.utils";
 import { useRegisterLoading } from "@/assets/loadingStates/auth.loading.state";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Signup: React.FC = () => {
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
   const [showOtpVerification, setShowOtpVerification] = useState(false);
   const [otpDigits, setOtpDigits] = useState("");
   const dispatch: RootDispatch = useDispatch();
   const step = useSelector((state: RootState) => state.auth.step);
+  const user = useSelector((state: RootState) => state.auth.user);
   // Loading
   const isRegisterLoading = useRegisterLoading();
 
@@ -46,7 +50,13 @@ const Signup: React.FC = () => {
   };
 
   const handleOtpVerification = async () => {
-    await dispatch(handleVerifyOtp({ email: email, otp: otpDigits })).unwrap();
+    const res = await dispatch(
+      handleVerifyOtp({ email: user.email, otp: otpDigits })
+    ).unwrap();
+    if (res.statusCode === 200) {
+      console.log("OTP verified successfully, redirecting...");
+      router.push("/organizationsetup");
+    }
   };
 
   return (

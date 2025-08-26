@@ -133,6 +133,7 @@ const authSlice = createSlice({
         state.token = token;
         state.userName = username;
         state.step = action.payload.data.is_verified ? "done" : "otp";
+        state.user = action.payload.data.user;
       })
       .addCase(registerUser.rejected, (state) => {
         state.loadingState.register = false;
