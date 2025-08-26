@@ -46,11 +46,8 @@ const Signup: React.FC = () => {
   };
 
   const handleOtpVerification = async () => {
-    const res = await dispatch(
-      handleVerifyOtp({ email, otp: otpDigits })
-    ).unwrap();
+    await dispatch(handleVerifyOtp({ email: email, otp: otpDigits })).unwrap();
   };
-
 
   return (
     <div className="min-h-screen bg-white flex">
@@ -67,7 +64,6 @@ const Signup: React.FC = () => {
         >
           {step === "otp" ? (
             <OtpPage
-              email={email}
               otp={otpDigits}
               setOtp={setOtpDigits}
               handleOtpVerification={handleOtpVerification}

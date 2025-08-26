@@ -19,6 +19,7 @@ interface AuthState {
     verifyOtp: boolean;
     resendOtp: boolean;
   };
+  user: IUser;
   error: string | null;
   userId: string;
   userName: IUser | null;
@@ -28,6 +29,7 @@ interface AuthState {
 
 const initialState: AuthState = {
   token: null,
+  user: {} as IUser,
   loadingState: {
     login: false,
     register: false,
@@ -115,6 +117,7 @@ const authSlice = createSlice({
         state.loadingState.login = false;
         state.token = token;
         state.userName = username;
+        state.user = action.payload.data.user;
       })
       .addCase(loginUser.rejected, (state) => {
         state.loadingState.login = false;
@@ -142,6 +145,7 @@ const authSlice = createSlice({
         state.token = token;
         state.userName = username;
         state.step = "done";
+        state.user = user;
         setToken(token, user);
       })
       .addCase(handleVerifyOtp.pending, (state) => {

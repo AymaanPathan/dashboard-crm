@@ -7,15 +7,14 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { RootDispatch } from "@/store";
-import { useDispatch } from "react-redux";
+import { RootDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
 import { handleResendOtp } from "@/store/slices/authSlice";
 import { useVerifyLoading } from "@/assets/loadingStates/auth.loading.state";
 import { ButtonLoading } from "@/components/ui/ButtonLoading";
 import Link from "next/link";
 
 interface OtpPageProps {
-  email: string;
   otp: string;
   setOtp: (otp: string) => void;
   handleOtpVerification: () => void;
@@ -23,7 +22,6 @@ interface OtpPageProps {
 }
 
 const OtpPage: React.FC<OtpPageProps> = ({
-  email,
   otp,
   setOtp,
   handleOtpVerification,
@@ -33,6 +31,8 @@ const OtpPage: React.FC<OtpPageProps> = ({
   const [resendTimer, setResendTimer] = useState<number>(0);
   const [isResendDisabled, setIsResendDisabled] = useState<boolean>(false);
   const isVerifyingOtp = useVerifyLoading();
+  const user = useSelector((state: RootState) => state.auth.user);
+  console.log("user",user)
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -57,7 +57,7 @@ const OtpPage: React.FC<OtpPageProps> = ({
   }, [resendTimer]);
 
   const handleResendOtpToEmail = async () => {
-    await dispatch(handleResendOtp({ email }));
+    await dispatch(handleResendOtp({ email: user.email }));
 
     // Start the 1-minute (60 seconds) timer
     setResendTimer(60);
@@ -87,7 +87,7 @@ const OtpPage: React.FC<OtpPageProps> = ({
           </h1>
           <p className="text-sm text-muted-foreground">
             We&apos;ve sent a 6-digit code to{" "}
-            <span className="font-medium text-foreground">{email}</span>
+            <span className="font-medium text-foreground">{user.email}</span>
           </p>
         </div>
 
@@ -152,7 +152,7 @@ const OtpPage: React.FC<OtpPageProps> = ({
         </div>
 
         <div className="text-center">
-          <Link  href={"/"}>
+          <Link href={"/"}>
             <Button
               variant="ghost"
               onClick={() => setShowOtpVerification(false)}
