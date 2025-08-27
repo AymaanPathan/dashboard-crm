@@ -2,27 +2,37 @@
 import { DragItem, DropCollectedProps, ITEM_TYPE } from "@/models/kanban.model";
 import { Statusdata } from "@/models/org.model";
 import { RootDispatch } from "@/store";
-import { moveLeadBetweenStatuses } from "@/store/slices/orgSlice";
+import { updateLeadStatus } from "@/store/slices/leadSlice";
 import { useCallback } from "react";
 import { useDrop } from "react-dnd";
 import { useDispatch } from "react-redux";
 import { LeadCard } from "./LeadCard";
+import { moveLeadBetweenStatuses } from "@/store/slices/orgSlice";
 
 export const StatusColumn: React.FC<{ status: Statusdata }> = ({ status }) => {
   const dispatch = useDispatch<RootDispatch>();
 
   const handleDrop = useCallback(
-    (item: DragItem) => {
-      if (item.statusName !== status.name) {
-        dispatch(
-          moveLeadBetweenStatuses({
-            leadId: item.id,
-            fromStatusName: item.statusName,
-            toStatusName: status.name,
-          })
-        );
-      }
+    async (item: DragItem) => {
+      console.log("Dropped item:", item);
+      await dispatch(
+        updateLeadStatus({
+          leadId: item.id,
+          newStatus: status.name,
+          oldStatus: item.statusName,
+          oldPosition: 0,
+          newPosition: 0,
+        })
+      );
+      dispatch(
+        moveLeadBetweenStatuses({
+          leadId: item.id,
+          fromStatusName: item.statusName,
+          toStatusName: status.name,
+        })
+      );
     },
+
     [dispatch, status.name]
   );
 
@@ -32,20 +42,21 @@ export const StatusColumn: React.FC<{ status: Statusdata }> = ({ status }) => {
     DropCollectedProps
   >({
     accept: ITEM_TYPE,
-    drop: handleDrop,
+    drop: handleDrop as any,
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),
     }),
   });
 
-  const backgroundColor = isOver && canDrop ? "bg-blue-50" : "bg-white";
-  const borderColor = isOver && canDrop ? "border-blue-300" : "border-gray-200";
+  const highlight = isOver && canDrop;
 
   return (
     <div
       ref={drop as any}
-      className={`${backgroundColor} rounded-lg border ${borderColor} transition-colors`}
+      className={`rounded-lg border transition-colors ${
+        highlight ? "bg-blue-50 border-blue-300" : "bg-white border-gray-200"
+      }`}
     >
       <div className="p-4 border-b border-gray-200">
         <h3 className="font-semibold text-gray-900">{status.name}</h3>
@@ -54,14 +65,12 @@ export const StatusColumn: React.FC<{ status: Statusdata }> = ({ status }) => {
         </span>
       </div>
 
-      {/* Lead Cards */}
       <div className="p-4 space-y-4 min-h-[400px]">
         {status.leadIds?.map((leadId: string) => (
           <LeadCard key={leadId} leadId={leadId} statusName={status.name} />
         ))}
 
-        {/* Drop zone indicator */}
-        {isOver && canDrop && (
+        {highlight && (
           <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 text-center text-blue-600">
             Drop lead here
           </div>

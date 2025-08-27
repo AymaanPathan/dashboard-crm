@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { updateLeadDragDropApi } from "@/api/lead.api";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface Lead {
   id: string;
@@ -21,6 +22,26 @@ const initialState: LeadState = {
   loading: false,
   error: null,
 };
+
+export const updateLeadStatus = createAsyncThunk(
+  "leads/updateStatus",
+  async (payload: {
+    leadId: string;
+    newStatus: string;
+    newPosition: number;
+    oldStatus: string;
+    oldPosition: number;
+  }) => {
+    const response = await updateLeadDragDropApi(
+      payload.leadId,
+      payload.newStatus,
+      payload.newPosition,
+      payload.oldStatus,
+      payload.oldPosition
+    );
+    return response;
+  }
+);
 
 const leadSlice = createSlice({
   name: "leads",
@@ -80,6 +101,20 @@ const leadSlice = createSlice({
     setError: (state, action: PayloadAction<string>) => {
       state.error = action.payload;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(updateLeadStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateLeadStatus.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(updateLeadStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Failed to update lead status";
+      });
   },
 });
 
