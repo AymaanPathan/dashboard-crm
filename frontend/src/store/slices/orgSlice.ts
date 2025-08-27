@@ -45,6 +45,40 @@ const organizationSlice = createSlice({
     clearError(state) {
       state.error = null;
     },
+
+    // Move lead between statuses (frontend only for now)
+    moveLeadBetweenStatuses: (
+      state,
+      action: PayloadAction<{
+        leadId: string;
+        fromStatusName: string;
+        toStatusName: string;
+      }>
+    ) => {
+      if (!state.currentOrganization?.statuses) return;
+
+      const { leadId, fromStatusName, toStatusName } = action.payload;
+
+      // Find the source and destination statuses
+      const fromStatus = state.currentOrganization.statuses.find(
+        (status) => status.name === fromStatusName
+      );
+      const toStatus = state.currentOrganization.statuses.find(
+        (status) => status.name === toStatusName
+      );
+
+      if (fromStatus && toStatus) {
+        // Remove lead from source status
+        fromStatus.leadIds =
+          fromStatus.leadIds?.filter((id) => id !== leadId) || [];
+
+        // Add lead to destination status
+        if (!toStatus.leadIds) {
+          toStatus.leadIds = [];
+        }
+        toStatus.leadIds.push(leadId);
+      }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(createOrganization.pending, (state) => {
@@ -87,5 +121,6 @@ const organizationSlice = createSlice({
   },
 });
 
-export const { clearError } = organizationSlice.actions;
+export const { clearError, moveLeadBetweenStatuses } =
+  organizationSlice.actions;
 export default organizationSlice.reducer;
