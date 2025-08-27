@@ -41,6 +41,8 @@ model Organization {
 }
 
 model Lead {
+  position          Int      @default(0) 
+  @@index([organizationId, status, position])
   id                String   @id @default(uuid())
   name              String
   email             String?

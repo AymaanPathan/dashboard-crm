@@ -1,3 +1,3 @@
 import createLead from "./addLead.controller";
-
-export { createLead };
+import { updateLeadDragDrop } from "./updateLeadStatus.controller";
+export { createLead, updateLeadDragDrop };

@@ -108,7 +108,23 @@ const createLead = async (req: Request, res: Response) => {
       }
     }
 
-    // Create the lead
+    // Get the next position for this status in the organization
+    const maxPositionResult = await prisma.lead.findFirst({
+      where: {
+        organizationId: organizationId,
+        status: trimmedStatus,
+      },
+      orderBy: {
+        position: "desc",
+      },
+      select: {
+        position: true,
+      },
+    });
+
+    const nextPosition = maxPositionResult ? maxPositionResult.position + 1 : 0;
+
+    // Create the lead with calculated position
     const newLead = await prisma.lead.create({
       data: {
         name: name.trim(),
@@ -118,7 +134,8 @@ const createLead = async (req: Request, res: Response) => {
         source: source?.trim() || null,
         budget: null,
         notes: requirements?.trim() || null,
-        status: trimmedStatus, // Use the validated status
+        status: trimmedStatus,
+        position: nextPosition, // Set the calculated position
         organizationId: organizationId,
         assignedToId: assignedToId?.trim() || null,
         contactPersonName: contactPersonName?.trim() || null,
@@ -169,6 +186,7 @@ const createLead = async (req: Request, res: Response) => {
       lead: newLead,
       status: "created",
       assignedStatus: trimmedStatus,
+      position: nextPosition,
     };
 
     return sendResponse(res, response);
