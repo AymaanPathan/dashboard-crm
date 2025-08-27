@@ -109,14 +109,12 @@ const createOrganization = async (req: Request, res: Response) => {
       await prisma.organization.update({
         where: { id: newOrganization.id },
         data: {
-          statuses: {
-            create: [
-              { name: "New Lead", leadIds: [] },
-              { name: "Contacted", leadIds: [] },
-              { name: "Negotiation", leadIds: [] },
-              { name: "Closed", leadIds: [] },
-            ],
-          },
+          statuses: [
+            { name: "New Lead", leadIds: [] },
+            { name: "Contacted", leadIds: [] },
+            { name: "Negotiation", leadIds: [] },
+            { name: "Closed", leadIds: [] },
+          ],
         },
       });
 

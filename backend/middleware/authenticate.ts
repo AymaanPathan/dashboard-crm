@@ -42,7 +42,7 @@ try {
 
   if (!user) {
     response.statusCode = 400;
-    response.message = "User not found";
+    response.message = "User not found While Authenticating";
     return sendResponse(res, response);
   }
 
