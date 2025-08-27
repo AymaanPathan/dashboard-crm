@@ -9,8 +9,8 @@ import { handleResendOtpApi } from "@/api/resendOtp";
 import { clearToken, setToken } from "@/utils/auth.utils";
 
 interface AuthState {
-  // user: any;
   step: "signup" | "otp" | "done";
+  userHasOrg: boolean;
 
   token: string | null;
   loadingState: {
@@ -30,6 +30,7 @@ interface AuthState {
 const initialState: AuthState = {
   token: null,
   user: {} as IUser,
+  userHasOrg: false,
   loadingState: {
     login: false,
     register: false,
@@ -113,11 +114,11 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         const token = action.payload.data.data.token;
         const username = action.payload.data.data.user.username;
-
         state.loadingState.login = false;
         state.token = token;
         state.userName = username;
-        state.user = action.payload.data.user;
+        state.user = action.payload.data.data.user;
+        console.log("Login successful, token:", action.payload.data.data.user);
       })
       .addCase(loginUser.rejected, (state) => {
         state.loadingState.login = false;
@@ -143,6 +144,7 @@ const authSlice = createSlice({
         const token = action.payload.data.token;
         const username = action.payload.data.user.username;
         const user = action.payload.data.user;
+        const userHasOrg = action.payload.data.user.has_org;
         state.token = token;
         state.userName = username;
         state.step = "done";
@@ -153,14 +155,11 @@ const authSlice = createSlice({
         state.loadingState.verifyOtp = true;
         state.error = null;
       })
-      .addCase(handleVerifyOtp.rejected, (state, action) => {
+      .addCase(handleVerifyOtp.rejected, (state) => {
         state.loadingState.verifyOtp = false;
       })
-      .addCase(handleResendOtp.fulfilled, (state, action) => {
+      .addCase(handleResendOtp.fulfilled, (state) => {
         state.loadingState.resendOtp = false;
-        // Optionally handle response data here, e.g.:
-        // state.token = action.payload.token;
-        // state.userName = action.payload.user;
       })
       .addCase(handleResendOtp.pending, (state) => {
         state.loadingState.resendOtp = true;

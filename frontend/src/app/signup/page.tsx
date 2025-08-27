@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import OtpPage from "./OtpPage";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
-import { handleVerifyOtp, registerUser } from "@/store/slices/authSlice";
+import { registerUser } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,17 +14,13 @@ import ErrorToast from "@/assets/toast/ErrorToast";
 import { isValidEmail } from "@/utils/validation.utils";
 import { useRegisterLoading } from "@/assets/loadingStates/auth.loading.state";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 const Signup: React.FC = () => {
-  const router = useRouter();
-
   const [showPassword, setShowPassword] = useState(false);
   const [showOtpVerification, setShowOtpVerification] = useState(false);
   const [otpDigits, setOtpDigits] = useState("");
   const dispatch: RootDispatch = useDispatch();
   const step = useSelector((state: RootState) => state.auth.step);
-  const user = useSelector((state: RootState) => state.auth.user);
   // Loading
   const isRegisterLoading = useRegisterLoading();
 
@@ -49,16 +45,6 @@ const Signup: React.FC = () => {
     }
   };
 
-  const handleOtpVerification = async () => {
-    const res = await dispatch(
-      handleVerifyOtp({ email: user.email, otp: otpDigits })
-    ).unwrap();
-    if (res.statusCode === 200) {
-      console.log("OTP verified successfully, redirecting...");
-      router.push("/organizationsetup");
-    }
-  };
-
   return (
     <div className="min-h-screen bg-white flex">
       <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
@@ -76,7 +62,6 @@ const Signup: React.FC = () => {
             <OtpPage
               otp={otpDigits}
               setOtp={setOtpDigits}
-              handleOtpVerification={handleOtpVerification}
               setShowOtpVerification={setShowOtpVerification}
             />
           ) : (

@@ -9,30 +9,41 @@ import {
 } from "@/components/ui/input-otp";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
-import { handleResendOtp } from "@/store/slices/authSlice";
+import { handleResendOtp, handleVerifyOtp } from "@/store/slices/authSlice";
 import { useVerifyLoading } from "@/assets/loadingStates/auth.loading.state";
 import { ButtonLoading } from "@/components/ui/ButtonLoading";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface OtpPageProps {
   otp: string;
   setOtp: (otp: string) => void;
-  handleOtpVerification: () => void;
   setShowOtpVerification: (show: boolean) => void;
 }
 
 const OtpPage: React.FC<OtpPageProps> = ({
   otp,
   setOtp,
-  handleOtpVerification,
   setShowOtpVerification,
 }) => {
   const dispatch: RootDispatch = useDispatch();
+  const router = useRouter();
+
   const [resendTimer, setResendTimer] = useState<number>(0);
   const [isResendDisabled, setIsResendDisabled] = useState<boolean>(false);
   const isVerifyingOtp = useVerifyLoading();
   const user = useSelector((state: RootState) => state.auth.user);
-  console.log("user",user)
+  console.log("user", user);
+
+  const handleOtpVerification = async () => {
+    const res = await dispatch(
+      handleVerifyOtp({ email: user.email, otp: otp })
+    ).unwrap();
+    if (res.statusCode === 200) {
+      console.log("OTP verified successfully, redirecting...");
+      router.push("/organizationsetup");
+    }
+  };
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;

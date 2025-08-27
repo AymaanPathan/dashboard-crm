@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { RootDispatch } from "@/store";
+import { RootDispatch, RootState } from "@/store";
 import { loginUser } from "@/store/slices/authSlice";
 import { BarChart3, Mail, Lock, EyeOff, Eye } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { isValidEmail } from "@/utils/validation.utils";
 import ErrorToast from "@/assets/toast/ErrorToast";
 import { useLoginLoading } from "@/assets/loadingStates/auth.loading.state";
@@ -32,9 +32,12 @@ const LoginPage: React.FC = () => {
 
     const result = await dispatch(loginUser({ email, password })).unwrap();
     const token = result?.data?.data?.token;
+    const user = result?.data?.data?.user;
 
-    if (token) {
+    if (token && user.org === false) {
       router.replace("/organizationsetup");
+    } else if (token && user.org === true) {
+      router.replace("/dashboard");
     }
   };
 

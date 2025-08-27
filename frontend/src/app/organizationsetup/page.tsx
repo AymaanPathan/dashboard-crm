@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { RootDispatch } from "@/store";
+import { RootDispatch, RootState } from "@/store";
 import { Building2, Globe, Users, TrendingUp, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ErrorToast from "@/assets/toast/ErrorToast";
 import SuccessToast from "@/assets/toast/SuccessToast";
 import { Label } from "@/components/ui/label";
@@ -42,19 +42,11 @@ const INDUSTRIES = [
 // Company size options
 const COMPANY_SIZES = ["1-10", "11-50", "51-200", "201-1000", "1000+"];
 
-// Expected leads per month options
-const LEADS_PER_MONTH = [
-  "1-50",
-  "51-100",
-  "100-500",
-  "500-1000",
-  "1000-5000",
-  "5000+",
-];
-
 const OrganizationSetupPage: React.FC = () => {
   const router = useRouter();
   const dispatch: RootDispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.auth.user);
+  console.log("User in Org Setup Page:", user);
 
   const [formData, setFormData] = useState<IOrganization>({
     id: "",
