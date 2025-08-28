@@ -6,21 +6,25 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { getOrganizationInfo } from "@/store/slices/orgSlice";
-import { Statusdata } from "@/models/org.model";
 import { StatusColumn } from "../components/lead/StatusCol";
+import { fetchLeadForKanban } from "@/store/slices/kanbanSlice";
 
 const LeadsDashboard: React.FC = () => {
   const dispatch = useDispatch<RootDispatch>();
+  const statuses = useSelector((state: RootState) => state.kanban.statuses);
+  console.log("statuses", statuses);
+
   const currentOrg = useSelector(
     (state: RootState) => state.org.currentOrganization
   );
 
-  console.log("Current Organization:", currentOrg);
+  console.log("statuses", statuses);
 
   useEffect(() => {
     const getOrganizationData = async (): Promise<void> => {
       await dispatch(getOrganizationInfo());
     };
+    dispatch(fetchLeadForKanban());
 
     getOrganizationData();
   }, [dispatch]);
@@ -48,8 +52,8 @@ const LeadsDashboard: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-5 gap-6">
-            {currentOrg.statuses?.map((status: Statusdata) => (
-              <StatusColumn key={status.name} status={status} />
+            {statuses?.map((status: any, index: number) => (
+              <StatusColumn key={index} status={status} />
             ))}
           </div>
         </div>

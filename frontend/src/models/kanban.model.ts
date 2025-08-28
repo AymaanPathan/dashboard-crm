@@ -4,6 +4,7 @@ export interface DragItem {
   id: string;
   statusName: string;
   type: typeof ITEM_TYPE;
+  index: number;
 }
 
 export interface DragCollectedProps {

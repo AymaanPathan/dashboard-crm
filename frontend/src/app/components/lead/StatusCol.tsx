@@ -3,37 +3,44 @@ import { DragItem, DropCollectedProps, ITEM_TYPE } from "@/models/kanban.model";
 import { Statusdata } from "@/models/org.model";
 import { RootDispatch } from "@/store";
 import { updateLeadStatus } from "@/store/slices/leadSlice";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useDrop } from "react-dnd";
 import { useDispatch } from "react-redux";
 import { LeadCard } from "./LeadCard";
-import { moveLeadBetweenStatuses } from "@/store/slices/orgSlice";
-
+import { moveLeadBetweenStatuses } from "@/store/slices/leadSlice";
 export const StatusColumn: React.FC<{ status: Statusdata }> = ({ status }) => {
   const dispatch = useDispatch<RootDispatch>();
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const handleDrop = useCallback(
     async (item: DragItem) => {
-      console.log("Dropped item:", item);
+      const position =
+        hoveredIndex !== null ? hoveredIndex : status.leadIds?.length || 0;
+
+      const res = dispatch(
+        moveLeadBetweenStatuses({
+          leadId: item.id,
+          newStatus: status.name,
+          oldStatus: item.statusName,
+          oldPosition: item.index,
+          newPosition: position,
+        })
+      );
+      console.log("res", res);
+
       await dispatch(
         updateLeadStatus({
           leadId: item.id,
           newStatus: status.name,
           oldStatus: item.statusName,
-          oldPosition: 0,
-          newPosition: 0,
+          oldPosition: item.index,
+          newPosition: position,
         })
       );
-      dispatch(
-        moveLeadBetweenStatuses({
-          leadId: item.id,
-          fromStatusName: item.statusName,
-          toStatusName: status.name,
-        })
-      );
-    },
 
-    [dispatch, status.name]
+      setHoveredIndex(null);
+    },
+    [dispatch, status.name, hoveredIndex, status.leadIds]
   );
 
   const [{ isOver, canDrop }, drop] = useDrop<
@@ -49,13 +56,13 @@ export const StatusColumn: React.FC<{ status: Statusdata }> = ({ status }) => {
     }),
   });
 
-  const highlight = isOver && canDrop;
-
   return (
     <div
       ref={drop as any}
       className={`rounded-lg border transition-colors ${
-        highlight ? "bg-blue-50 border-blue-300" : "bg-white border-gray-200"
+        isOver && canDrop
+          ? "bg-blue-50 border-blue-300"
+          : "bg-white border-gray-200"
       }`}
     >
       <div className="p-4 border-b border-gray-200">
@@ -66,11 +73,17 @@ export const StatusColumn: React.FC<{ status: Statusdata }> = ({ status }) => {
       </div>
 
       <div className="p-4 space-y-4 min-h-[400px]">
-        {status.leadIds?.map((leadId: string) => (
-          <LeadCard key={leadId} leadId={leadId} statusName={status.name} />
+        {status.leads?.map((lead: any, index: number) => (
+          <LeadCard
+            key={lead.id}
+            leadId={lead.id}
+            statusName={status.name}
+            index={index}
+            onHover={setHoveredIndex}
+          />
         ))}
 
-        {highlight && (
+        {isOver && canDrop && (
           <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 text-center text-blue-600">
             Drop lead here
           </div>

@@ -1,25 +1,52 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useDrag } from "react-dnd";
 
+import { useDrag, useDrop } from "react-dnd";
 import { MoreHorizontal } from "lucide-react";
 import { DragCollectedProps, DragItem, ITEM_TYPE } from "@/models/kanban.model";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
-export const LeadCard: React.FC<{ leadId: string; statusName: string }> = ({
-  leadId,
-  statusName,
-}) => {
+export const LeadCard: React.FC<{
+  leadId: string;
+  statusName: string;
+  index: number;
+  onHover: (index: number) => void;
+}> = ({ leadId, statusName, index, onHover }) => {
+
   const [{ isDragging }, drag] = useDrag<DragItem, void, DragCollectedProps>({
     type: ITEM_TYPE,
-    item: { id: leadId, statusName, type: ITEM_TYPE },
+    item: () => ({
+      id: leadId,
+      statusName,
+      index,
+      type: ITEM_TYPE,
+    }),
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
   });
 
+  // Drop logic to detect hover
+  const [, drop] = useDrop<DragItem>({
+    accept: ITEM_TYPE,
+    hover: (draggedItem, monitor) => {
+      if (!monitor.isOver({ shallow: true })) return;
+      if (draggedItem.id === leadId) return;
+
+      onHover(index);
+    },
+  });
+
+  // Combine drag and drop refs
+  const ref = (node: any) => {
+    drag(node);
+    drop(node);
+  };
+
   return (
     <div
-      ref={drag as any}
+      ref={ref}
       className={`border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow cursor-grab ${
         isDragging ? "opacity-50" : ""
       }`}

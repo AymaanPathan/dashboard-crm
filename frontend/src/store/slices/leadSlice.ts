@@ -1,24 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { updateLeadDragDropApi } from "@/api/lead.api";
+import { LeadState } from "@/models/lead.model";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-export interface Lead {
-  id: string;
-  company?: string;
-  location?: string;
-  assignee?: string;
-  statusName: string;
-  // Add other lead properties as needed
-}
-
-interface LeadState {
-  leads: Record<string, Lead>;
-  loading: boolean;
-  error: string | null;
-}
 
 const initialState: LeadState = {
   leads: {},
+  statuses: [],
   loading: false,
   error: null,
 };
@@ -47,59 +33,48 @@ const leadSlice = createSlice({
   name: "leads",
   initialState,
   reducers: {
-    // Move lead to different status
-    moveLeadToStatus: (
+    moveLeadBetweenStatuses: (
       state,
-      action: PayloadAction<{ leadId: string; newStatusName: string }>
+      action: PayloadAction<{
+        leadId: string;
+        newStatus: string;
+        oldStatus: string;
+        oldPosition: number;
+        newPosition: number;
+      }>
     ) => {
-      const { leadId, newStatusName } = action.payload;
-      if (state.leads[leadId]) {
-        state.leads[leadId].statusName = newStatusName;
-      }
-    },
+      const { leadId, newStatus, oldStatus, oldPosition, newPosition } =
+        action.payload;
 
-    // Add a new lead
-    addLead: (state, action: PayloadAction<Lead>) => {
-      state.leads[action.payload.id] = action.payload;
-    },
+      const lead = state.leads[leadId];
 
-    // Update lead
-    updateLead: (
-      state,
-      action: PayloadAction<Partial<Lead> & { id: string }>
-    ) => {
-      const { id, ...updates } = action.payload;
-      if (state.leads[id]) {
-        state.leads[id] = { ...state.leads[id], ...updates };
-      }
-    },
+      if (!lead) return;
 
-    // Remove lead
-    removeLead: (state, action: PayloadAction<string>) => {
-      delete state.leads[action.payload];
-    },
+      const oldStatusIndex = state.statuses.findIndex(
+        (s) => s.name === oldStatus
+      );
+      const newStatusIndex = state.statuses.findIndex(
+        (s) => s.name === newStatus
+      );
 
-    // Set multiple leads
-    setLeads: (state, action: PayloadAction<Lead[]>) => {
-      state.leads = action.payload.reduce((acc, lead) => {
-        acc[lead.id] = lead;
-        return acc;
-      }, {} as Record<string, Lead>);
-    },
+      if (oldStatusIndex === -1 || newStatusIndex === -1) return;
 
-    // Clear error
-    clearError: (state) => {
-      state.error = null;
-    },
+      const oldStatusObj = state.statuses[oldStatusIndex];
+      const newStatusObj = state.statuses[newStatusIndex];
 
-    // Set loading
-    setLoading: (state, action: PayloadAction<boolean>) => {
-      state.loading = action.payload;
-    },
+      oldStatusObj.leadIds = oldStatusObj.leadIds || [];
+      newStatusObj.leadIds = newStatusObj.leadIds || [];
 
-    // Set error
-    setError: (state, action: PayloadAction<string>) => {
-      state.error = action.payload;
+      // Remove from old list
+      const oldLeadIndex = oldStatusObj.leadIds.indexOf(leadId);
+      if (oldLeadIndex !== -1) oldStatusObj.leadIds.splice(oldLeadIndex, 1);
+
+      // Insert in new list at new position
+      newStatusObj.leadIds.splice(newPosition, 0, leadId);
+
+      // Update lead status
+      state.leads[leadId].status = newStatus;
+      state.leads[leadId].position = newPosition;
     },
   },
   extraReducers: (builder) => {
@@ -118,15 +93,6 @@ const leadSlice = createSlice({
   },
 });
 
-export const {
-  moveLeadToStatus,
-  addLead,
-  updateLead,
-  removeLead,
-  setLeads,
-  clearError,
-  setLoading,
-  setError,
-} = leadSlice.actions;
+export const { moveLeadBetweenStatuses } = leadSlice.actions; // Export the action
 
 export default leadSlice.reducer;

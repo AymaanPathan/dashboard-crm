@@ -1,6 +1,7 @@
 import { IUser } from "./user.model";
 
 export interface Statusdata {
+  leads: any;
   name: string;
   leadIds: string[];
 }

@@ -1,5 +1,10 @@
 import axiosSetup from "@/utils/axiosSetup";
 
+export const getLeadForKanbanApi = async () => {
+  const response = await axiosSetup.get("/lead/getAll");
+  return response.data;
+};
+
 export const updateLeadDragDropApi = async (
   leadId: string,
   newStatus: string,
