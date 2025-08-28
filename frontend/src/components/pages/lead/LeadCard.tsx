@@ -7,15 +7,15 @@ import { DragCollectedProps, DragItem, ITEM_TYPE } from "@/models/kanban.model";
 
 export const LeadCard: React.FC<{
   leadData: any;
-  statusName: string;
+  stageName: string;
   index: number;
   onHover: (index: number) => void;
-}> = ({ leadData, statusName, index, onHover }) => {
+}> = ({ leadData, stageName, index, onHover }) => {
   const [{ isDragging }, drag] = useDrag<DragItem, void, DragCollectedProps>({
     type: ITEM_TYPE,
     item: () => ({
       id: leadData.id,
-      statusName,
+      stageName: stageName,
       index,
       type: ITEM_TYPE,
     }),
@@ -59,7 +59,7 @@ export const LeadCard: React.FC<{
         <h4 className="font-medium text-gray-900 mb-1">
           Lead ID: {leadData.name}
         </h4>
-        <div className="text-xs text-gray-500">Status: {statusName}</div>
+        <div className="text-xs text-gray-500">Status: {stageName}</div>
       </div>
     </div>
   );

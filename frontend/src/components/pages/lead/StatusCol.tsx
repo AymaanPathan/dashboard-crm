@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DragItem, DropCollectedProps, ITEM_TYPE } from "@/models/kanban.model";
-import { Statusdata } from "@/models/org.model";
 import { RootDispatch } from "@/store";
 import { updateLeadStatus } from "@/store/slices/leadSlice";
 import { useCallback, useState } from "react";
@@ -8,20 +7,21 @@ import { useDrop } from "react-dnd";
 import { useDispatch } from "react-redux";
 import { LeadCard } from "./LeadCard";
 import { moveLeadBetweenStatuses } from "@/store/slices/leadSlice";
-export const StatusColumn: React.FC<{ status: Statusdata }> = ({ status }) => {
+export const StatusColumn: React.FC<{ stage: any }> = ({ stage }) => {
   const dispatch = useDispatch<RootDispatch>();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const handleDrop = useCallback(
     async (item: DragItem) => {
+      console.log("Dropped item:", item);
       const position =
-        hoveredIndex !== null ? hoveredIndex : status.leadIds?.length || 0;
+        hoveredIndex !== null ? hoveredIndex : stage.leadIds?.length || 0;
 
       dispatch(
         moveLeadBetweenStatuses({
           leadId: item.id,
-          newStatus: status.name,
-          oldStatus: item.statusName,
+          newStatus: stage.stageName,
+          oldStatus: stage.stageName,
           oldPosition: item.index,
           newPosition: position,
         })
@@ -30,8 +30,8 @@ export const StatusColumn: React.FC<{ status: Statusdata }> = ({ status }) => {
       dispatch(
         updateLeadStatus({
           leadId: item.id,
-          newStatus: status.name,
-          oldStatus: item.statusName,
+          oldStage: item.stageName,
+          newStage: stage.stageName,
           oldPosition: item.index,
           newPosition: position,
         })
@@ -39,7 +39,7 @@ export const StatusColumn: React.FC<{ status: Statusdata }> = ({ status }) => {
 
       setHoveredIndex(null);
     },
-    [dispatch, status.name, hoveredIndex, status.leadIds]
+    [hoveredIndex, stage.leadIds?.length, stage.stageName, dispatch]
   );
 
   const [{ isOver, canDrop }, drop] = useDrop<
@@ -65,18 +65,18 @@ export const StatusColumn: React.FC<{ status: Statusdata }> = ({ status }) => {
       }`}
     >
       <div className="p-4 border-b border-gray-200">
-        <h3 className="font-semibold text-gray-900">{status.name}</h3>
+        <h3 className="font-semibold text-gray-900">{stage.name}</h3>
         <span className="text-sm text-gray-500">
-          {status.leadIds?.length || 0} leads
+          {stage.leadIds?.length || 0} leads
         </span>
       </div>
 
       <div className="p-4 space-y-4 min-h-[400px]">
-        {status.leads?.map((lead: any, index: number) => (
+        {stage.leads?.map((lead: any, index: number) => (
           <LeadCard
             key={lead.id}
             leadData={lead}
-            statusName={status.name}
+            stageName={stage.stageName}
             index={index}
             onHover={setHoveredIndex}
           />

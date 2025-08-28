@@ -46,7 +46,6 @@ const OrganizationSetupPage: React.FC = () => {
   const router = useRouter();
   const dispatch: RootDispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
-  console.log("User in Org Setup Page:", user);
 
   const [formData, setFormData] = useState<IOrganization>({
     id: "",

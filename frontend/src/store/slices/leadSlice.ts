@@ -9,27 +9,26 @@ const initialState: LeadState = {
   error: null,
 };
 
-// Async thunk to call the backend API
 export const updateLeadStatus = createAsyncThunk(
   "leads/updateStatus",
   async ({
     leadId,
-    newStatus,
+    oldStage,
+    newStage,
     newPosition,
-    oldStatus,
     oldPosition,
   }: {
     leadId: string;
-    newStatus: string;
-    newPosition: number;
-    oldStatus: string;
+    oldStage: string;
+    newStage: string;
     oldPosition: number;
+    newPosition: number;
   }) => {
     const response = await updateLeadDragDropApi(
       leadId,
-      newStatus,
+      oldStage,
+      newStage,
       newPosition,
-      oldStatus,
       oldPosition
     );
     return response; // Can be void or updated lead if backend returns it

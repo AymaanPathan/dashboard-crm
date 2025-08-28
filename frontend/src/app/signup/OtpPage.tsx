@@ -33,14 +33,12 @@ const OtpPage: React.FC<OtpPageProps> = ({
   const [isResendDisabled, setIsResendDisabled] = useState<boolean>(false);
   const isVerifyingOtp = useVerifyLoading();
   const user = useSelector((state: RootState) => state.auth.user);
-  console.log("user", user);
 
   const handleOtpVerification = async () => {
     const res = await dispatch(
       handleVerifyOtp({ email: user.email, otp: otp })
     ).unwrap();
     if (res.statusCode === 200) {
-      console.log("OTP verified successfully, redirecting...");
       router.push("/organizationsetup");
     }
   };

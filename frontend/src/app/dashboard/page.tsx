@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect } from "react";
 import { DndProvider } from "react-dnd";
@@ -6,19 +7,17 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { getOrganizationInfo } from "@/store/slices/orgSlice";
-import { StatusColumn } from "../components/lead/StatusCol";
 import { fetchLeadForKanban } from "@/store/slices/kanbanSlice";
+import { StatusColumn } from "@/components/pages/lead/StatusCol";
 
 const LeadsDashboard: React.FC = () => {
   const dispatch = useDispatch<RootDispatch>();
   const statuses = useSelector((state: RootState) => state.kanban.statuses);
-  console.log("statuses", statuses);
 
   const currentOrg = useSelector(
     (state: RootState) => state.org.currentOrganization
   );
 
-  console.log("statuses", statuses);
 
   useEffect(() => {
     const getOrganizationData = async (): Promise<void> => {
@@ -52,9 +51,10 @@ const LeadsDashboard: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-5 gap-6">
-            {statuses?.map((status: any, index: number) => (
-              <StatusColumn key={index} status={status} />
-            ))}
+            {statuses?.map((stage: any, index: number) => {
+              console.log("stage", stage);
+              return <StatusColumn key={index} stage={stage} />;
+            })}
           </div>
         </div>
       </div>

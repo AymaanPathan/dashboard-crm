@@ -1,8 +1,8 @@
 export const ITEM_TYPE = "LEAD" as const;
 
 export interface DragItem {
+  stageName: string;
   id: string;
-  statusName: string;
   type: typeof ITEM_TYPE;
   index: number;
 }

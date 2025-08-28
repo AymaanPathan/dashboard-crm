@@ -8,15 +8,15 @@ export const getLeadForKanbanApi = async () => {
 
 export const updateLeadDragDropApi = async (
   leadId: string,
-  newStatus: string,
-  newPosition: number,
-  oldStatus: string,
-  oldPosition: number
+  oldStage: string,
+  newStage: string,
+  oldPosition: number,
+  newPosition: number
 ): Promise<any> => {
   const response = await axiosSetup.patch("/lead/updateStatus", {
     leadId,
-    oldStatus,
-    newStatus,
+    oldStage,
+    newStage,
     oldPosition,
     newPosition,
   });

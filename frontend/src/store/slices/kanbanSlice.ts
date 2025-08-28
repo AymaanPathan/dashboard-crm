@@ -61,7 +61,6 @@ const leadSlice = createSlice({
       })
       .addCase(fetchLeadForKanban.fulfilled, (state, action) => {
         state.loading = false;
-        console.log("Fetched Kanban Data:", action.payload);
 
         const leads: Record<string, Lead> = {};
 

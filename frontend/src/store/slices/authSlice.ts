@@ -118,7 +118,6 @@ const authSlice = createSlice({
         state.token = token;
         state.userName = username;
         state.user = action.payload.data.data.user;
-        console.log("Login successful, token:", action.payload.data.data.user);
       })
       .addCase(loginUser.rejected, (state) => {
         state.loadingState.login = false;

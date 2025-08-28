@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-import LandingPage from "./components/crm-landing/LandingPage";
+import LandingPage from "../components/pages/crm-landing/LandingPage";
 
 const CRMLandingPage = () => {
   return <LandingPage />;
