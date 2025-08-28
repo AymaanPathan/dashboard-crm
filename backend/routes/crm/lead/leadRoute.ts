@@ -10,4 +10,7 @@ leadRouter.patch(
   authenticate,
   leadController.updateLeadDragDrop
 );
+
+leadRouter.get("/getAll", authenticate, leadController.getLeadWithStage);
+
 export default leadRouter;

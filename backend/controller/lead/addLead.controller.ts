@@ -25,7 +25,7 @@ const createLead = async (req: Request, res: Response) => {
       assignedToId = "",
       createdBy = req?.user?.id,
       organizationId = req?.user?.currentOrganizationId,
-      status = "New Lead",
+      status = "",
     }: ILead = req.body || {};
 
     // Validation - only name is required
@@ -63,7 +63,7 @@ const createLead = async (req: Request, res: Response) => {
     }
 
     // Validate status exists in organization's statuses
-    const currentStatuses = organization.statuses as any[];
+    const currentStatuses = organization.stages as any[];
     const trimmedStatus = status.trim();
     const statusExists = currentStatuses.some(
       (statusObj) => statusObj.name === trimmedStatus
@@ -178,7 +178,7 @@ const createLead = async (req: Request, res: Response) => {
     await prisma.organization.update({
       where: { id: organizationId },
       data: {
-        statuses: updatedStatuses,
+        stages: updatedStatuses,
       },
     });
 

@@ -36,7 +36,7 @@ model Organization {
   employees  user[]
   owner user? @relation("OrgOwnedBy", fields: [ownerId], references: [id])  
   ownerId String?  
-  statuses     Json     @default("[]")
+  stages     Json     @default("[]")
   leads Lead[]
 }
 

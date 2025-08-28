@@ -1,3 +1,4 @@
 import createLead from "./addLead.controller";
 import { updateLeadDragDrop } from "./updateLeadStatus.controller";
-export { createLead, updateLeadDragDrop };
+import { getLeadWithStage } from "./getLeadByStatus.controller";
+export { createLead, updateLeadDragDrop, getLeadWithStage };

@@ -11,8 +11,6 @@ export const updateLeadDragDrop = async (req: Request, res: Response) => {
       organizationId = req?.user?.currentOrganizationId,
     } = req.body;
 
-    console.log("Request body:", req.body);
-
     if (!leadId || newPosition === undefined || !organizationId) {
       return res.status(400).json({
         success: false,
@@ -34,23 +32,20 @@ export const updateLeadDragDrop = async (req: Request, res: Response) => {
         message: "Lead not found or access denied",
       });
     }
-
-    // Use transaction for atomic operations
     const result = await prisma.$transaction(async (tx) => {
-      // Case 1: Moving within the same status (reordering)
-      if (newStatus === oldStatus || !newStatus) {
-        const status = newStatus || existingLead.status;
+      const currentStatus = oldStatus || existingLead.status;
 
-        if (oldPosition < newPosition) {
-          // Moving down: shift items up
+      // ✅ 1. If reordering within same column
+      if (newStatus === currentStatus) {
+        if (newPosition === oldPosition) {
+          // Nothing to do
+        } else if (newPosition > oldPosition) {
+          // Dragging downward in the same column
           await tx.lead.updateMany({
             where: {
               organizationId,
-              status,
-              position: {
-                gt: oldPosition,
-                lte: newPosition,
-              },
+              status: currentStatus,
+              position: { gt: oldPosition, lte: newPosition },
               id: { not: leadId },
             },
             data: {
@@ -58,16 +53,13 @@ export const updateLeadDragDrop = async (req: Request, res: Response) => {
               updatedAt: new Date(),
             },
           });
-        } else if (oldPosition > newPosition) {
-          // Moving up: shift items down
+        } else {
+          // Dragging upward in the same column
           await tx.lead.updateMany({
             where: {
               organizationId,
-              status,
-              position: {
-                gte: newPosition,
-                lt: oldPosition,
-              },
+              status: currentStatus,
+              position: { gte: newPosition, lt: oldPosition },
               id: { not: leadId },
             },
             data: {
@@ -77,13 +69,14 @@ export const updateLeadDragDrop = async (req: Request, res: Response) => {
           });
         }
       }
-      // Case 2: Moving to different status
-      else if (newStatus !== oldStatus) {
-        // Shift items up in old status (fill the gap)
+
+      // ✅ 2. If moving between columns
+      else {
+        // Shift old column leads up
         await tx.lead.updateMany({
           where: {
             organizationId,
-            status: oldStatus || existingLead.status,
+            status: currentStatus,
             position: { gt: oldPosition },
             id: { not: leadId },
           },
@@ -93,7 +86,7 @@ export const updateLeadDragDrop = async (req: Request, res: Response) => {
           },
         });
 
-        // Shift items down in new status (make space)
+        // Shift new column leads down
         await tx.lead.updateMany({
           where: {
             organizationId,
@@ -106,46 +99,50 @@ export const updateLeadDragDrop = async (req: Request, res: Response) => {
           },
         });
 
-        // Update organization JSON statuses
+        // ✅ Update organization.statuses leadIds (safely remove and insert)
         const organization = await tx.organization.findUnique({
           where: { id: organizationId },
         });
 
         if (organization) {
-          const statuses = organization.statuses as any[];
+          const statuses = organization.stages as any[];
 
           const updatedStatuses = statuses.map((status: any) => {
-            if (status.name === newStatus) {
+            if (status.name === currentStatus) {
               return {
                 ...status,
-                leadIds: status.leadIds
-                  ? [...status.leadIds, leadId]
-                  : [leadId],
-              };
-            } else if (
-              status.name === (oldStatus || existingLead.status) &&
-              status.leadIds?.includes(leadId)
-            ) {
-              return {
-                ...status,
-                leadIds: status.leadIds.filter((id: string) => id !== leadId),
+                leadIds: (status.leadIds || []).filter(
+                  (id: string) => id !== leadId
+                ),
               };
             }
+
+            if (status.name === newStatus) {
+              const ids = status.leadIds || [];
+              // Avoid duplicate before inserting
+              const withoutLead = ids.filter((id: string) => id !== leadId);
+              withoutLead.splice(newPosition, 0, leadId); // insert at correct position
+              return {
+                ...status,
+                leadIds: withoutLead,
+              };
+            }
+
             return status;
           });
 
           await tx.organization.update({
             where: { id: organizationId },
-            data: { statuses: updatedStatuses },
+            data: { stages: updatedStatuses },
           });
         }
       }
 
-      // Update the moved lead
+      // ✅ Update the dragged lead
       const updatedLead = await tx.lead.update({
         where: { id: leadId },
         data: {
-          status: newStatus || existingLead.status,
+          status: newStatus,
           position: newPosition,
           updatedAt: new Date(),
         },
@@ -167,13 +164,10 @@ export const updateLeadDragDrop = async (req: Request, res: Response) => {
         },
       });
 
-      // Return all leads in affected statuses for frontend update
-      const affectedStatuses = [
-        newStatus || existingLead.status,
-        ...(newStatus && newStatus !== (oldStatus || existingLead.status)
-          ? [oldStatus || existingLead.status]
-          : []),
-      ].filter(Boolean);
+      // ✅ Fetch updated leads in affected statuses
+      const affectedStatuses = Array.from(
+        new Set([currentStatus, newStatus])
+      ).filter(Boolean);
 
       const affectedLeads = await tx.lead.findMany({
         where: {
