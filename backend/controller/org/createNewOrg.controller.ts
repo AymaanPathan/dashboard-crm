@@ -12,7 +12,6 @@ const createOrganization = async (req: Request, res: Response) => {
   };
 
   try {
-    // Get data from request body
     const {
       organization_name = "",
       company_website = "",
@@ -21,134 +20,152 @@ const createOrganization = async (req: Request, res: Response) => {
       ownerId = req?.user?.id,
     }: IOrganization = req.body || {};
 
-    // Validation
     if (!organization_name.trim()) {
-      response.statusCode = 400;
-      response.message = "Organization name is required";
-      return sendResponse(res, response);
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Organization name is required",
+      });
     }
 
     if (!industry.trim()) {
-      response.statusCode = 400;
-      response.message = "Industry is required";
-      return sendResponse(res, response);
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Industry is required",
+      });
     }
 
     if (!company_size.trim()) {
-      response.statusCode = 400;
-      response.message = "Company size is required";
-      return sendResponse(res, response);
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Company size is required",
+      });
     }
 
-    if (company_website && company_website.trim()) {
+    if (company_website?.trim()) {
       const urlPattern =
         /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
       if (!urlPattern.test(company_website)) {
-        response.statusCode = 400;
-        response.message = "Invalid website URL format";
-        return sendResponse(res, response);
+        return sendResponse(res, {
+          ...response,
+          statusCode: 400,
+          message: "Invalid website URL format",
+        });
       }
     }
 
-    // Check if organization name already exists
+    // Check if org already exists
     const existingOrg = await prisma.organization.findFirst({
       where: {
-        organization_name: organization_name?.trim(),
+        organization_name: organization_name.trim(),
       },
     });
 
     if (existingOrg) {
-      response.statusCode = 400;
-      response.message = "Organization with this name already exists";
-      return sendResponse(res, response);
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Organization with this name already exists",
+      });
     }
 
-    if (ownerId) {
-      const userExists = await prisma.user.findUnique({
-        where: { id: ownerId },
+    // Validate owner
+    if (!ownerId) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Owner user not found",
       });
-      // Create the organization
-      const newOrganization = await prisma.organization.create({
-        data: {
-          organization_name: organization_name?.trim(),
-          company_website: company_website?.trim() || null,
-          industry: industry?.trim(),
-          company_size: company_size?.trim(),
-          ownerId: ownerId || null,
-        },
-        include: {
-          owner: ownerId
-            ? {
-                select: {
-                  id: true,
-                  username: true,
-                  email: true,
-                },
-              }
-            : false,
-          employees: {
-            select: {
-              id: true,
-              username: true,
-              email: true,
-            },
+    }
+
+    const userExists = await prisma.user.findUnique({
+      where: { id: ownerId },
+    });
+
+    if (!userExists) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Owner user not found",
+      });
+    }
+
+    // ✅ Create organization
+    const newOrganization = await prisma.organization.create({
+      data: {
+        organization_name: organization_name.trim(),
+        company_website: company_website?.trim() || null,
+        industry: industry.trim(),
+        company_size: company_size.trim(),
+        ownerId,
+      },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
           },
         },
-      });
-
-      if (!userExists) {
-        response.statusCode = 400;
-        response.message = "Owner user not found";
-        return sendResponse(res, response);
-      }
-      await prisma.user.update({
-        where: { id: ownerId },
-        data: { currentOrganizationId: newOrganization.id },
-      });
-
-      await prisma.organization.update({
-        where: { id: newOrganization.id },
-        data: {
-          stages: [
-            { name: "New Lead", leadIds: [] },
-            { name: "Contacted", leadIds: [] },
-            { name: "Negotiation", leadIds: [] },
-            { name: "Closed", leadIds: [] },
-          ],
+        employees: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+          },
         },
-      });
+      },
+    });
 
-      response.data = {
-        organization: newOrganization,
-        status: "created",
-        currentOrg: newOrganization,
-      };
-      if (req.user) {
-        req.user.organizationId! = newOrganization.id;
-      }
-    } else {
-      response.statusCode = 400;
-      response.message = "Owner user not found";
-      response.showMessage = true;
-      return sendResponse(res, response);
+    // ✅ Set currentOrganizationId for owner
+    await prisma.user.update({
+      where: { id: ownerId },
+      data: { currentOrganizationId: newOrganization.id },
+    });
+
+    // ✅ Create default stages
+    const defaultStages = [
+      { name: "New Lead", order: 0 },
+      { name: "Contacted", order: 1 },
+      { name: "Negotiation", order: 2 },
+      { name: "Closed", order: 3 },
+    ];
+
+    await prisma.stage.createMany({
+      data: defaultStages.map((s) => ({
+        name: s.name,
+        order: s.order,
+        organizationId: newOrganization.id,
+      })),
+    });
+
+    response.data = {
+      organization: newOrganization,
+      status: "created",
+      currentOrg: newOrganization,
+    };
+
+    if (req.user) {
+      req.user.organizationId = newOrganization.id;
     }
 
     return sendResponse(res, response);
   } catch (error: any) {
+    console.error("Error creating organization:", error);
+
     if (error.code === "P2002") {
       response.statusCode = 400;
       response.message = "Organization with this name already exists";
-      return sendResponse(res, response);
-    }
-
-    if (error.code === "P2003") {
+    } else if (error.code === "P2003") {
       response.statusCode = 400;
       response.message = "Invalid owner ID provided";
-      return sendResponse(res, response);
+    } else {
+      response.statusCode = 500;
+      response.message = error.message || "Internal server error";
     }
 
-    response.statusCode = 500;
-    response.message = error.message || "Internal server error";
     return sendResponse(res, response);
   }
 };

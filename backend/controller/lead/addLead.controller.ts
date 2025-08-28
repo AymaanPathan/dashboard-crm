@@ -12,7 +12,6 @@ const createLead = async (req: Request, res: Response) => {
   };
 
   try {
-    // Get data from request body
     const {
       name = "",
       email = "",
@@ -23,76 +22,71 @@ const createLead = async (req: Request, res: Response) => {
       category = "",
       requirements = "",
       assignedToId = "",
+      stageId = "", // 🆕 replaced "status"
       createdBy = req?.user?.id,
       organizationId = req?.user?.currentOrganizationId,
-      status = "",
-    }: ILead = req.body || {};
+    }: ILead & { stageId: string } = req.body || {};
 
-    // Validation - only name is required
     if (!name.trim()) {
-      response.statusCode = 400;
-      response.message = "Lead name is required";
-      return sendResponse(res, response);
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Lead name is required",
+      });
     }
 
     if (!organizationId) {
-      response.statusCode = 400;
-      response.message = "Organization ID is required";
-      return sendResponse(res, response);
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Organization ID is required",
+      });
     }
 
-    // Email validation (if provided) - removed duplicate validation
-    if (email && email.trim()) {
+    // Optional email format validation
+    if (email?.trim()) {
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(email)) {
-        response.statusCode = 400;
-        response.message = "Invalid email format";
-        return sendResponse(res, response);
+        return sendResponse(res, {
+          ...response,
+          statusCode: 400,
+          message: "Invalid email format",
+        });
       }
     }
 
-    // Check if organization exists
-    const organization = await prisma.organization.findUnique({
-      where: { id: organizationId },
+    // 🧠 Validate stage
+    const stage = await prisma.stage.findFirst({
+      where: {
+        id: stageId,
+        organizationId: organizationId,
+      },
     });
 
-    if (!organization) {
-      response.statusCode = 400;
-      response.message = "Organization not found";
-      return sendResponse(res, response);
+    if (!stage) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Stage not found or does not belong to this organization",
+      });
     }
 
-    // Validate status exists in organization's statuses
-    const currentStatuses = organization.stages as any[];
-    const trimmedStatus = status.trim();
-    const statusExists = currentStatuses.some(
-      (statusObj) => statusObj.name === trimmedStatus
-    );
-
-    if (!statusExists) {
-      response.statusCode = 400;
-      response.message = `Status '${trimmedStatus}' does not exist in organization. Available statuses: ${currentStatuses
-        .map((s) => s.name)
-        .join(", ")}`;
-      return sendResponse(res, response);
-    }
-
-    // Check if assigned user exists (if provided)
-    if (assignedToId && assignedToId.trim()) {
+    if (assignedToId?.trim()) {
       const assignedUser = await prisma.user.findUnique({
         where: { id: assignedToId },
       });
 
       if (!assignedUser) {
-        console.log("Request Body:", req.user);
-        response.statusCode = 400;
-        response.message = "Assigned user not found";
-        return sendResponse(res, response);
+        return sendResponse(res, {
+          ...response,
+          statusCode: 400,
+          message: "Assigned user not found",
+        });
       }
     }
 
-    // Check if lead with same email already exists in this organization (if email provided)
-    if (email && email.trim()) {
+    // Check duplicate lead by email
+    if (email?.trim()) {
       const existingLead = await prisma.lead.findFirst({
         where: {
           email: email.trim().toLowerCase(),
@@ -101,48 +95,38 @@ const createLead = async (req: Request, res: Response) => {
       });
 
       if (existingLead) {
-        response.statusCode = 400;
-        response.message =
-          "Lead with this email already exists in your organization";
-        return sendResponse(res, response);
+        return sendResponse(res, {
+          ...response,
+          statusCode: 400,
+          message: "Lead with this email already exists in your organization",
+        });
       }
     }
 
-    // Get the next position for this status in the organization
-    const maxPositionResult = await prisma.lead.findFirst({
-      where: {
-        organizationId: organizationId,
-        status: trimmedStatus,
-      },
-      orderBy: {
-        position: "desc",
-      },
-      select: {
-        position: true,
-      },
+    const maxPosition = await prisma.lead.findFirst({
+      where: { organizationId, stageId },
+      orderBy: { position: "desc" },
+      select: { position: true },
     });
 
-    const nextPosition = maxPositionResult ? maxPositionResult.position + 1 : 0;
+    const nextPosition = maxPosition ? maxPosition.position + 1 : 0;
 
-    // Create the lead with calculated position
     const newLead = await prisma.lead.create({
       data: {
         name: name.trim(),
         email: email?.trim().toLowerCase() || "",
         phone: mobileNumber?.trim() || null,
-        company: null,
         source: source?.trim() || null,
-        budget: null,
         notes: requirements?.trim() || null,
-        status: trimmedStatus,
-        position: nextPosition, // Set the calculated position
-        organizationId: organizationId,
-        assignedToId: assignedToId?.trim() || null,
         contactPersonName: contactPersonName?.trim() || null,
         category: category?.trim() || null,
         address:
           address && Object.keys(address).length > 0 ? { ...address } : {},
+        assignedToId: assignedToId?.trim() || null,
         createdBy,
+        organizationId,
+        stageId,
+        position: nextPosition,
       },
       include: {
         organization: {
@@ -163,29 +147,10 @@ const createLead = async (req: Request, res: Response) => {
       },
     });
 
-    // Update organization statuses to add this lead ID to the specified status
-    const updatedStatuses = currentStatuses.map((statusObj) => {
-      if (statusObj.name === trimmedStatus) {
-        return {
-          ...statusObj,
-          leadIds: [...(statusObj.leadIds || []), newLead.id],
-        };
-      }
-      return statusObj;
-    });
-
-    // Update organization with new lead ID in statuses
-    await prisma.organization.update({
-      where: { id: organizationId },
-      data: {
-        stages: updatedStatuses,
-      },
-    });
-
     response.data = {
       lead: newLead,
       status: "created",
-      assignedStatus: trimmedStatus,
+      stage: stage.name,
       position: nextPosition,
     };
 
@@ -194,20 +159,26 @@ const createLead = async (req: Request, res: Response) => {
     console.error("Error creating lead:", error);
 
     if (error.code === "P2002") {
-      response.statusCode = 400;
-      response.message = "Lead with this email already exists";
-      return sendResponse(res, response);
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Lead with this email already exists",
+      });
     }
 
     if (error.code === "P2003") {
-      response.statusCode = 400;
-      response.message = "Invalid organization or assigned user ID";
-      return sendResponse(res, response);
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Invalid organization or assigned user ID",
+      });
     }
 
-    response.statusCode = 500;
-    response.message = error.message || "Internal server error";
-    return sendResponse(res, response);
+    return sendResponse(res, {
+      ...response,
+      statusCode: 500,
+      message: error.message || "Internal server error",
+    });
   }
 };
 

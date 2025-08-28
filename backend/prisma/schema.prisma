@@ -24,31 +24,43 @@ model user {
   leadsCreated  Lead[]   @relation("LeadCreatedBy")
 
 }
+model Stage {
+  id             String        @id @default(uuid())
+  name           String
+  order          Int           @default(0) // Optional, to allow drag-drop or display order
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  leads          Lead[]        @relation("LeadStage")
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
 
 model Organization {
   id                       String   @id @default(uuid())
   organization_name        String
-  company_website          String? 
+  company_website          String?
   industry                 String
   company_size             String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  employees  user[]
-  owner user? @relation("OrgOwnedBy", fields: [ownerId], references: [id])  
-  ownerId String?  
-  stages     Json     @default("[]")
-  leads Lead[]
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  employees                user[]
+  owner                    user?     @relation("OrgOwnedBy", fields: [ownerId], references: [id])
+  ownerId                  String?
+
+  stages                   Stage[]
+  leads                    Lead[]
 }
 
 model Lead {
-  position          Int      @default(0) 
-  @@index([organizationId, status, position])
+  position          Int      @default(0)
+  @@index([organizationId, stageId, position])
   id                String   @id @default(uuid())
   name              String
   email             String?
   phone             String?
   company           String?
-  status            String   @default("New Lead")
   source            String?
   budget            String?
   notes             String?
@@ -56,14 +68,19 @@ model Lead {
   contactPersonName String?
   category          String?
   address           Json?
+
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  createdBy        String?
-  createdByUser     user? @relation("LeadCreatedBy", fields: [createdBy], references: [id])
 
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  
-  assignedToId   String?
-  assignedTo     user? @relation("LeadAssignedTo", fields: [assignedToId], references: [id])
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdBy         String?
+  createdByUser     user? @relation("LeadCreatedBy", fields: [createdBy], references: [id])
+  assignedToId      String?
+  assignedTo        user? @relation("LeadAssignedTo", fields: [assignedToId], references: [id])
+
+  // New relation to stage
+  stageId           String?
+  stage             Stage? @relation("LeadStage", fields: [stageId], references: [id])
 }
