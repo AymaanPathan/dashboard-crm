@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axiosSetup from "@/utils/axiosSetup";
 
 export const getLeadForKanbanApi = async () => {
@@ -11,12 +12,14 @@ export const updateLeadDragDropApi = async (
   newPosition: number,
   oldStatus: string,
   oldPosition: number
-): Promise<void> => {
-  const response = await axiosSetup.patch(`/lead/update/${leadId}`, {
+): Promise<any> => {
+  const response = await axiosSetup.patch("/lead/updateStatus", {
+    leadId,
     oldStatus,
     newStatus,
     oldPosition,
     newPosition,
   });
+
   return response.data;
 };

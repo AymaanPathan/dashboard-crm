@@ -17,7 +17,7 @@ export const StatusColumn: React.FC<{ status: Statusdata }> = ({ status }) => {
       const position =
         hoveredIndex !== null ? hoveredIndex : status.leadIds?.length || 0;
 
-      const res = dispatch(
+      dispatch(
         moveLeadBetweenStatuses({
           leadId: item.id,
           newStatus: status.name,
@@ -26,9 +26,8 @@ export const StatusColumn: React.FC<{ status: Statusdata }> = ({ status }) => {
           newPosition: position,
         })
       );
-      console.log("res", res);
 
-      await dispatch(
+      dispatch(
         updateLeadStatus({
           leadId: item.id,
           newStatus: status.name,

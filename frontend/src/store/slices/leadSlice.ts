@@ -9,9 +9,16 @@ const initialState: LeadState = {
   error: null,
 };
 
+// Async thunk to call the backend API
 export const updateLeadStatus = createAsyncThunk(
   "leads/updateStatus",
-  async (payload: {
+  async ({
+    leadId,
+    newStatus,
+    newPosition,
+    oldStatus,
+    oldPosition,
+  }: {
     leadId: string;
     newStatus: string;
     newPosition: number;
@@ -19,16 +26,17 @@ export const updateLeadStatus = createAsyncThunk(
     oldPosition: number;
   }) => {
     const response = await updateLeadDragDropApi(
-      payload.leadId,
-      payload.newStatus,
-      payload.newPosition,
-      payload.oldStatus,
-      payload.oldPosition
+      leadId,
+      newStatus,
+      newPosition,
+      oldStatus,
+      oldPosition
     );
-    return response;
+    return response; // Can be void or updated lead if backend returns it
   }
 );
 
+// Slice
 const leadSlice = createSlice({
   name: "leads",
   initialState,
@@ -43,36 +51,22 @@ const leadSlice = createSlice({
         newPosition: number;
       }>
     ) => {
-      const { leadId, newStatus, oldStatus, oldPosition, newPosition } =
-        action.payload;
+      const { leadId, newStatus, oldStatus, newPosition } = action.payload;
 
       const lead = state.leads[leadId];
-
       if (!lead) return;
 
-      const oldStatusIndex = state.statuses.findIndex(
-        (s) => s.name === oldStatus
-      );
-      const newStatusIndex = state.statuses.findIndex(
-        (s) => s.name === newStatus
-      );
+      const oldColumn = state.statuses.find((s) => s.name === oldStatus);
+      const newColumn = state.statuses.find((s) => s.name === newStatus);
+      if (!oldColumn || !newColumn) return;
 
-      if (oldStatusIndex === -1 || newStatusIndex === -1) return;
+      // Remove lead from old column
+      oldColumn.leadIds = oldColumn?.leadIds?.filter((id) => id !== leadId);
 
-      const oldStatusObj = state.statuses[oldStatusIndex];
-      const newStatusObj = state.statuses[newStatusIndex];
+      // Add to new column at new position
+      newColumn?.leadIds?.splice(newPosition, 0, leadId);
 
-      oldStatusObj.leadIds = oldStatusObj.leadIds || [];
-      newStatusObj.leadIds = newStatusObj.leadIds || [];
-
-      // Remove from old list
-      const oldLeadIndex = oldStatusObj.leadIds.indexOf(leadId);
-      if (oldLeadIndex !== -1) oldStatusObj.leadIds.splice(oldLeadIndex, 1);
-
-      // Insert in new list at new position
-      newStatusObj.leadIds.splice(newPosition, 0, leadId);
-
-      // Update lead status
+      // Update lead data
       state.leads[leadId].status = newStatus;
       state.leads[leadId].position = newPosition;
     },
@@ -85,6 +79,7 @@ const leadSlice = createSlice({
       })
       .addCase(updateLeadStatus.fulfilled, (state) => {
         state.loading = false;
+        // no-op if optimistic update already done
       })
       .addCase(updateLeadStatus.rejected, (state, action) => {
         state.loading = false;
@@ -93,6 +88,5 @@ const leadSlice = createSlice({
   },
 });
 
-export const { moveLeadBetweenStatuses } = leadSlice.actions; // Export the action
-
+export const { moveLeadBetweenStatuses } = leadSlice.actions;
 export default leadSlice.reducer;
