@@ -12,12 +12,11 @@ import { StatusColumn } from "@/components/pages/lead/StatusCol";
 
 const LeadsDashboard: React.FC = () => {
   const dispatch = useDispatch<RootDispatch>();
-  const statuses = useSelector((state: RootState) => state.kanban.statuses);
+  const kanbanData = useSelector((state: RootState) => state.kanban.kanbanData);
 
   const currentOrg = useSelector(
     (state: RootState) => state.org.currentOrganization
   );
-
 
   useEffect(() => {
     const getOrganizationData = async (): Promise<void> => {
@@ -51,8 +50,7 @@ const LeadsDashboard: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-5 gap-6">
-            {statuses?.map((stage: any, index: number) => {
-              console.log("stage", stage);
+            {kanbanData?.map((stage: any, index: number) => {
               return <StatusColumn key={index} stage={stage} />;
             })}
           </div>

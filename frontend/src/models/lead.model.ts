@@ -1,4 +1,5 @@
 export interface Lead {
+  stageId: string;
   position: number;
   id: string;
   name: string;
@@ -23,13 +24,15 @@ export interface Lead {
 }
 
 export interface Status {
-  name: string;
-  leadIds?: string[];
+  stageId: string;
+  stageName: string;
+  leads?: string[];
 }
 
 export interface LeadState {
   leads: any;
   statuses: Status[];
+  kanbanData: any[];
   loading: boolean;
   error: string | null;
 }
