@@ -15,6 +15,7 @@ export const updateLeadDragDropPosition = async (
 
   try {
     const { leadId, oldStage, newStage, oldPosition, newPosition } = req.body;
+    console.log("body", req.body);
 
     if (
       !leadId ||
@@ -40,7 +41,7 @@ export const updateLeadDragDropPosition = async (
     if (oldStage === newStage) {
       // Reorder in same column
       const leads = await prisma.lead.findMany({
-        where: { organizationId: orgId, stage: oldStage },
+        where: { organizationId: orgId, stageId: oldStage },
         orderBy: { position: "asc" },
       });
 
@@ -60,14 +61,14 @@ export const updateLeadDragDropPosition = async (
       const oldLeads = await prisma.lead.findMany({
         where: {
           organizationId: orgId,
-          stage: oldStage,
+          stageId: oldStage,
           id: { not: leadId },
         },
         orderBy: { position: "asc" },
       });
 
       const newLeads = await prisma.lead.findMany({
-        where: { organizationId: orgId, stage: newStage },
+        where: { organizationId: orgId, stageId: newStage },
         orderBy: { position: "asc" },
       });
 

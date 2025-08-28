@@ -44,7 +44,14 @@ export const getLeadWithStageKanban = async (req: Request, res: Response) => {
       leads: stage.leads,
     }));
 
-    response.data = stageWithLeads;
+    response.data = {
+      leads: stageWithLeads.flatMap((stage) => stage.leads),
+      stages: stages.map((stage) => ({
+        id: stage.id,
+        name: stage.name,
+      })),
+      kanbanData: stageWithLeads,
+    };
     return sendResponse(res, response);
   } catch (err) {
     console.error("Error in getLeadWithStageKanban:", err);
