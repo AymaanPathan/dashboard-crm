@@ -76,7 +76,7 @@ export const StatusColumn: React.FC<{ status: Statusdata }> = ({ status }) => {
         {status.leads?.map((lead: any, index: number) => (
           <LeadCard
             key={lead.id}
-            leadId={lead.id}
+            leadData={lead}
             statusName={status.name}
             index={index}
             onHover={setHoveredIndex}

@@ -4,20 +4,17 @@
 import { useDrag, useDrop } from "react-dnd";
 import { MoreHorizontal } from "lucide-react";
 import { DragCollectedProps, DragItem, ITEM_TYPE } from "@/models/kanban.model";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
 
 export const LeadCard: React.FC<{
-  leadId: string;
+  leadData: any;
   statusName: string;
   index: number;
   onHover: (index: number) => void;
-}> = ({ leadId, statusName, index, onHover }) => {
-
+}> = ({ leadData, statusName, index, onHover }) => {
   const [{ isDragging }, drag] = useDrag<DragItem, void, DragCollectedProps>({
     type: ITEM_TYPE,
     item: () => ({
-      id: leadId,
+      id: leadData.id,
       statusName,
       index,
       type: ITEM_TYPE,
@@ -32,7 +29,7 @@ export const LeadCard: React.FC<{
     accept: ITEM_TYPE,
     hover: (draggedItem, monitor) => {
       if (!monitor.isOver({ shallow: true })) return;
-      if (draggedItem.id === leadId) return;
+      if (draggedItem.id === leadData.id) return;
 
       onHover(index);
     },
@@ -59,7 +56,9 @@ export const LeadCard: React.FC<{
       </div>
 
       <div className="mb-3">
-        <h4 className="font-medium text-gray-900 mb-1">Lead ID: {leadId}</h4>
+        <h4 className="font-medium text-gray-900 mb-1">
+          Lead ID: {leadData.name}
+        </h4>
         <div className="text-xs text-gray-500">Status: {statusName}</div>
       </div>
     </div>
