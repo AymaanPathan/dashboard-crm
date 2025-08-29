@@ -38,25 +38,7 @@ export const updateLeadDragDropPosition = async (
 
     const orgId = currentLead.organizationId;
 
-    if (oldStage === newStage) {
-      // Reorder in same column
-      const leads = await prisma.lead.findMany({
-        where: { organizationId: orgId, stageId: oldStage },
-        orderBy: { position: "asc" },
-      });
-
-      const updated = leads.filter((l) => l.id !== leadId);
-      updated.splice(newPosition, 0, currentLead);
-
-      await prisma.$transaction(
-        updated.map((lead, i) =>
-          prisma.lead.update({
-            where: { id: lead.id },
-            data: { position: i },
-          })
-        )
-      );
-    } else {
+    if (newStage !== oldStage) {
       // Move to different column
       const oldLeads = await prisma.lead.findMany({
         where: {
@@ -64,12 +46,10 @@ export const updateLeadDragDropPosition = async (
           stageId: oldStage,
           id: { not: leadId },
         },
-        orderBy: { position: "asc" },
       });
 
       const newLeads = await prisma.lead.findMany({
         where: { organizationId: orgId, stageId: newStage },
-        orderBy: { position: "asc" },
       });
 
       const updatedNewLeads = [...newLeads];
@@ -95,8 +75,36 @@ export const updateLeadDragDropPosition = async (
           })
         ),
       ]);
+    } else {
+      const leadsInStage = await prisma.lead.findMany({
+        where: {
+          organizationId: orgId,
+          stageId: oldStage,
+        },
+      });
+
+      const updatedLeads = leadsInStage.filter((lead) => lead.id !== leadId);
+
+      updatedLeads.splice(newPosition, 0, currentLead);
+
+      await prisma.$transaction(
+        updatedLeads.map((lead, i) =>
+          prisma.lead.update({
+            where: { id: lead.id },
+            data: { position: i },
+          })
+        )
+      );
     }
 
+    response.data = {
+      leadId,
+      oldStage,
+      newStage,
+      oldPosition,
+      newPosition,
+    };
+    console.log("Response data:", response.data);
     return sendResponse(res, response);
   } catch (err) {
     console.error(err);
