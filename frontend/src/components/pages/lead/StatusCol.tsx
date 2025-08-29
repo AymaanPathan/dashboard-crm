@@ -21,6 +21,7 @@ export const StatusColumn: React.FC<{ stage: any }> = ({ stage }) => {
         hoveredIndex !== null ? hoveredIndex : stage.leads?.length || 0;
 
         console.log("Dropped item:", item);
+        console.log("Target hoveredIndex:", hoveredIndex);
 
       const fullLead = leads.find((l: any) => l.id === item.id);
       if (!fullLead) return;

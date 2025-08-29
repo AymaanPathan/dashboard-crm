@@ -39,8 +39,8 @@ export const updateLeadStatus = createAsyncThunk(
       leadId,
       oldStage,
       newStage,
+      oldPosition,
       newPosition,
-      oldPosition
     );
     return response;
   }
