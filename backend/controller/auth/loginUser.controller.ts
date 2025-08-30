@@ -4,6 +4,7 @@ import { ResponseModel, sendResponse } from "../../utils/response.utils";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import validator from "validator";
+import { compareHashedPassword } from "../../utils/compareHashedPass.utils";
 
 export const loginUser = async (req: Request, res: Response) => {
   const response: ResponseModel = {
@@ -51,7 +52,7 @@ export const loginUser = async (req: Request, res: Response) => {
       return sendResponse(res, response);
     }
     // Compare Password
-    const isPassMatched = await bcrypt.compare(
+    const isPassMatched = await compareHashedPassword(
       password,
       userFindbyEmailID.password
     );

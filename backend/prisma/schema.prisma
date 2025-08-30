@@ -7,8 +7,22 @@ datasource db{
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  admin
+  sales_manager
+  sales_rep
+  telecaller
+  finance
+  ops
+}
+
+
 model user {
   id         String   @id @default(uuid())
+  role       Role     @default(sales_rep)
+  managerId  String?
+  manager       user?   @relation("UserManager", fields: [managerId], references: [id])
+  teamMembers   user[]  @relation("UserManager")  // All Users under this user
   username   String
   email      String   @unique
   password   String

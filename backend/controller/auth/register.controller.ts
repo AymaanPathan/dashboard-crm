@@ -9,6 +9,7 @@ import deleteUnverifiedUsersQueue, {
 } from "../../utils/queues/deleteUnverifiedUsersQueue";
 import { generateOTP } from "../../utils/generateOtp";
 import { sendOTPEmail } from "../../utils/sendEmail";
+import { hashPassword } from "../../utils/hashPassword.utils";
 
 const registerUser = async (req: Request, res: Response) => {
   const response: ResponseModel = {
@@ -66,7 +67,7 @@ const registerUser = async (req: Request, res: Response) => {
       return sendResponse(res, response);
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hashPassword(password);
 
     // Prisma will delete the user if exist if its not verified
     await prisma.user.deleteMany({
