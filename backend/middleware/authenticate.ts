@@ -23,36 +23,49 @@ export const authenticate = async (
     return sendResponse(res, response);
   }
 
-try {
-  const decodedToken = jwt.verify(token!, process.env.JWT_SECRET!) as {
-    userId: string;
-    email: string;
+  try {
+    const decodedToken = jwt.verify(token!, process.env.JWT_SECRET!) as {
+      userId: string;
+      email: string;
+    };
+
+    const userId = decodedToken.userId;
+    if (!userId) {
+      response.statusCode = 400;
+      response.message = "Invalid token payload";
+      return sendResponse(res, response);
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      response.statusCode = 400;
+      response.message = "User not found While Authenticating";
+      return sendResponse(res, response);
+    }
+
+    req.user = user;
+    return next();
+  } catch (error) {
+    console.error("Authentication error:", error);
+    response.statusCode = 400;
+    response.message = "Invalid token";
+    return sendResponse(res, response);
+  }
+};
+
+export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (req.user?.role === "admin") {
+    return next();
+  }
+
+  const response: ResponseModel = {
+    statusCode: 403,
+    message: "Forbidden: You do not have permission to access this resource",
+    data: null,
+    showMessage: true,
   };
-
-  const userId = decodedToken.userId;
-  if (!userId) {
-    response.statusCode = 400;
-    response.message = "Invalid token payload";
-    return sendResponse(res, response);
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  });
-
-  if (!user) {
-    response.statusCode = 400;
-    response.message = "User not found While Authenticating";
-    return sendResponse(res, response);
-  }
-
-  req.user = user;
-  return next();
-} catch (error) {
-  console.error("Authentication error:", error);
-  response.statusCode = 400;
-  response.message = "Invalid token";
   return sendResponse(res, response);
-}
-
 };

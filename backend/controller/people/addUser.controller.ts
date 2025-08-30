@@ -12,15 +12,22 @@ export const createUser = async (req: Request, res: Response) => {
   };
   try {
     const {
-      username,
-      email,
-      password,
-      role,
+      username = "",
+      email = "",
+      password = "",
+      role = "",
       managerId,
-      currentOrganizationId,
-    } = req.body;
+      currentOrganizationId = req?.user?.currentOrganizationId,
+      isActive = true,
+    } = req.body || {};
 
-    if (!username || !email || !password || !role || !currentOrganizationId) {
+    if (
+      username.trim() === "" ||
+      email.trim() === "" ||
+      password.trim() === "" ||
+      role.trim() === "" ||
+      currentOrganizationId.trim() === ""
+    ) {
       response.statusCode = 400;
       response.message = "Missing required fields";
       return sendResponse(res, response);
@@ -46,6 +53,7 @@ export const createUser = async (req: Request, res: Response) => {
         role,
         managerId,
         currentOrganizationId,
+        isVerified: isActive ? true : false,
       },
     });
 
