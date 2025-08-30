@@ -11,6 +11,7 @@ export interface ILead {
   organizationId: string;
   status?: string;
   createdBy?: string;
+  position?: number;
 }
 interface IAddress {
   line1?: string;
