@@ -4,7 +4,7 @@ import SuccessToast from "@/assets/toast/SuccessToast";
 
 export const createNewOrgApi = async (orgData: IOrganization) => {
   try {
-    const response = await axiosSetup.post("org/craeate", orgData);
+    const response = await axiosSetup.post("org/create", orgData);
     SuccessToast({ title: "Organization setup completed successfully!" });
 
     return response.data;
