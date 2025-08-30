@@ -45,24 +45,21 @@ export const LeadCard: React.FC<{
   return (
     <div
       ref={ref}
-      className={`border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow cursor-grab ${
-        isDragging ? "opacity-50" : ""
+      className={`bg-white border border-gray-200/60 rounded-lg p-4 hover:shadow-md hover:border-gray-300/80 transition-all duration-200 cursor-grab group ${
+        isDragging ? "opacity-60 shadow-lg rotate-2" : ""
       }`}
       style={{ cursor: isDragging ? "grabbing" : "grab" }}
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
-          <MoreHorizontal className="w-4 h-4 text-gray-400" />
+          <MoreHorizontal className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
         </div>
       </div>
 
       <div className="mb-3">
-        <h4 className="font-medium text-gray-900 mb-1">
-          Lead ID: {leadData.name}
+        <h4 className="font-medium text-gray-900 mb-1 text-sm">
+          {leadData.name}
         </h4>
-        <div className="text-xs text-gray-500">
-          Status: {stageData.stageName}
-        </div>
       </div>
     </div>
   );
