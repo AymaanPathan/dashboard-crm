@@ -1,26 +1,28 @@
-export interface Lead {
-  stageId: string;
-  position: number;
-  id: string;
+import { IKanbanLoadingState } from "./loadings.model";
+
+export interface ILead {
   name: string;
   email: string;
-  phone: string;
-  company: string;
-  status: string;
+  mobileNumber: string;
   source: string;
-  budget: string;
-  notes: string;
+  address: {
+    street?: string;
+    city?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+  };
   leadType: string;
   contactPersonName: string;
   category: string;
-  address: Address;
-  createdAt: string;
-  updatedAt: string;
-  createdBy: string;
-
-  organizationId: string;
-
+  requirements?: string;
   assignedToId: string;
+  stageId?: string;
+  createdBy?: string;
+  organizationId?: string;
+  id?: string;
+  position?: number;
+  stage?: string;
 }
 
 export interface Status {
@@ -29,11 +31,11 @@ export interface Status {
   leads?: string[];
 }
 
-export interface LeadState {
-  leads: any;
+export interface KanbanState {
+  leads: ILead[];
   statuses: Status[];
   kanbanData: any[];
-  loading: boolean;
+  loading: IKanbanLoadingState;
   error: string | null;
 }
 

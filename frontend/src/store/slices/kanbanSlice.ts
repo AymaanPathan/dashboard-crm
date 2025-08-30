@@ -1,14 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getKanbanData } from "@/api/kanban.api";
-import { updateLeadDragDropApi } from "@/api/lead.api";
-import { Lead, LeadState } from "@/models/lead.model";
+import { addLeadApi, updateLeadDragDropApi } from "@/api/lead.api";
+import { ILead, KanbanState } from "@/models/lead.model";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const initialState: LeadState = {
+const initialState: KanbanState = {
   leads: [],
   statuses: [],
   kanbanData: [],
-  loading: false,
+  loading: {
+    fetchingKanban: false,
+    addingLead: false,
+    updatingLeadStatus: false,
+  },
   error: null,
 };
 
@@ -21,7 +25,7 @@ export const fetchLeadForKanban = createAsyncThunk(
 );
 
 export const updateLeadStatus = createAsyncThunk(
-  "leads/updateStatus",
+  "kanban/updateStatus",
   async ({
     leadId,
     oldStage,
@@ -40,14 +44,22 @@ export const updateLeadStatus = createAsyncThunk(
       oldStage,
       newStage,
       oldPosition,
-      newPosition,
+      newPosition
     );
     return response;
   }
 );
 
+export const addLead = createAsyncThunk(
+  "leads/addLead",
+  async (lead: ILead) => {
+    const response = await addLeadApi(lead);
+    return response.data;
+  }
+);
+
 const kanbanSlice = createSlice({
-  name: "leads",
+  name: "kanban",
   initialState,
   reducers: {
     moveLeadBetweenStatuses: (
@@ -60,8 +72,7 @@ const kanbanSlice = createSlice({
         newPosition: number;
       }>
     ) => {
-      const { leadId, oldStageId, newStageId, oldPosition, newPosition } =
-        action.payload;
+      const { leadId, oldStageId, newStageId, newPosition } = action.payload;
 
       const oldColumn = state.kanbanData.find((c) => c.stageId === oldStageId);
       const newColumn = state.kanbanData.find((c) => c.stageId === newStageId);
@@ -104,16 +115,16 @@ const kanbanSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchLeadForKanban.pending, (state) => {
-        state.loading = true;
+        state.loading.fetchingKanban = true;
       })
       .addCase(fetchLeadForKanban.fulfilled, (state, action) => {
-        state.loading = false;
+        state.loading.fetchingKanban = false;
 
         state.kanbanData = action.payload.kanbanData;
         state.leads = action.payload.leads;
       })
       .addCase(fetchLeadForKanban.rejected, (state, action) => {
-        state.loading = false;
+        state.loading.fetchingKanban = false;
         state.error = action.error.message || "Failed to fetch leads";
       })
       .addCase(updateLeadStatus.fulfilled, (state, action) => {
@@ -128,7 +139,33 @@ const kanbanSlice = createSlice({
         state.error = action.error.message || "Failed to update lead status";
       })
       .addCase(updateLeadStatus.pending, (state) => {
-        state.loading = true;
+        state.loading.updatingLeadStatus = true;
+      })
+      .addCase(addLead.pending, (state) => {
+        state.loading.addingLead = true;
+      })
+      .addCase(addLead.fulfilled, (state, action) => {
+        console.log("Lead added:", action?.payload?.lead);
+        const newLead = action?.payload?.lead;
+        
+
+        // Add to the main leads array
+        state.leads.push(newLead);
+
+        // Find the appropriate stage in kanbanData and add the lead there
+        const targetStage = state.kanbanData.find(
+          (stage) => stage.stageId === newLead.stageId
+        );
+
+        if (targetStage) {
+          targetStage.leads.push(newLead);
+        }
+
+        state.loading.addingLead = false;
+      })
+      .addCase(addLead.rejected, (state, action) => {
+        console.error("Failed to add lead:", action.error);
+        state.loading.addingLead = false;
       });
   },
 });

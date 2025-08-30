@@ -1,8 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { ILead } from "@/models/lead.model";
 import axiosSetup from "@/utils/axiosSetup";
 
 export const getLeadForKanbanApi = async () => {
   const response = await axiosSetup.get("/lead/getAll");
+  return response.data;
+};
+
+export const addLeadApi = async (leadData: ILead) => {
+  const response = await axiosSetup.post("/lead/add", leadData);
   return response.data;
 };
 

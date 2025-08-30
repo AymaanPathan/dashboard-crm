@@ -8,9 +8,9 @@ import { PricingSection } from "./PricingSection";
 import { TestimonialsSection } from "./TestimonialsSection";
 import { CtaSection } from "./CTASection";
 import { Footer } from "./Footer";
-import { crmFeatures } from "../landing-page-data/crmFeatures";
-import { crmPricingPlans } from "../landing-page-data/crmPricing";
-import { crmTestimonials } from "../landing-page-data/crmTestimonials";
+import { crmFeatures } from "../../../assets/landing-page-data/crmFeatures";
+import { crmPricingPlans } from "../../../assets/landing-page-data/crmPricing";
+import { crmTestimonials } from "../../../assets/landing-page-data/crmTestimonials";
 
 const LandingPage = () => {
   const renderLanding = () => (
