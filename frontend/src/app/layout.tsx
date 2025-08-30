@@ -2,7 +2,8 @@
 import { Provider } from "react-redux";
 import "./globals.css";
 import { store } from "@/store";
-  import { Toaster } from "sonner";
+import { Toaster } from "sonner";
+import CrmNavbar from "@/components/CrmNavbar";
 
 export default function RootLayout({
   children,
@@ -12,6 +13,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <body suppressHydrationWarning={true}>
+        <CrmNavbar />
         <Provider store={store}>{children}</Provider>
         <Toaster
           position="top-right"
