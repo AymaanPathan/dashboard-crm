@@ -1,7 +1,9 @@
 export interface IUser {
-  org: boolean;
-  id?: string;
-  username: string;
-  email: string;
-  password?: string;
+  username: boolean;
+  email?: string;
+  password: string;
+  role: string;
+  managerId?: string;
+  currentOrganizationId?: string;
+  isVerified?: boolean;
 }
