@@ -1,86 +1,114 @@
-import React from "react";
-import { Plus, Search, Filter, MoreVertical, Mail, Phone } from "lucide-react";
-
-interface Employee {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  role: string;
-  department: string;
-  avatar: string;
-  status: "active" | "inactive";
-}
+"use client";
+import React, { useEffect, useState } from "react";
+import {
+  Plus,
+  Search,
+  Filter,
+  MoreVertical,
+  Mail,
+  Phone,
+  X,
+} from "lucide-react";
+import { RootDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { addUserSlice, getUserSlice } from "@/store/slices/userSlice";
+import { IUser } from "@/models/user.model";
 
 const PeopleDashboard: React.FC = () => {
-  // Mock data - replace with your actual data
-  const employees: Employee[] = [
-    {
-      id: "1",
-      name: "Sarah Johnson",
-      email: "sarah.johnson@company.com",
-      phone: "+1 (555) 123-4567",
-      role: "Sales Manager",
-      department: "Sales",
-      avatar: "SJ",
-      status: "active",
-    },
-    {
-      id: "2",
-      name: "Michael Chen",
-      email: "michael.chen@company.com",
-      phone: "+1 (555) 234-5678",
-      role: "Software Engineer",
-      department: "Engineering",
-      avatar: "MC",
-      status: "active",
-    },
-    {
-      id: "3",
-      name: "Emily Rodriguez",
-      email: "emily.rodriguez@company.com",
-      phone: "+1 (555) 345-6789",
-      role: "Product Designer",
-      department: "Design",
-      avatar: "ER",
-      status: "inactive",
-    },
-    {
-      id: "4",
-      name: "David Kim",
-      email: "david.kim@company.com",
-      phone: "+1 (555) 456-7890",
-      role: "Marketing Specialist",
-      department: "Marketing",
-      avatar: "DK",
-      status: "active",
-    },
-  ];
+  const dispatch: RootDispatch = useDispatch();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const users = useSelector((state: RootState) => state.user.users);
+
+  console.log(users, "users");
+  const [formData, setFormData] = useState<IUser>({
+    username: "joy",
+    email: "joy3@gmail.com",
+    password: "joy3@gmail.com",
+    role: "admin",
+    managerId: "b501fe3c-fa84-4bd0-b6a6-ace37a0c0b1d",
+    currentOrganizationId: "aaec3fe3-9c94-41bb-b4f2-13654f22a30a",
+    isVerified: false,
+  });
+
+  useEffect(() => {
+    dispatch(getUserSlice());
+  }, [dispatch]);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value, type } = e.target;
+
+    if (type === "checkbox") {
+      const target = e.target as HTMLInputElement;
+      setFormData((prev) => ({
+        ...prev,
+        [name]: target.checked,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await dispatch(addUserSlice(formData));
+    setIsModalOpen(false);
+    // Reset form
+    setFormData({
+      username: "",
+      email: "",
+      password: "",
+      role: "",
+      managerId: "",
+      currentOrganizationId: "",
+      isVerified: false,
+    });
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+    // Reset form
+    setFormData({
+      username: "",
+      email: "",
+      password: "",
+      role: "",
+      managerId: "",
+      currentOrganizationId: "",
+      isVerified: false,
+    });
+  };
 
   return (
     <div className="flex-1 space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-      {/* Search and Filters */}
-      <div className="flex items-center space-x-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
-          <input
-            placeholder="Search people..."
-            className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 pl-8 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-200 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          />
+        {/* Search and Filters */}
+        <div className="flex items-center space-x-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+            <input
+              placeholder="Search people..."
+              className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 pl-8 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-200 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            />
+          </div>
+          <button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-white hover:bg-gray-50 hover:text-accent-foreground h-10 px-4 py-2">
+            <Filter className="mr-2 h-4 w-4" />
+            Filter
+          </button>
         </div>
-        <button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-white hover:bg-gray-50 hover:text-accent-foreground h-10 px-4 py-2">
-          <Filter className="mr-2 h-4 w-4" />
-          Filter
-        </button>
-      </div>
-        <button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white hover:bg-black/90 h-10 px-4 py-2">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white hover:bg-black/90 h-10 px-4 py-2"
+        >
           <Plus className="mr-2 h-4 w-4" />
           Add People
         </button>
       </div>
-
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
@@ -149,24 +177,19 @@ const PeopleDashboard: React.FC = () => {
               </tr>
             </thead>
             <tbody className="[&_tr:last-child]:border-0">
-              {employees.map((employee) => (
+              {users?.map((employee: IUser) => (
                 <tr
-                  key={employee.id}
+                  key={employee?.id}
                   className="border-b border-gray-100 transition-colors hover:bg-gray-50 data-[state=selected]:bg-gray-50"
                 >
                   <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
                     <div className="flex items-center space-x-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
-                        <span className="text-sm font-medium text-gray-700">
-                          {employee.avatar}
-                        </span>
-                      </div>
                       <div>
                         <div className="font-medium text-gray-900">
-                          {employee.name}
+                          {employee?.username}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {employee.email}
+                          {employee?.email}
                         </div>
                       </div>
                     </div>
@@ -179,7 +202,7 @@ const PeopleDashboard: React.FC = () => {
                       </div>
                       <div className="flex items-center text-sm text-gray-500">
                         <Phone className="mr-1 h-3 w-3 text-gray-400" />
-                        {employee.phone}
+                        {employee.email}
                       </div>
                     </div>
                   </td>
@@ -188,20 +211,16 @@ const PeopleDashboard: React.FC = () => {
                       {employee.role}
                     </div>
                   </td>
-                  <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800">
-                      {employee.department}
-                    </span>
-                  </td>
+
                   <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
                     <span
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        employee.status === "active"
+                        employee.isVerified
                           ? "bg-black text-white"
                           : "bg-gray-100 text-gray-800"
                       }`}
                     >
-                      {employee.status}
+                      {employee.isVerified ? "Verified" : "Unverified"}
                     </span>
                   </td>
                   <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
@@ -216,6 +235,175 @@ const PeopleDashboard: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* Add User Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Add New User
+              </h2>
+              <button
+                onClick={handleCancel}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <div>
+                <label
+                  htmlFor="username"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Username *
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
+                  placeholder="Enter username"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
+                  placeholder="Enter email address"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Password *
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
+                  placeholder="Enter password"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="role"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Role *
+                </label>
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
+                >
+                  <option value="">Select a role</option>
+                  <option value="admin">admin</option>
+                  <option value="sales_manager">sales_manager</option>
+                  <option value="sales_rep">sales_rep</option>
+                  <option value="finance">finance</option>
+                </select>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="managerId"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Manager ID
+                </label>
+                <input
+                  type="text"
+                  id="managerId"
+                  name="managerId"
+                  value={formData.managerId}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
+                  placeholder="Enter manager ID (optional)"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="currentOrganizationId"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Organization ID
+                </label>
+                <input
+                  type="text"
+                  id="currentOrganizationId"
+                  name="currentOrganizationId"
+                  value={formData.currentOrganizationId}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
+                  placeholder="Enter organization ID (optional)"
+                />
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="isVerified"
+                  name="isVerified"
+                  checked={formData.isVerified}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 text-black focus:ring-black border-gray-300 rounded"
+                />
+                <label
+                  htmlFor="isVerified"
+                  className="ml-2 text-sm text-gray-700"
+                >
+                  Mark as verified
+                </label>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm font-medium text-white bg-black border border-transparent rounded-md hover:bg-black/90 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                >
+                  Add User
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

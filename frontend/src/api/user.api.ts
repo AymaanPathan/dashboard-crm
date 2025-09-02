@@ -2,11 +2,11 @@ import { IUser } from "@/models/user.model";
 import axiosSetup from "../utils/axiosSetup";
 
 export const addUserApi = async (userData: IUser) => {
-  try {
-    const response = await axiosSetup.post("/api/users", userData);
-    return response.data;
-  } catch (error) {
-    console.error("Error adding user:", error);
-    throw error;
-  }
+  const response = await axiosSetup.post("/people/add", userData);
+  return response.data;
+};
+
+export const getUsersApi = async () => {
+  const response = await axiosSetup.get("people/all");
+  return response.data;
 };

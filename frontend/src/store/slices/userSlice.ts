@@ -1,4 +1,4 @@
-import { addUserApi } from "@/api/user.api";
+import { addUserApi, getUsersApi } from "@/api/user.api";
 import { IUser } from "@/models/user.model";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
@@ -11,44 +11,46 @@ const initialState = {
   error: "",
 };
 
-export const addUser = createAsyncThunk("user/addUser", async (user: IUser) => {
-  const response = await addUserApi(user);
-  return response.data;
+export const addUserSlice = createAsyncThunk(
+  "user/adduser",
+  async (userData: IUser) => {
+    const response = await addUserApi(userData);
+    return response;
+  }
+);
+
+export const getUserSlice = createAsyncThunk("user/getuser", async () => {
+  const response = await getUsersApi();
+  return response;
 });
 
-const userSlice = createSlice({
+export const UserSlice = createSlice({
   name: "user",
   initialState,
-  reducers: {
-    setUser: (state, action) => {
-      state.users.push(action.payload);
-    },
-    clearUser: (state) => {
-      state.users = [];
-    },
-    setLoading: (state, action) => {
-      state.loading = action.payload;
-    },
-    setError: (state, action) => {
-      state.error = action.payload;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(addUser.pending, (state) => {
+      .addCase(addUserSlice.pending, (state) => {
         state.loading.isAdding = true;
       })
-      .addCase(addUser.fulfilled, (state, action) => {
+      .addCase(addUserSlice.fulfilled, (state, action) => {
         state.loading.isAdding = false;
         state.users.push(action.payload);
       })
-      .addCase(addUser.rejected, (state, action) => {
+      .addCase(addUserSlice.rejected, (state) => {
         state.loading.isAdding = false;
-        state.error = action.error.message || "";
+      })
+      .addCase(getUserSlice.pending, (state) => {
+        state.loading.isFetching = true;
+      })
+      .addCase(getUserSlice.fulfilled, (state, action) => {
+        state.loading.isFetching = false;
+        state.users = action.payload.data;
+      })
+      .addCase(getUserSlice.rejected, (state) => {
+        state.loading.isFetching = false;
       });
   },
 });
 
-export const { setUser, clearUser, setLoading, setError } = userSlice.actions;
-
-export default userSlice.reducer;
+export default UserSlice.reducer;
