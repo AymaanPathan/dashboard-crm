@@ -25,8 +25,7 @@ const PeopleDashboard: React.FC = () => {
     email: "joy3@gmail.com",
     password: "joy3@gmail.com",
     role: "admin",
-    managerId: "b501fe3c-fa84-4bd0-b6a6-ace37a0c0b1d",
-    currentOrganizationId: "aaec3fe3-9c94-41bb-b4f2-13654f22a30a",
+    managerId: "12a6e347-ffca-402d-b1b3-31546ba17d06",
     isVerified: false,
   });
 
@@ -347,24 +346,6 @@ const PeopleDashboard: React.FC = () => {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
                   placeholder="Enter manager ID (optional)"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="currentOrganizationId"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Organization ID
-                </label>
-                <input
-                  type="text"
-                  id="currentOrganizationId"
-                  name="currentOrganizationId"
-                  value={formData.currentOrganizationId}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
-                  placeholder="Enter organization ID (optional)"
                 />
               </div>
 

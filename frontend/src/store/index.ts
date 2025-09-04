@@ -4,6 +4,7 @@ import authReducer from "./slices/authSlice";
 import orgReducer from "./slices/orgSlice";
 import kanbanReducer from "./slices/kanbanSlice";
 import userReducer from "./slices/userSlice";
+import stageReducer from "./slices/stagesSlice";
 
 export const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ export const store = configureStore({
     org: orgReducer,
     user: userReducer,
     kanban: kanbanReducer,
+    stages: stageReducer,
   },
 });
 

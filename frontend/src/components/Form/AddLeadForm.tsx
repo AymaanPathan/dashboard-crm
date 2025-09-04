@@ -27,43 +27,24 @@ import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { ILead } from "@/models/lead.model";
 import { addLead } from "@/store/slices/kanbanSlice";
+import { LeadSource } from "@/enums/leadSource..enum";
+import { LeadCategory } from "@/enums/leadCategory.enum";
+import { IStage } from "@/models/stage.model";
 
 interface AddLeadFormProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const sources = [
-  "Website",
-  "Social Media",
-  "Referral",
-  "Cold Call",
-  "Email Campaign",
-  "Trade Show",
-  "Advertisement",
-  "Other",
-];
-const categories = [
-  "Enterprise",
-  "SMB",
-  "Startup",
-  "Individual",
-  "Government",
-  "Non-profit",
-];
-const teamMembers = ["John Doe", "Jane Smith", "Mike Johnson", "Sarah Wilson"];
-const stages = [
-  "New Lead",
-  "Contacted",
-  "Qualified",
-  "Proposal Sent",
-  "Negotiation",
-];
-
 export const AddLeadForm: React.FC<AddLeadFormProps> = ({
   isOpen,
   onClose,
 }) => {
+  const teamMembers = useSelector((state: RootState) => state.user.teamMembers);
+  const stagesList = useSelector((state: RootState) => state.stages.stages);
+  console.log("Team Members from Redux:", teamMembers);
+  console.log("Stages List from Redux:", stagesList);
+
   const dispatch: RootDispatch = useDispatch();
   const [formData, setFormData] = useState<ILead>({
     name: "John Doe2",
@@ -71,11 +52,10 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
     mobileNumber: "9876543210",
     source: "Website",
     requirements: "Looking for a solar solution",
-    stageId: "4db7294b-689c-4c6b-b033-8cf2cb31dcc6",
+    stageId: "14a79994-42f3-4cf6-962a-aa1d1eccf60d",
     assignedToId: "b501fe3c-fa84-4bd0-b6a6-ace37a0c0b1d",
     leadType: "Hot",
     contactPersonName: "Jane Doe",
-    category: "Residential",
     address: {
       street: "123 Main Street",
       city: "Vadodara",
@@ -89,6 +69,8 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
   const addingLeadState = useSelector(
     (state: RootState) => state.kanban.loading.addingLead
   );
+
+  console.log("Form Data:", formData);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -125,7 +107,6 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
       newErrors.email = "Invalid email";
     if (!formData.mobileNumber.trim()) newErrors.mobileNumber = "Required";
     if (!formData.source) newErrors.source = "Required";
-    if (!formData.category) newErrors.category = "Required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -157,7 +138,6 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
         country: "",
       },
       contactPersonName: "",
-      category: "",
       requirements: "",
       assignedToId: "",
       stageId: "",
@@ -270,10 +250,41 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-black">
-                  Lead Source *
+                  Lead Type *
                 </Label>
                 <Select
-                  value={formData.source}
+                  onValueChange={(value) =>
+                    handleSelectChange("leadType", value)
+                  }
+                >
+                  <SelectTrigger
+                    className={`border-gray-300 focus:border-black focus:ring-1 focus:ring-black ${
+                      errors.leadType ? "border-red-500" : ""
+                    }`}
+                  >
+                    <SelectValue placeholder="Select lead type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    {Object.values(LeadCategory).map((category) => (
+                      <SelectItem
+                        key={category}
+                        value={category.toLowerCase().replace(/\s+/g, "-")}
+                      >
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.category && (
+                  <p className="text-red-500 text-xs">{errors.category}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-black">
+                  Source *
+                </Label>
+                <Select
                   onValueChange={(value) => handleSelectChange("source", value)}
                 >
                   <SelectTrigger
@@ -284,40 +295,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                     <SelectValue placeholder="Select source" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
-                    {sources.map((source) => (
-                      <SelectItem
-                        key={source}
-                        value={source.toLowerCase().replace(/\s+/g, "-")}
-                      >
-                        {source}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.source && (
-                  <p className="text-red-500 text-xs">{errors.source}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-black">
-                  Category *
-                </Label>
-                <Select
-                  value={formData.category}
-                  onValueChange={(value) =>
-                    handleSelectChange("category", value)
-                  }
-                >
-                  <SelectTrigger
-                    className={`border-gray-300 focus:border-black focus:ring-1 focus:ring-black ${
-                      errors.category ? "border-red-500" : ""
-                    }`}
-                  >
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {categories.map((category) => (
+                    {Object.values(LeadSource).map((category) => (
                       <SelectItem key={category} value={category.toLowerCase()}>
                         {category}
                       </SelectItem>
@@ -393,53 +371,39 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-black">
-                  Assign To
-                </Label>
                 <Select
-                  value={formData.assignedToId}
                   onValueChange={(value) =>
                     handleSelectChange("assignedToId", value)
                   }
                 >
-                  <SelectTrigger className="border-gray-300 focus:border-black focus:ring-1 focus:ring-black">
-                    <SelectValue placeholder="Select team member" />
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Assignee" />
                   </SelectTrigger>
+
                   <SelectContent className="bg-white">
-                    {teamMembers.map((member, index) => (
-                      <SelectItem key={index} value={`user${index + 1}`}>
-                        {member}
+                    {teamMembers.salesReps?.map((member, index) => (
+                      <SelectItem key={index} value={member.id!}>
+                        {member.username}
                       </SelectItem>
-                    ))}
+                    ))}{" "}
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-black">
-                  Initial Stage
-                </Label>
-                <Select
-                  value={formData.stageId}
-                  onValueChange={(value) =>
-                    handleSelectChange("stageId", value)
-                  }
-                >
-                  <SelectTrigger className="border-gray-300 focus:border-black focus:ring-1 focus:ring-black">
-                    <SelectValue placeholder="Select stage" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {stages.map((stage, index) => (
-                      <SelectItem
-                        key={index}
-                        value={stage.toLowerCase().replace(/\s+/g, "-")}
-                      >
-                        {stage}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <Select
+                onValueChange={(value) => handleSelectChange("stageId", value)}
+              >
+                <SelectTrigger className="border-gray-300 focus:border-black focus:ring-1 focus:ring-black">
+                  <SelectValue placeholder="Select stage" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {stagesList.map((stage: IStage, index: number) => (
+                    <SelectItem key={index} value={stage.id!}>
+                      {stage.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

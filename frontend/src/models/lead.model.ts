@@ -14,7 +14,6 @@ export interface ILead {
   };
   leadType: string;
   contactPersonName: string;
-  category: string;
   requirements?: string;
   assignedToId: string;
   stageId?: string;

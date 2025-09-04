@@ -10,3 +10,8 @@ export const getUsersApi = async () => {
   const response = await axiosSetup.get("people/all");
   return response.data;
 };
+
+export const getUserByRoleApi = async () => {
+  const response = await axiosSetup.get("people/getUserByRole");
+  return response.data;
+};

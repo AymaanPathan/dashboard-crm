@@ -21,6 +21,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getUserByRoleSlice } from "@/store/slices/userSlice";
+import { fetchStages } from "@/store/slices/stagesSlice";
 
 const LeadsDashboard: React.FC = () => {
   const dispatch = useDispatch<RootDispatch>();
@@ -37,6 +39,8 @@ const LeadsDashboard: React.FC = () => {
       await dispatch(getOrganizationInfo());
     };
     dispatch(fetchLeadForKanban());
+    dispatch(getUserByRoleSlice());
+    dispatch(fetchStages());
 
     getOrganizationData();
   }, [dispatch]);

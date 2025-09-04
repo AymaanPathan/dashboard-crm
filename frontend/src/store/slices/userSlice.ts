@@ -1,8 +1,19 @@
-import { addUserApi, getUsersApi } from "@/api/user.api";
+import { addUserApi, getUserByRoleApi, getUsersApi } from "@/api/user.api";
 import { IUser } from "@/models/user.model";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
+interface TeamMembers {
+  salesReps: IUser[];
+  salesManagers: IUser[];
+  admins: IUser[];
+}
+
 const initialState = {
+  teamMembers: {
+    salesReps: [] as IUser[],
+    salesManagers: [] as IUser[],
+    admins: [] as IUser[],
+  } as TeamMembers,
   users: [] as IUser[],
   loading: {
     isAdding: false,
@@ -23,6 +34,14 @@ export const getUserSlice = createAsyncThunk("user/getuser", async () => {
   const response = await getUsersApi();
   return response;
 });
+
+export const getUserByRoleSlice = createAsyncThunk(
+  "user/getUserByRole",
+  async () => {
+    const response = await getUserByRoleApi();
+    return response;
+  }
+);
 
 export const UserSlice = createSlice({
   name: "user",
@@ -48,6 +67,16 @@ export const UserSlice = createSlice({
         state.users = action.payload.data;
       })
       .addCase(getUserSlice.rejected, (state) => {
+        state.loading.isFetching = false;
+      })
+      .addCase(getUserByRoleSlice.pending, (state) => {
+        state.loading.isFetching = true;
+      })
+      .addCase(getUserByRoleSlice.fulfilled, (state, action) => {
+        state.loading.isFetching = false;
+        state.teamMembers = action.payload.data;
+      })
+      .addCase(getUserByRoleSlice.rejected, (state) => {
         state.loading.isFetching = false;
       });
   },
