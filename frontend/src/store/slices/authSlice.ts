@@ -55,7 +55,6 @@ export const loginUser = createAsyncThunk(
       const res = await handleLoginApi(email, password);
       const token = res.data.data.token;
       const user = res.data.data.user;
-      console.log("Login response:", user);
 
       setToken(token, user);
       return res;

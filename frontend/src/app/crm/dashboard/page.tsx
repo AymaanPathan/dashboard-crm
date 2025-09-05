@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getUserByRoleSlice } from "@/store/slices/userSlice";
 import { fetchStages } from "@/store/slices/stagesSlice";
-import Navbar from "./CrmNavbar";
 
 const LeadsDashboard: React.FC = () => {
   const dispatch = useDispatch<RootDispatch>();

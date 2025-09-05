@@ -20,8 +20,6 @@ export const StatusColumn: React.FC<{ stage: any }> = ({ stage }) => {
       const newPosition =
         hoveredIndex !== null ? hoveredIndex : stage.leads?.length || 0;
 
-        console.log("Dropped item:", item);
-        console.log("Target hoveredIndex:", hoveredIndex);
 
       const fullLead = leads.find((l: any) => l.id === item.id);
       if (!fullLead) return;
@@ -51,9 +49,6 @@ export const StatusColumn: React.FC<{ stage: any }> = ({ stage }) => {
         })
       );
 
-      console.log("res", result);
-
-      console.log("Lead moved:", leads);
       setHoveredIndex(null);
     },
     [hoveredIndex, stage, leads, dispatch]

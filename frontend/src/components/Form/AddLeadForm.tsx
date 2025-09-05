@@ -42,8 +42,6 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
 }) => {
   const teamMembers = useSelector((state: RootState) => state.user.teamMembers);
   const stagesList = useSelector((state: RootState) => state.stages.stages);
-  console.log("Team Members from Redux:", teamMembers);
-  console.log("Stages List from Redux:", stagesList);
 
   const dispatch: RootDispatch = useDispatch();
   const [formData, setFormData] = useState<ILead>({
@@ -70,7 +68,6 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
     (state: RootState) => state.kanban.loading.addingLead
   );
 
-  console.log("Form Data:", formData);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

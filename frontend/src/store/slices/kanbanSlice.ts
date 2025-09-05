@@ -171,7 +171,6 @@ const kanbanSlice = createSlice({
         state.loading.addingLead = true;
       })
       .addCase(addLead.fulfilled, (state, action) => {
-        console.log("Lead added:", action?.payload?.lead);
         const newLead = action?.payload?.lead;
 
         // Add to the main leads array

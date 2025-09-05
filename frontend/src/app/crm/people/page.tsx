@@ -19,7 +19,6 @@ const PeopleDashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const users = useSelector((state: RootState) => state.user.users);
 
-  console.log(users, "users");
   const [formData, setFormData] = useState<IUser>({
     username: "joy",
     email: "joy3@gmail.com",

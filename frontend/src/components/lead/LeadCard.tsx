@@ -22,7 +22,6 @@ export const LeadCard: React.FC<{
   onHover: (index: number) => void;
 }> = ({ leadData, stageData, index, onHover }) => {
   const currentUser = getUser();
-  console.log("Current User in LeadCard:", currentUser);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const teamMembers = useSelector((state: RootState) => state.user.teamMembers);
   const dispatch: RootDispatch = useDispatch();
@@ -74,7 +73,6 @@ export const LeadCard: React.FC<{
         newAssigneeId: assignee.id,
       })
     );
-    console.log("Local update result:", res);
 
     await dispatch(
       updateLeadAssignee({ leadId: leadData.id, newAssigneeId: assignee.id })

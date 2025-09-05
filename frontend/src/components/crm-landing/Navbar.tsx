@@ -5,10 +5,14 @@ import { BarChart3, Menu, X } from "lucide-react";
 import { MobileMenu } from "./MobileMenu";
 import { getToken } from "@/utils/auth.utils";
 import { logoutUser } from "@/store/slices/authSlice";
-import { RootDispatch } from "@/store";
-import { useDispatch } from "react-redux";
+import { RootDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function Navbar() {
+  const currentOrganization = useSelector(
+    (state: RootState) => state.org.currentOrganization
+  );
+  console.log("Current Organization in Navbar:", currentOrganization);
   const token = getToken();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dispatch: RootDispatch = useDispatch();
@@ -72,14 +76,23 @@ export default function Navbar() {
               </>
             ) : (
               <>
+                {currentOrganization ? (
+                  <Link
+                    href="/crm/dashboard"
+                    className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-gray-200 hover:border-gray-300"
+                  >
+                    Go To Organization
+                  </Link>
+                ) : (
+                  <Link
+                    href="/organizationsetup"
+                    className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-gray-200 hover:border-gray-300"
+                  >
+                    Setup Organization
+                  </Link>
+                )}
                 <Link
-                  href="/organizationsetup"
-                  className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-gray-200 hover:border-gray-300"
-                >
-                  Setup Organization
-                </Link>
-                <Link
-                  onClick={handleLogout }
+                  onClick={handleLogout}
                   href="/"
                   className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                 >

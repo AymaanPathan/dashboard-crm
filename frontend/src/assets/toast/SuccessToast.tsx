@@ -13,6 +13,10 @@ const SuccessToast = ({ title, description, duration = 3000 }: ToastProps) => {
     style: {
       color: "#2e8b57",
     },
+    action: {
+      label: "close",
+      onClick: () => console.log("close"),
+    },
     className:
       "bg-green-50 text-green-800 border border-green-400 shadow-sm rounded-md px-4 py-3",
   });
