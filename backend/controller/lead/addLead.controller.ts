@@ -19,10 +19,9 @@ const createLead = async (req: Request, res: Response) => {
       source = "",
       address = {},
       contactPersonName = "",
-      category = "",
       requirements = "",
       assignedToId = "",
-      stageId = "", // 🆕 replaced "status"
+      stageId = "",
       createdBy = req?.user?.id,
       organizationId = req?.user?.currentOrganizationId,
     }: ILead & { stageId: string } = req.body || {};
@@ -119,7 +118,6 @@ const createLead = async (req: Request, res: Response) => {
         source: source?.trim() || null,
         notes: requirements?.trim() || null,
         contactPersonName: contactPersonName?.trim() || null,
-        category: category?.trim() || null,
         address:
           address && Object.keys(address).length > 0 ? { ...address } : {},
         assignedToId: assignedToId?.trim() || null,

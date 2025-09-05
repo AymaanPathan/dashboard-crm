@@ -11,4 +11,10 @@ leadRouter.patch(
   leadController.updateLeadDragDropPosition
 );
 
+leadRouter.patch(
+  "/updateAssignee",
+  authenticate,
+  leadController.updateAssignee
+);
+
 export default leadRouter;

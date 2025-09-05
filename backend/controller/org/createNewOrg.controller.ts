@@ -119,13 +119,11 @@ const createOrganization = async (req: Request, res: Response) => {
       },
     });
 
-    // ✅ Set currentOrganizationId for owner
     await prisma.user.update({
       where: { id: ownerId },
       data: { currentOrganizationId: newOrganization.id },
     });
 
-    // ✅ Create default stages
     const defaultStages = [
       { name: "New Lead", order: 0 },
       { name: "Contacted", order: 1 },

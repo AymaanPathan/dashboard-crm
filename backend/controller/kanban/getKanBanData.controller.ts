@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
-import prisma from "../../utils/prisma";
+import { getKanbanDataByRole } from "../../utils/getKanbanBasedOnRole";
 
 export const getLeadWithStageKanban = async (req: Request, res: Response) => {
   const response: ResponseModel = {
@@ -11,51 +11,24 @@ export const getLeadWithStageKanban = async (req: Request, res: Response) => {
   };
 
   try {
+    const userId = req?.user?.id;
+    const role = req?.user?.role;
     const organizationId = req?.user?.currentOrganizationId;
 
-    if (!organizationId) {
+    if (!userId || !role || !organizationId) {
       return sendResponse(res, {
         ...response,
         statusCode: 400,
-        message: "Organization ID not found in user context",
+        message: "User context missing",
       });
     }
 
-    // Fetch all stages and their leads for this organization
-    const stages = await prisma.stage.findMany({
-      where: { organizationId },
-      orderBy: { order: "asc" },
-      include: {
-        leads: {
-          orderBy: { position: "asc" },
-          select: {
-            id: true,
-            name: true,
-            position: true,
-            stageId: true,
-          },
-        },
-      },
-    });
+    const data = await getKanbanDataByRole(userId, role, organizationId);
 
-    const stageWithLeads = stages.map((stage) => ({
-      stageId: stage.id,
-      stageName: stage.name,
-      leads: stage.leads,
-    }));
-
-    response.data = {
-      leads: stageWithLeads.flatMap((stage) => stage.leads),
-      stages: stages.map((stage) => ({
-        id: stage.id,
-        name: stage.name,
-      })),
-      kanbanData: stageWithLeads,
-    };
+    response.data = data;
     return sendResponse(res, response);
   } catch (err) {
     console.error("Error in getLeadWithStageKanban:", err);
-
     return sendResponse(res, {
       ...response,
       statusCode: 500,

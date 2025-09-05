@@ -1,8 +1,13 @@
 import express from "express";
 import * as peopleController from "../../../controller/people/index";
 import { authenticate, isAdmin } from "../../../middleware/authenticate";
-const authRouter = express.Router();
+const peopleRouter = express.Router();
 
-authRouter.post("/add", authenticate, isAdmin, peopleController.createUser);
-authRouter.get("/all", authenticate, isAdmin, peopleController.getPeople);
-export default authRouter;
+peopleRouter.post("/add", authenticate, isAdmin, peopleController.createUser);
+peopleRouter.get("/all", authenticate, isAdmin, peopleController.getPeople);
+peopleRouter.get(
+  "/getUserByRole",
+  authenticate,
+  peopleController.fetchUserHierarchy
+);
+export default peopleRouter;

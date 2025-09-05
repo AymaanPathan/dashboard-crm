@@ -80,7 +80,6 @@ model Lead {
   notes             String?
   leadType          String?
   contactPersonName String?
-  category          String?
   address           Json?
 
   createdAt         DateTime @default(now())

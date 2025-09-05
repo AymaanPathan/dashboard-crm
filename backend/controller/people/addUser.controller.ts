@@ -17,10 +17,10 @@ export const createUser = async (req: Request, res: Response) => {
       password = "",
       role = "",
       managerId,
-      currentOrganizationId = req?.user?.currentOrganizationId,
       isActive = true,
     } = req.body || {};
-
+    
+    const currentOrganizationId = req?.user?.currentOrganizationId
     if (
       username.trim() === "" ||
       email.trim() === "" ||

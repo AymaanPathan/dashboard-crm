@@ -69,3 +69,15 @@ export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
   };
   return sendResponse(res, response);
 };
+
+export const requireRole = (roles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!roles.includes(req?.user?.role)) {
+      return res.status(403).json({
+        message:
+          "Forbidden: You do not have permission to access this resource",
+      });
+    }
+    next();
+  };
+};
