@@ -8,9 +8,12 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootDispatch, RootState } from "@/store";
 import {
+  fetchLeadForKanban,
   updateLeadAssignee,
   updateLeadAssigneeLocally,
 } from "@/store/slices/kanbanSlice";
+import { getUser } from "@/utils/auth.utils";
+import { Role } from "@/enums/role.enum";
 
 export const LeadCard: React.FC<{
   leadData: any;
@@ -18,6 +21,8 @@ export const LeadCard: React.FC<{
   index: number;
   onHover: (index: number) => void;
 }> = ({ leadData, stageData, index, onHover }) => {
+  const currentUser = getUser();
+  console.log("Current User in LeadCard:", currentUser);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const teamMembers = useSelector((state: RootState) => state.user.teamMembers);
   const dispatch: RootDispatch = useDispatch();
@@ -63,16 +68,18 @@ export const LeadCard: React.FC<{
   };
 
   const handleAssigneeChange = async (assignee: any) => {
-    dispatch(
+    const res = dispatch(
       updateLeadAssigneeLocally({
         leadId: leadData.id,
         newAssigneeId: assignee.id,
       })
     );
+    console.log("Local update result:", res);
 
     await dispatch(
       updateLeadAssignee({ leadId: leadData.id, newAssigneeId: assignee.id })
     );
+    await dispatch(fetchLeadForKanban());
 
     setIsDropdownOpen(false);
   };
@@ -103,22 +110,24 @@ export const LeadCard: React.FC<{
 
         {/* Assignee Dropdown */}
         <div className="relative ml-3 flex-shrink-0">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsDropdownOpen(!isDropdownOpen);
-            }}
-            className="flex items-center gap-1 p-1.5 hover:bg-gray-50 rounded-md transition-colors group"
-          >
-            <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs font-medium text-gray-600">
-              {leadData.assignedTo?.username ? (
-                getInitials(leadData.assignedTo.username)
-              ) : (
-                <User className="w-3 h-3" />
-              )}
-            </div>
-            <ChevronDown className="w-3 h-3 text-gray-400 group-hover:text-gray-600 transition-colors" />
-          </button>
+          {currentUser.role !== Role.sales_rep && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDropdownOpen(!isDropdownOpen);
+              }}
+              className="flex items-center gap-1 p-1.5 hover:bg-gray-50 rounded-md transition-colors group"
+            >
+              <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs font-medium text-gray-600">
+                {leadData.assignedTo?.username ? (
+                  getInitials(leadData.assignedTo.username)
+                ) : (
+                  <User className="w-3 h-3" />
+                )}
+              </div>
+              <ChevronDown className="w-3 h-3 text-gray-400 group-hover:text-gray-600 transition-colors" />
+            </button>
+          )}
 
           {isDropdownOpen && (
             <div className="absolute right-0 top-8 z-50 min-w-[140px] bg-white border border-gray-200 rounded-md shadow-lg py-1">

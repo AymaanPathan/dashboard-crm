@@ -11,8 +11,11 @@ export const getUser = () => {
 export const setToken = (token: string, user: IUser) => {
   Cookies.set("token", token, { expires: 1 });
   Cookies.set("user", JSON.stringify(user), { expires: 1 });
+  Cookies.set("role", user.role, { expires: 1 });
 };
 
 export const clearToken = () => {
-  ["token", "user"].forEach((key) => Cookies.remove(key, { path: "/" }));
+  ["token", "user", "role"].forEach((key) =>
+    Cookies.remove(key, { path: "/" })
+  );
 };

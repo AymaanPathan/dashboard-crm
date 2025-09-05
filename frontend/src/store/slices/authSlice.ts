@@ -55,6 +55,7 @@ export const loginUser = createAsyncThunk(
       const res = await handleLoginApi(email, password);
       const token = res.data.data.token;
       const user = res.data.data.user;
+      console.log("Login response:", user);
 
       setToken(token, user);
       return res;
@@ -143,7 +144,6 @@ const authSlice = createSlice({
         const token = action.payload.data.token;
         const username = action.payload.data.user.username;
         const user = action.payload.data.user;
-        const userHasOrg = action.payload.data.user.has_org;
         state.token = token;
         state.userName = username;
         state.step = "done";
