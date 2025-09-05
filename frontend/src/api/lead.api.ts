@@ -29,3 +29,14 @@ export const updateLeadDragDropApi = async (
 
   return response.data;
 };
+
+export const updateAssigneeApi = async (
+  leadId: string,
+  newAssigneeId: string
+) => {
+  const response = await axiosSetup.patch("/lead/updateAssignee", {
+    leadId,
+    newAssigneeId,
+  });
+  return response.data;
+};

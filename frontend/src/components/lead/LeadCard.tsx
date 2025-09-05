@@ -5,14 +5,12 @@ import { useDrag, useDrop } from "react-dnd";
 import { ChevronDown, MoreHorizontal, User } from "lucide-react";
 import { DragCollectedProps, DragItem, ITEM_TYPE } from "@/models/kanban.model";
 import { useState } from "react";
-import { ILead } from "@/models/lead.model";
-
-const mockAssignees = [
-  { id: "1", username: "john.doe", name: "John Doe" },
-  { id: "2", username: "jane.smith", name: "Jane Smith" },
-  { id: "3", username: "mike.johnson", name: "Mike Johnson" },
-  { id: "4", username: "sarah.wilson", name: "Sarah Wilson" },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { RootDispatch, RootState } from "@/store";
+import {
+  updateLeadAssignee,
+  updateLeadAssigneeLocally,
+} from "@/store/slices/kanbanSlice";
 
 export const LeadCard: React.FC<{
   leadData: any;
@@ -21,7 +19,8 @@ export const LeadCard: React.FC<{
   onHover: (index: number) => void;
 }> = ({ leadData, stageData, index, onHover }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedAssignee, setSelectedAssignee] = useState(leadData.assignedTo);
+  const teamMembers = useSelector((state: RootState) => state.user.teamMembers);
+  const dispatch: RootDispatch = useDispatch();
 
   const [{ isDragging }, drag] = useDrag<DragItem, void, DragCollectedProps>({
     type: ITEM_TYPE,
@@ -54,15 +53,6 @@ export const LeadCard: React.FC<{
     drop(node);
   };
 
-  const handleAssigneeSelect = (assignee: {
-    id: string;
-    username: string;
-    name: string;
-  }) => {
-    setSelectedAssignee(assignee);
-    setIsDropdownOpen(false);
-  };
-
   const getInitials = (name: string) => {
     if (!name) return "U";
     return name
@@ -70,6 +60,21 @@ export const LeadCard: React.FC<{
       .map((n) => n[0])
       .join("")
       .toUpperCase();
+  };
+
+  const handleAssigneeChange = async (assignee: any) => {
+    dispatch(
+      updateLeadAssigneeLocally({
+        leadId: leadData.id,
+        newAssigneeId: assignee.id,
+      })
+    );
+
+    await dispatch(
+      updateLeadAssignee({ leadId: leadData.id, newAssigneeId: assignee.id })
+    );
+
+    setIsDropdownOpen(false);
   };
 
   return (
@@ -106,8 +111,8 @@ export const LeadCard: React.FC<{
             className="flex items-center gap-1 p-1.5 hover:bg-gray-50 rounded-md transition-colors group"
           >
             <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs font-medium text-gray-600">
-              {selectedAssignee?.name ? (
-                getInitials(selectedAssignee.name)
+              {leadData.assignedTo?.username ? (
+                getInitials(leadData.assignedTo.username)
               ) : (
                 <User className="w-3 h-3" />
               )}
@@ -117,16 +122,16 @@ export const LeadCard: React.FC<{
 
           {isDropdownOpen && (
             <div className="absolute right-0 top-8 z-50 min-w-[140px] bg-white border border-gray-200 rounded-md shadow-lg py-1">
-              {mockAssignees.map((assignee) => (
+              {teamMembers.salesReps.map((assignee) => (
                 <button
                   key={assignee.id}
-                  onClick={() => handleAssigneeSelect(assignee)}
                   className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  onClick={() => handleAssigneeChange(assignee)}
                 >
                   <div className="w-5 h-5 bg-gray-100 rounded-full flex items-center justify-center text-xs font-medium text-gray-600">
-                    {getInitials(assignee.name)}
+                    {getInitials(assignee.username)}
                   </div>
-                  <span className="truncate">{assignee.name}</span>
+                  <span className="truncate">{assignee.username}</span>
                 </button>
               ))}
             </div>
@@ -164,7 +169,7 @@ export const LeadCard: React.FC<{
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 bg-green-400 rounded-full"></div>
           <span className="text-xs text-gray-500">
-            {selectedAssignee?.username || "Unassigned"}
+            {leadData.assignedTo?.username || "Unassigned"}
           </span>
         </div>
       </div>

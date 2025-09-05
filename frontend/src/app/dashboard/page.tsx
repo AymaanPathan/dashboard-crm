@@ -27,7 +27,6 @@ import { fetchStages } from "@/store/slices/stagesSlice";
 const LeadsDashboard: React.FC = () => {
   const dispatch = useDispatch<RootDispatch>();
   const kanbanData = useSelector((state: RootState) => state.kanban.kanbanData);
-  console.log("kanbanData:", kanbanData);
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
 
   const currentOrg = useSelector(

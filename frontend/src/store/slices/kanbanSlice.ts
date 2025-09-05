@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getKanbanData } from "@/api/kanban.api";
-import { addLeadApi, updateLeadDragDropApi } from "@/api/lead.api";
+import {
+  addLeadApi,
+  updateAssigneeApi,
+  updateLeadDragDropApi,
+} from "@/api/lead.api";
 import { ILead, KanbanState } from "@/models/lead.model";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
@@ -12,6 +16,7 @@ const initialState: KanbanState = {
     fetchingKanban: false,
     addingLead: false,
     updatingLeadStatus: false,
+    updatingAssignee: false,
   },
   error: null,
 };
@@ -58,10 +63,31 @@ export const addLead = createAsyncThunk(
   }
 );
 
+export const updateLeadAssignee = createAsyncThunk(
+  "leads/updateAssignee",
+  async ({
+    leadId,
+    newAssigneeId,
+  }: {
+    leadId: string;
+    newAssigneeId: string;
+  }) => {
+    const response = await updateAssigneeApi(leadId, newAssigneeId);
+    return response.data;
+  }
+);
+
 const kanbanSlice = createSlice({
   name: "kanban",
   initialState,
   reducers: {
+    updateLeadAssigneeLocally: (state, action) => {
+      const { leadId, newAssigneeId } = action.payload;
+      const lead = state.leads.find((lead) => lead.id === leadId);
+      if (lead) {
+        lead.assignedToId = newAssigneeId;
+      }
+    },
     moveLeadBetweenStatuses: (
       state,
       action: PayloadAction<{
@@ -147,7 +173,6 @@ const kanbanSlice = createSlice({
       .addCase(addLead.fulfilled, (state, action) => {
         console.log("Lead added:", action?.payload?.lead);
         const newLead = action?.payload?.lead;
-        
 
         // Add to the main leads array
         state.leads.push(newLead);
@@ -166,9 +191,25 @@ const kanbanSlice = createSlice({
       .addCase(addLead.rejected, (state, action) => {
         console.error("Failed to add lead:", action.error);
         state.loading.addingLead = false;
+      })
+      .addCase(updateLeadAssignee.fulfilled, (state, action) => {
+        state.loading.updatingAssignee = false;
+        const updatedLead = action.payload;
+        const lead = state.leads.find((lead) => lead.id === updatedLead.id);
+        if (lead) {
+          lead.assignedToId = updatedLead.assignedToId;
+        }
+      })
+      .addCase(updateLeadAssignee.rejected, (state, action) => {
+        state.loading.updatingAssignee = false;
+        state.error = action.error.message || "Failed to update lead assignee";
+      })
+      .addCase(updateLeadAssignee.pending, (state) => {
+        state.loading.updatingAssignee = true;
       });
   },
 });
 
-export const { moveLeadBetweenStatuses } = kanbanSlice.actions;
+export const { moveLeadBetweenStatuses, updateLeadAssigneeLocally } =
+  kanbanSlice.actions;
 export default kanbanSlice.reducer;
