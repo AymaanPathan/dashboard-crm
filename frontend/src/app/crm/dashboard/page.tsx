@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Plus, Search, Filter, MoreHorizontal } from "lucide-react";
+import { Plus, Search, Filter } from "lucide-react";
 
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,19 +15,28 @@ import { AddLeadForm } from "@/components/Form/AddLeadForm";
 // Shadcn UI Components (assuming they're available)
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import { getUserByRoleSlice } from "@/store/slices/userSlice";
 import { fetchStages } from "@/store/slices/stagesSlice";
+import { AddLeadOptionsModal } from "@/components/lead/AddLeadOptionsModal";
+import { ExcelUploadModal } from "@/components/lead/ExcelUploadModal";
 
 const LeadsDashboard: React.FC = () => {
+  const [isAddLeadOptionsOpen, setIsAddLeadOptionsOpen] = useState(false);
+  const [isAddLeadFormOpen, setIsAddLeadFormOpen] = useState(false);
+  const [isExcelUploadOpen, setIsExcelUploadOpen] = useState(false);
+
+  const handleSelectForm = () => {
+    setIsAddLeadOptionsOpen(false);
+    setIsAddLeadFormOpen(true);
+  };
+
+  const handleSelectExcel = () => {
+    setIsAddLeadOptionsOpen(false);
+    setIsExcelUploadOpen(true);
+  };
   const dispatch = useDispatch<RootDispatch>();
   const kanbanData = useSelector((state: RootState) => state.kanban.kanbanData);
-  const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
 
   const currentOrg = useSelector(
     (state: RootState) => state.org.currentOrganization
@@ -73,26 +82,34 @@ const LeadsDashboard: React.FC = () => {
                 Filter
               </Button>
               <div className="flex items-center justify-between space-y-2">
-                <Button onClick={() => setIsAddLeadOpen(true)} className="h-8">
+                <Button
+                  onClick={() => setIsAddLeadOptionsOpen(true)}
+                  className="h-8"
+                >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Lead
                 </Button>
               </div>
             </div>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-9 w-9 p-0">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>Export</DropdownMenuItem>
-                <DropdownMenuItem>Import</DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
+          <AddLeadOptionsModal
+            isOpen={isAddLeadOptionsOpen}
+            onClose={() => setIsAddLeadOptionsOpen(false)}
+            onSelectForm={handleSelectForm}
+            onSelectExcel={handleSelectExcel}
+          />
+
+          {isAddLeadFormOpen && (
+            <AddLeadForm
+              isOpen={isAddLeadFormOpen}
+              onClose={() => setIsAddLeadFormOpen(false)}
+            />
+          )}
+
+          <ExcelUploadModal
+            isOpen={isExcelUploadOpen}
+            onClose={() => setIsExcelUploadOpen(false)}
+          />
 
           {/* Kanban Board */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
@@ -101,11 +118,6 @@ const LeadsDashboard: React.FC = () => {
             ))}
           </div>
         </div>
-
-        <AddLeadForm
-          isOpen={isAddLeadOpen}
-          onClose={() => setIsAddLeadOpen(false)}
-        />
       </DndProvider>
     </>
   );

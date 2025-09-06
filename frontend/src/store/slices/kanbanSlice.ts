@@ -2,6 +2,7 @@
 import { getKanbanData } from "@/api/kanban.api";
 import {
   addLeadApi,
+  addLeadViaExcel,
   updateAssigneeApi,
   updateLeadDragDropApi,
 } from "@/api/lead.api";
@@ -73,6 +74,14 @@ export const updateLeadAssignee = createAsyncThunk(
     newAssigneeId: string;
   }) => {
     const response = await updateAssigneeApi(leadId, newAssigneeId);
+    return response.data;
+  }
+);
+
+export const addExcelLead = createAsyncThunk(
+  "leads/addExcelLead",
+  async (payload: { file: File | undefined; assigneeId: string }) => {
+    const response = await addLeadViaExcel(payload.file!, payload.assigneeId);
     return response.data;
   }
 );
@@ -205,6 +214,19 @@ const kanbanSlice = createSlice({
       })
       .addCase(updateLeadAssignee.pending, (state) => {
         state.loading.updatingAssignee = true;
+      })
+      .addCase(addExcelLead.pending, (state) => {
+        state.loading.addingLead = true;
+      })
+      .addCase(addExcelLead.fulfilled, (state, action) => {
+        const newLeads = action?.payload?.leads;
+
+        // Add to the main leads array
+        state.leads = state.leads.concat(newLeads);
+      })
+      .addCase(addExcelLead.rejected, (state, action) => {
+        state.loading.addingLead = false;
+        console.error("Failed to add leads via excel:", action.error);
       });
   },
 });

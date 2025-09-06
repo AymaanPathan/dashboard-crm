@@ -22,14 +22,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { ILead } from "@/models/lead.model";
 import { addLead } from "@/store/slices/kanbanSlice";
 import { LeadSource } from "@/enums/leadSource..enum";
 import { LeadCategory } from "@/enums/leadCategory.enum";
-import { IStage } from "@/models/stage.model";
 
 interface AddLeadFormProps {
   isOpen: boolean;
@@ -64,9 +68,6 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const addingLeadState = useSelector(
-    (state: RootState) => state.kanban.loading.addingLead
-  );
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -144,54 +145,59 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto bg-white border">
-        <DialogTitle className="sr-only">Create New Lead</DialogTitle>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white border-gray-100">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-semibold text-gray-900">
+            Create New Lead
+          </DialogTitle>
+        </DialogHeader>
 
-        {/* Form */}
-        <div className="space-y-6">
+        <div className="space-y-8 pt-4">
           {/* Basic Information */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-black" />
-              <h3 className="font-semibold text-black">Basic Information</h3>
+            <div className="flex items-center gap-2 pb-2">
+              <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                <Building2 className="w-4 h-4 text-blue-600" />
+              </div>
+              <h3 className="font-medium text-gray-900">Basic Information</h3>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-black">
+                <Label className="text-sm font-medium text-gray-900">
                   Company Name *
                 </Label>
                 <Input
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  placeholder="Acme Corporation"
-                  className={`border-gray-300 focus:border-black focus:ring-1 focus:ring-black ${
-                    errors.name ? "border-red-500" : ""
+                  placeholder="Enter company name"
+                  className={`border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                    errors.name ? "border-red-300 bg-red-50" : ""
                   }`}
                 />
                 {errors.name && (
-                  <p className="text-red-500 text-xs">{errors.name}</p>
+                  <p className="text-red-600 text-xs">{errors.name}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-black">
+                <Label className="text-sm font-medium text-gray-900">
                   Contact Person
                 </Label>
                 <Input
                   name="contactPersonName"
                   value={formData.contactPersonName}
                   onChange={handleInputChange}
-                  placeholder="John Smith"
-                  className="border-gray-300 focus:border-black focus:ring-1 focus:ring-black"
+                  placeholder="Enter contact person name"
+                  className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-black">
+                <Label className="text-sm font-medium text-gray-900">
                   Email Address *
                 </Label>
                 <div className="relative">
@@ -201,19 +207,19 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                     type="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    placeholder="john@acme.com"
-                    className={`pl-10 border-gray-300 focus:border-black focus:ring-1 focus:ring-black ${
-                      errors.email ? "border-red-500" : ""
+                    placeholder="Enter email address"
+                    className={`pl-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                      errors.email ? "border-red-300 bg-red-50" : ""
                     }`}
                   />
                 </div>
                 {errors.email && (
-                  <p className="text-red-500 text-xs">{errors.email}</p>
+                  <p className="text-red-600 text-xs">{errors.email}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-black">
+                <Label className="text-sm font-medium text-gray-900">
                   Phone Number *
                 </Label>
                 <div className="relative">
@@ -223,14 +229,14 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                     type="tel"
                     value={formData.mobileNumber}
                     onChange={handleInputChange}
-                    placeholder="+1 555 123 4567"
-                    className={`pl-10 border-gray-300 focus:border-black focus:ring-1 focus:ring-black ${
-                      errors.mobileNumber ? "border-red-500" : ""
+                    placeholder="Enter phone number"
+                    className={`pl-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
+                      errors.mobileNumber ? "border-red-300 bg-red-50" : ""
                     }`}
                   />
                 </div>
                 {errors.mobileNumber && (
-                  <p className="text-red-500 text-xs">{errors.mobileNumber}</p>
+                  <p className="text-red-600 text-xs">{errors.mobileNumber}</p>
                 )}
               </div>
             </div>
@@ -238,79 +244,133 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
 
           {/* Classification */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Tag className="w-4 h-4 text-black" />
-              <h3 className="font-semibold text-black">Classification</h3>
+            <div className="flex items-center gap-2 pb-2">
+              <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
+                <Tag className="w-4 h-4 text-purple-600" />
+              </div>
+              <h3 className="font-medium text-gray-900">Classification</h3>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-black">
-                  Lead Type *
+                <Label className="text-sm font-medium text-gray-900">
+                  Lead Type
                 </Label>
                 <Select
+                  value={formData.leadType}
                   onValueChange={(value) =>
                     handleSelectChange("leadType", value)
                   }
                 >
-                  <SelectTrigger
-                    className={`border-gray-300 focus:border-black focus:ring-1 focus:ring-black ${
-                      errors.leadType ? "border-red-500" : ""
-                    }`}
-                  >
+                  <SelectTrigger className="border-gray-200 focus:ring-blue-500">
                     <SelectValue placeholder="Select lead type" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
                     {Object.values(LeadCategory).map((category) => (
-                      <SelectItem
-                        key={category}
-                        value={category.toLowerCase().replace(/\s+/g, "-")}
-                      >
+                      <SelectItem key={category} value={category}>
                         {category}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.category && (
-                  <p className="text-red-500 text-xs">{errors.category}</p>
-                )}
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-black">
+                <Label className="text-sm font-medium text-gray-900">
                   Source *
                 </Label>
                 <Select
+                  value={formData.source}
                   onValueChange={(value) => handleSelectChange("source", value)}
                 >
                   <SelectTrigger
-                    className={`border-gray-300 focus:border-black focus:ring-1 focus:ring-black ${
-                      errors.source ? "border-red-500" : ""
+                    className={`border-gray-200 focus:ring-blue-500 ${
+                      errors.source ? "border-red-300 bg-red-50" : ""
                     }`}
                   >
                     <SelectValue placeholder="Select source" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
-                    {Object.values(LeadSource).map((category) => (
-                      <SelectItem key={category} value={category.toLowerCase()}>
-                        {category}
+                    {Object.values(LeadSource).map((source) => (
+                      <SelectItem key={source} value={source}>
+                        {source}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.category && (
-                  <p className="text-red-500 text-xs">{errors.category}</p>
+                {errors.source && (
+                  <p className="text-red-600 text-xs">{errors.source}</p>
                 )}
+              </div>
+            </div>
+          </div>
+
+          {/* Assignment */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 pb-2">
+              <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
+                <Users className="w-4 h-4 text-green-600" />
+              </div>
+              <h3 className="font-medium text-gray-900">Assignment</h3>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-900">
+                  Assign to
+                </Label>
+                <Select
+                  value={formData.assignedToId}
+                  onValueChange={(value) =>
+                    handleSelectChange("assignedToId", value)
+                  }
+                >
+                  <SelectTrigger className="border-gray-200 focus:ring-blue-500">
+                    <SelectValue placeholder="Select team member" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    {teamMembers.salesReps.map((member) => (
+                      <SelectItem key={member.id} value={member.id!}>
+                        {member.username}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-900">
+                  Stage
+                </Label>
+                <Select
+                  value={formData.stageId}
+                  onValueChange={(value) =>
+                    handleSelectChange("stageId", value)
+                  }
+                >
+                  <SelectTrigger className="border-gray-200 focus:ring-blue-500">
+                    <SelectValue placeholder="Select stage" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    {stagesList.map((stage) => (
+                      <SelectItem key={stage.id} value={stage.id!}>
+                        {stage.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
 
           {/* Address */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-black" />
-              <h3 className="font-semibold text-black">Address</h3>
-              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+            <div className="flex items-center gap-2 pb-2">
+              <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
+                <MapPin className="w-4 h-4 text-orange-600" />
+              </div>
+              <h3 className="font-medium text-gray-900">Address</h3>
+              <span className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-full">
                 Optional
               </span>
             </div>
@@ -321,7 +381,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                 value={formData.address.street || ""}
                 onChange={handleInputChange}
                 placeholder="Street address"
-                className="border-gray-300 focus:border-black focus:ring-1 focus:ring-black"
+                className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
 
               <div className="grid grid-cols-3 gap-3">
@@ -330,21 +390,21 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                   value={formData.address.city || ""}
                   onChange={handleInputChange}
                   placeholder="City"
-                  className="border-gray-300 focus:border-black focus:ring-1 focus:ring-black"
+                  className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <Input
                   name="address.state"
                   value={formData.address.state || ""}
                   onChange={handleInputChange}
                   placeholder="State"
-                  className="border-gray-300 focus:border-black focus:ring-1 focus:ring-black"
+                  className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <Input
                   name="address.postalCode"
                   value={formData.address.postalCode || ""}
                   onChange={handleInputChange}
                   placeholder="ZIP"
-                  className="border-gray-300 focus:border-black focus:ring-1 focus:ring-black"
+                  className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
@@ -353,61 +413,18 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                 value={formData.address.country || ""}
                 onChange={handleInputChange}
                 placeholder="Country"
-                className="border-gray-300 focus:border-black focus:ring-1 focus:ring-black"
+                className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
-            </div>
-          </div>
-
-          {/* Assignment */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-black" />
-              <h3 className="font-semibold text-black">Assignment</h3>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Select
-                  onValueChange={(value) =>
-                    handleSelectChange("assignedToId", value)
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select Assignee" />
-                  </SelectTrigger>
-
-                  <SelectContent className="bg-white">
-                    {teamMembers.salesReps?.map((member, index) => (
-                      <SelectItem key={index} value={member.id!}>
-                        {member.username}
-                      </SelectItem>
-                    ))}{" "}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Select
-                onValueChange={(value) => handleSelectChange("stageId", value)}
-              >
-                <SelectTrigger className="border-gray-300 focus:border-black focus:ring-1 focus:ring-black">
-                  <SelectValue placeholder="Select stage" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {stagesList.map((stage: IStage, index: number) => (
-                    <SelectItem key={index} value={stage.id!}>
-                      {stage.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
           </div>
 
           {/* Requirements */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-black" />
-              <h3 className="font-semibold text-black">Requirements</h3>
+            <div className="flex items-center gap-2 pb-2">
+              <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">
+                <FileText className="w-4 h-4 text-indigo-600" />
+              </div>
+              <h3 className="font-medium text-gray-900">Requirements</h3>
             </div>
 
             <Textarea
@@ -415,28 +432,27 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
               value={formData.requirements}
               onChange={handleInputChange}
               placeholder="Describe lead requirements, pain points, or notes..."
-              className="min-h-[80px] border-gray-300 focus:border-black focus:ring-1 focus:ring-black resize-none"
+              rows={3}
+              className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
             />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end pt-6 ">
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={handleClose}
-              className="border-gray-300 hover:border-black"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              className="bg-black text-white hover:bg-gray-900"
-            >
-              {addingLeadState ? "Creating Lead..." : "Create Lead"}
-            </Button>
-          </div>
+        <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-100 mt-6">
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            className="border-gray-200 hover:bg-gray-50"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            className="bg-gray-900 hover:bg-gray-800 text-white"
+          >
+            Create Lead
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

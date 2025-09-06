@@ -12,6 +12,17 @@ export const addLeadApi = async (leadData: ILead) => {
   return response.data;
 };
 
+export const addLeadViaExcel = async (file: File | undefined, assigneeId: string) => {
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("assigneeId", assigneeId);
+
+  const res = await axiosSetup.post("lead/import", formData);
+  return res.data;
+};
+
 export const updateLeadDragDropApi = async (
   leadId: string,
   oldStage: string,
