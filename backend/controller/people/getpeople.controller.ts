@@ -13,7 +13,9 @@ export const getPeople = async (
     message: "People fetched successfully",
   };
   try {
-    const people = await prisma.user.findMany();
+    const people = await prisma.user.findMany({
+      where: { currentOrganizationId: req.user?.currentOrganizationId },
+    });
     if (!people || people.length === 0) {
       response.message = "No people found";
       response.data = [];

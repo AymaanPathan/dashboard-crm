@@ -20,7 +20,11 @@ export const fetchUserHierarchy = async (req: Request, res: Response) => {
       return sendResponse(res, response);
     }
 
-    const data = await getUserBasedOnRoles(currentUserId, currentUserRole);
+    const data = await getUserBasedOnRoles(
+      currentUserId,
+      currentUserRole,
+      req.user?.currentOrganizationId
+    );
 
     response.data = data;
     return sendResponse(res, response);

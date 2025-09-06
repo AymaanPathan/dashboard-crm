@@ -3,16 +3,23 @@ import prisma from "./prisma";
 
 export const getUserBasedOnRoles = async (
   currentUserId: string,
-  currentUserRole: string
+  currentUserRole: string,
+  userOrganizationId?: string
 ) => {
   try {
     if (currentUserRole === UserRole.admin) {
       const salesManagers = await prisma.user.findMany({
-        where: { role: UserRole.sales_manager },
+        where: {
+          role: UserRole.sales_manager,
+          currentOrganizationId: userOrganizationId,
+        },
       });
 
       const financeUsers = await prisma.user.findMany({
-        where: { role: UserRole.finance },
+        where: {
+          role: UserRole.finance,
+          currentOrganizationId: userOrganizationId,
+        },
         select: {
           id: true,
           username: true,
@@ -22,7 +29,10 @@ export const getUserBasedOnRoles = async (
       });
 
       const opsUsers = await prisma.user.findMany({
-        where: { role: UserRole.ops },
+        where: {
+          role: UserRole.ops,
+          currentOrganizationId: userOrganizationId,
+        },
         select: {
           id: true,
           username: true,
@@ -32,7 +42,10 @@ export const getUserBasedOnRoles = async (
       });
 
       const salesReps = await prisma.user.findMany({
-        where: { role: UserRole.sales_rep },
+        where: {
+          role: UserRole.sales_rep,
+          currentOrganizationId: userOrganizationId,
+        },
       });
 
       return {
@@ -49,6 +62,7 @@ export const getUserBasedOnRoles = async (
         where: {
           role: UserRole.sales_rep,
           managerId: currentUserId,
+          currentOrganizationId: userOrganizationId,
         },
         select: {
           id: true,
@@ -81,7 +95,7 @@ export const getUserBasedOnRoles = async (
 
       return {
         role: currentUserRole,
-        user,
+        currentUserRole: user,
       };
     }
 

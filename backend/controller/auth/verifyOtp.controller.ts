@@ -56,6 +56,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
         email: updatedUser.email,
         isVerified: updatedUser.isVerified,
         username: updatedUser.username,
+        role: updatedUser.role,
       },
     };
 
