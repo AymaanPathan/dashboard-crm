@@ -50,8 +50,8 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
     mobileNumber: "9876543210",
     source: "Website",
     requirements: "Looking for a solar solution",
-    stageId: "14a79994-42f3-4cf6-962a-aa1d1eccf60d",
-    assignedToId: "b501fe3c-fa84-4bd0-b6a6-ace37a0c0b1d",
+    stageId: "",
+    assignedToId: "",
     leadType: "Hot",
     contactPersonName: "Jane Doe",
     address: {
@@ -67,7 +67,6 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
   const addingLeadState = useSelector(
     (state: RootState) => state.kanban.loading.addingLead
   );
-
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

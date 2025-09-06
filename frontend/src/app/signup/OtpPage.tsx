@@ -36,7 +36,7 @@ const OtpPage: React.FC<OtpPageProps> = ({
 
   const handleOtpVerification = async () => {
     const res = await dispatch(
-      handleVerifyOtp({ email: user.email, otp: otp })
+      handleVerifyOtp({ email: user.email!, otp: otp })
     ).unwrap();
     if (res.statusCode === 200) {
       router.push("/organizationsetup");

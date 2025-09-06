@@ -24,7 +24,7 @@ const CrmNavbar = () => {
             {/* Logo */}
             <nav className="flex items-center gap-1">
               <Link
-                href="/dashboard"
+                href="/crm/dashboard"
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors `}
               >
                 CRM
@@ -42,8 +42,8 @@ const CrmNavbar = () => {
 
             <nav className="flex items-center gap-1">
               <Link
-                href="/dashboard"
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors `}
+                href="/crm/dashboard"
+                className={`px-4 py-2 text-sm font-mkedium rounded-lg transition-colors `}
               >
                 Account
               </Link>

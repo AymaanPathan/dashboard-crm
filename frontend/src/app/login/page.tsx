@@ -35,7 +35,7 @@ const LoginPage: React.FC = () => {
     const user = result?.data?.data?.user;
 
     if (token && user.org === false) {
-      router.replace("/crm/organizationsetup");
+      router.replace("/organizationsetup");
     } else if (token && user.org === true) {
       router.replace("/crm/dashboard");
     }
