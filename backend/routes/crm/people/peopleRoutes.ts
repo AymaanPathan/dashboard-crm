@@ -10,4 +10,10 @@ peopleRouter.get(
   authenticate,
   peopleController.fetchUserHierarchy
 );
+
+peopleRouter.post(
+  "/getAllUserManagers",
+  authenticate,
+  peopleController.getAllUserManagers
+);
 export default peopleRouter;
