@@ -11,26 +11,37 @@ import {
 } from "lucide-react";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
-import { addUserSlice, getUserSlice } from "@/store/slices/userSlice";
+import {
+  addUserSlice,
+  getUserManagerSlice,
+  getUserSlice,
+} from "@/store/slices/userSlice";
 import { IUser } from "@/models/user.model";
 
 const PeopleDashboard: React.FC = () => {
   const dispatch: RootDispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const users = useSelector((state: RootState) => state.user.users);
+  const myManagers = useSelector((state: RootState) => state.user.myManagers);
 
   const [formData, setFormData] = useState<IUser>({
     username: "joy",
     email: "joy3@gmail.com",
     password: "joy3@gmail.com",
     role: "admin",
-    managerId: "12a6e347-ffca-402d-b1b3-31546ba17d06",
+    managerId: "",
     isVerified: false,
   });
 
   useEffect(() => {
     dispatch(getUserSlice());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (formData.role) {
+      dispatch(getUserManagerSlice(formData.role));
+    }
+  }, [dispatch, formData.role]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -65,6 +76,7 @@ const PeopleDashboard: React.FC = () => {
       currentOrganizationId: "",
       isVerified: false,
     });
+    await dispatch(getUserSlice());
   };
 
   const handleCancel = () => {
@@ -80,6 +92,9 @@ const PeopleDashboard: React.FC = () => {
       isVerified: false,
     });
   };
+
+  console.log("form", formData.managerId);
+  console.log("manager", myManagers);
 
   return (
     <div className="flex-1 space-y-6 p-6">
@@ -175,9 +190,9 @@ const PeopleDashboard: React.FC = () => {
               </tr>
             </thead>
             <tbody className="[&_tr:last-child]:border-0">
-              {users?.map((employee: IUser) => (
+              {users?.map((employee: IUser, index: number) => (
                 <tr
-                  key={employee?.id}
+                  key={index}
                   className="border-b border-gray-100 transition-colors hover:bg-gray-50 data-[state=selected]:bg-gray-50"
                 >
                   <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
@@ -337,15 +352,21 @@ const PeopleDashboard: React.FC = () => {
                 >
                   Manager ID
                 </label>
-                <input
-                  type="text"
-                  id="managerId"
-                  name="managerId"
+                <select
                   value={formData.managerId}
                   onChange={handleInputChange}
+                  name="managerId"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
-                  placeholder="Enter manager ID (optional)"
-                />
+                >
+                  <option value="">Select Manager</option>
+                  {myManagers?.myManagers?.map((manager: IUser) => {
+                    return (
+                      <option key={manager.id} value={manager.id}>
+                        {manager.username}
+                      </option>
+                    );
+                  })}
+                </select>
               </div>
 
               <div className="flex items-center">

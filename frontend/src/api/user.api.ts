@@ -15,3 +15,10 @@ export const getUserByRoleApi = async () => {
   const response = await axiosSetup.get("people/getUserByRole");
   return response.data;
 };
+
+export const getUserManagerApi = async (role: string) => {
+  const response = await axiosSetup.post("people/getAllUserManagers", {
+    role,
+  });
+  return response.data.data;
+};
