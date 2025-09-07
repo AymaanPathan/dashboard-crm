@@ -87,7 +87,7 @@ export const LeadCard: React.FC<{
 
   const getOneLead = async (leadId: string) => {
     await dispatch(getOneLeadbyId(leadId));
-    router.push(`/leads/${leadId}`);
+    router.push(`/crm/lead/${leadId}`);
   };
 
   return (
