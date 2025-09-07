@@ -12,7 +12,10 @@ export const addLeadApi = async (leadData: ILead) => {
   return response.data;
 };
 
-export const addLeadViaExcel = async (file: File | undefined, assigneeId: string) => {
+export const addLeadViaExcel = async (
+  file: File | undefined,
+  assigneeId: string
+) => {
   if (!file) return;
 
   const formData = new FormData();
@@ -50,4 +53,14 @@ export const updateAssigneeApi = async (
     newAssigneeId,
   });
   return response.data;
+};
+
+export const getOneLeadApi = async (leadId: string) => {
+  try {
+    const response = await axiosSetup.get(`/lead/${leadId}`);
+    return response.data.data;
+  } catch (error: any) {
+    console.error("Error fetching lead:", error);
+    throw error;
+  }
 };
