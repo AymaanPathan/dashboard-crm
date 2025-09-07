@@ -6,6 +6,7 @@ import multer from "multer";
 const upload = multer({ storage: multer.memoryStorage() });
 
 const leadRouter = express.Router();
+leadRouter.get("/:id", authenticate, leadController.getOneLeadById);
 
 leadRouter.post("/add", authenticate, leadController.createLead);
 leadRouter.post(

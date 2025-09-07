@@ -36,7 +36,7 @@ model user {
   ownedOrganizations Organization[] @relation("OrgOwnedBy")
   assignedLeads Lead[] @relation("LeadAssignedTo")
   leadsCreated  Lead[]   @relation("LeadCreatedBy")
-
+  myTasks Task[] @relation("UserCreatedTasks")
 }
 model Stage {
   id             String        @id @default(uuid())
@@ -96,4 +96,37 @@ model Lead {
   // New relation to stage
   stageId           String?
   stage             Stage? @relation("LeadStage", fields: [stageId], references: [id])
+  tasks Task[]
+}
+
+
+
+enum TaskStatus {
+  pending
+  completed
+  cancelled
+}
+
+
+enum TaskRepeatInterval {
+  none
+  daily
+  weekly
+  monthly
+}
+
+model Task {
+  id     String @id @default(uuid())
+  title String
+  description    String?
+  dueDate        DateTime
+  reminder DateTime?
+  status TaskStatus @default(pending)
+  repeatInterval TaskRepeatInterval?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  leadId String
+  lead Lead @relation(fields: [leadId],references: [id],onDelete: Cascade)
+  createdById String
+  createdBy user @relation("UserCreatedTasks",fields: [createdById],references: [id])
 }
