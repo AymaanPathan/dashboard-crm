@@ -10,6 +10,7 @@ import {
   FileText,
   Tag,
   ChevronDown,
+  AlertCircle,
 } from "lucide-react";
 
 interface AddTaskProps {
@@ -34,7 +35,6 @@ const AddTask: React.FC<AddTaskProps> = ({
   onTaskCreated,
   onClose,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
   const [task, setTask] = useState<Task>({
     title: "",
     description: "",
@@ -46,56 +46,70 @@ const AddTask: React.FC<AddTaskProps> = ({
     tags: [],
   });
   const [newTag, setNewTag] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const taskTypes = [
-    { value: "call", label: "Phone Call" },
-    { value: "email", label: "Send Email" },
-    { value: "meeting", label: "Meeting" },
-    { value: "follow-up", label: "Follow Up" },
-    { value: "demo", label: "Product Demo" },
-    { value: "proposal", label: "Send Proposal" },
-    { value: "other", label: "Other" },
+    { value: "call", label: "Phone Call", icon: "📞" },
+    { value: "email", label: "Send Email", icon: "✉️" },
+    { value: "meeting", label: "Meeting", icon: "🤝" },
+    { value: "follow-up", label: "Follow Up", icon: "🔄" },
+    { value: "demo", label: "Product Demo", icon: "🎯" },
+    { value: "proposal", label: "Send Proposal", icon: "📋" },
+    { value: "other", label: "Other", icon: "📝" },
   ];
 
-  const priorityColors = {
-    low: "bg-green-50 text-green-700 border-green-200",
-    medium: "bg-yellow-50 text-yellow-700 border-yellow-200",
-    high: "bg-red-50 text-red-700 border-red-200",
-  };
+  const priorityOptions = [
+    {
+      value: "low",
+      label: "Low",
+      color: "text-emerald-600 bg-emerald-50 border-emerald-200",
+    },
+    {
+      value: "medium",
+      label: "Medium",
+      color: "text-amber-600 bg-amber-50 border-amber-200",
+    },
+    {
+      value: "high",
+      label: "High",
+      color: "text-red-600 bg-red-50 border-red-200",
+    },
+  ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     // Create task object with leadId
     const newTask = {
       ...task,
-      id: Date.now().toString(), // Temporary ID
+      id: Date.now().toString(),
       leadId,
       createdAt: new Date().toISOString(),
       status: "pending",
     };
 
-    // Call onTaskCreated callback if provided
-    if (onTaskCreated) {
-      onTaskCreated(newTask);
-    }
+    // Simulate API call
+    setTimeout(() => {
+      if (onTaskCreated) {
+        onTaskCreated(newTask);
+      }
 
-    // Reset form
-    setTask({
-      title: "",
-      description: "",
-      dueDate: "",
-      dueTime: "",
-      assignedTo: "",
-      priority: "medium",
-      type: "call",
-      tags: [],
-    });
+      // Reset form
+      setTask({
+        title: "",
+        description: "",
+        dueDate: "",
+        dueTime: "",
+        assignedTo: "",
+        priority: "medium",
+        type: "call",
+        tags: [],
+      });
 
-    setIsOpen(false);
-
-    // Show success message (you might want to use a toast library)
-    console.log("Task created successfully:", newTask);
+      setIsSubmitting(false);
+      console.log("Task created successfully:", newTask);
+    }, 500);
   };
 
   const addTag = () => {
@@ -122,155 +136,157 @@ const AddTask: React.FC<AddTaskProps> = ({
     }
   };
 
-  if (!isOpen) {
-    return (
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-        <div className="p-4">
-          <button
-            onClick={() => setIsOpen(true)}
-            className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 font-medium"
-          >
-            <Plus className="h-4 w-4" />
-            Add New Task
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-      <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-          <Plus className="h-5 w-5 text-gray-400" />
-          Add New Task
-        </h2>
-        <button
-          onClick={() => setIsOpen(false)}
-          className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-        >
-          <X className="h-5 w-5" />
-        </button>
+    <div className="h-full flex flex-col">
+      {/* Header */}
+      <div className="p-6 border-b border-neutral-100">
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 bg-neutral-100 rounded-lg flex items-center justify-center">
+            <Plus className="h-4 w-4 text-neutral-600" />
+          </div>
+          <div>
+            <h3 className="text-sm font-medium text-neutral-900">
+              Add New Task
+            </h3>
+            <p className="text-xs text-neutral-500 mt-0.5">
+              Create a task for this lead
+            </p>
+          </div>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-4">
-        {/* Task Title */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">
-            Task Title *
-          </label>
-          <input
-            type="text"
-            required
-            value={task.title}
-            onChange={(e) =>
-              setTask((prev) => ({ ...prev, title: e.target.value }))
-            }
-            placeholder="Enter task title..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        {/* Task Type */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Task Type</label>
-          <div className="relative">
-            <select
-              value={task.type}
-              onChange={(e) =>
-                setTask((prev) => ({ ...prev, type: e.target.value }))
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
-            >
-              {taskTypes.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-gray-400 pointer-events-none" />
-          </div>
-        </div>
-
-        {/* Priority */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Priority</label>
-          <div className="flex gap-2">
-            {(["low", "medium", "high"] as const).map((priority) => (
-              <button
-                key={priority}
-                type="button"
-                onClick={() => setTask((prev) => ({ ...prev, priority }))}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors ${
-                  task.priority === priority
-                    ? priorityColors[priority]
-                    : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
-                }`}
-              >
-                <Flag className="h-3 w-3 inline mr-1" />
-                {priority.charAt(0).toUpperCase() + priority.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Due Date and Time */}
-        <div className="grid grid-cols-2 gap-3">
+      {/* Form */}
+      <div className="flex-1 overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Task Title */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
-              Due Date
+            <label className="block text-xs font-medium text-neutral-700 uppercase tracking-wider">
+              Task Title
             </label>
-            <div className="relative">
-              <input
-                type="date"
-                value={task.dueDate}
-                onChange={(e) =>
-                  setTask((prev) => ({ ...prev, dueDate: e.target.value }))
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <Calendar className="absolute right-3 top-2.5 h-4 w-4 text-gray-400 pointer-events-none" />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
-              Due Time
-            </label>
-            <div className="relative">
-              <input
-                type="time"
-                value={task.dueTime}
-                onChange={(e) =>
-                  setTask((prev) => ({ ...prev, dueTime: e.target.value }))
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <Clock className="absolute right-3 top-2.5 h-4 w-4 text-gray-400 pointer-events-none" />
-            </div>
-          </div>
-        </div>
-
-        {/* Assigned To */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Assign To</label>
-          <div className="relative">
             <input
               type="text"
-              value={task.assignedTo}
+              required
+              value={task.title}
               onChange={(e) =>
-                setTask((prev) => ({ ...prev, assignedTo: e.target.value }))
+                setTask((prev) => ({ ...prev, title: e.target.value }))
               }
-              placeholder="Enter assignee name or email..."
-              className="w-full px-3 py-2 pl-9 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="What needs to be done?"
+              className="w-full px-3 py-2 text-sm bg-white border border-neutral-200 rounded-md focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent placeholder:text-neutral-400"
             />
-            <User className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
           </div>
-        </div>
 
-        {/* Tags */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Tags</label>
+          {/* Task Type */}
           <div className="space-y-2">
+            <label className="block text-xs font-medium text-neutral-700 uppercase tracking-wider">
+              Type
+            </label>
+            <div className="relative">
+              <select
+                value={task.type}
+                onChange={(e) =>
+                  setTask((prev) => ({ ...prev, type: e.target.value }))
+                }
+                className="w-full px-3 py-2 text-sm bg-white border border-neutral-200 rounded-md focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent appearance-none cursor-pointer"
+              >
+                {taskTypes.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.icon} {type.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-neutral-400 pointer-events-none" />
+            </div>
+          </div>
+
+          {/* Priority */}
+          <div className="space-y-2">
+            <label className="block text-xs font-medium text-neutral-700 uppercase tracking-wider">
+              Priority
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {priorityOptions.map((priority) => (
+                <button
+                  key={priority.value}
+                  type="button"
+                  onClick={() =>
+                    setTask((prev) => ({
+                      ...prev,
+                      priority: priority.value as any,
+                    }))
+                  }
+                  className={`px-3 py-2 text-xs font-medium rounded-md border transition-all ${
+                    task.priority === priority.value
+                      ? priority.color
+                      : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300"
+                  }`}
+                >
+                  <Flag className="h-3 w-3 inline mr-1" />
+                  {priority.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Due Date and Time */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <label className="block text-xs font-medium text-neutral-700 uppercase tracking-wider">
+                Due Date
+              </label>
+              <div className="relative">
+                <input
+                  type="date"
+                  value={task.dueDate}
+                  onChange={(e) =>
+                    setTask((prev) => ({ ...prev, dueDate: e.target.value }))
+                  }
+                  className="w-full px-3 py-2 text-sm bg-white border border-neutral-200 rounded-md focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent"
+                />
+                <Calendar className="absolute right-3 top-2.5 h-4 w-4 text-neutral-400 pointer-events-none" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="block text-xs font-medium text-neutral-700 uppercase tracking-wider">
+                Due Time
+              </label>
+              <div className="relative">
+                <input
+                  type="time"
+                  value={task.dueTime}
+                  onChange={(e) =>
+                    setTask((prev) => ({ ...prev, dueTime: e.target.value }))
+                  }
+                  className="w-full px-3 py-2 text-sm bg-white border border-neutral-200 rounded-md focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent"
+                />
+                <Clock className="absolute right-3 top-2.5 h-4 w-4 text-neutral-400 pointer-events-none" />
+              </div>
+            </div>
+          </div>
+
+          {/* Assigned To */}
+          <div className="space-y-2">
+            <label className="block text-xs font-medium text-neutral-700 uppercase tracking-wider">
+              Assign To
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                value={task.assignedTo}
+                onChange={(e) =>
+                  setTask((prev) => ({ ...prev, assignedTo: e.target.value }))
+                }
+                placeholder="Enter name or email..."
+                className="w-full px-3 py-2 pl-9 text-sm bg-white border border-neutral-200 rounded-md focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent placeholder:text-neutral-400"
+              />
+              <User className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div className="space-y-3">
+            <label className="block text-xs font-medium text-neutral-700 uppercase tracking-wider">
+              Tags
+            </label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -278,14 +294,14 @@ const AddTask: React.FC<AddTaskProps> = ({
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Add a tag..."
-                className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 px-3 py-2 text-sm bg-white border border-neutral-200 rounded-md focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent placeholder:text-neutral-400"
               />
               <button
                 type="button"
                 onClick={addTag}
-                className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors"
+                className="px-3 py-2 bg-neutral-100 text-neutral-600 rounded-md hover:bg-neutral-200 transition-colors"
               >
-                <Plus className="h-3 w-3" />
+                <Plus className="h-4 w-4" />
               </button>
             </div>
             {task.tags.length > 0 && (
@@ -293,14 +309,14 @@ const AddTask: React.FC<AddTaskProps> = ({
                 {task.tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-200"
+                    className="inline-flex items-center gap-1 px-2 py-1 bg-neutral-100 text-neutral-700 text-xs rounded border border-neutral-200"
                   >
                     <Tag className="h-3 w-3" />
                     {tag}
                     <button
                       type="button"
                       onClick={() => removeTag(tag)}
-                      className="ml-1 text-blue-500 hover:text-blue-700"
+                      className="ml-0.5 text-neutral-500 hover:text-neutral-700"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -309,43 +325,51 @@ const AddTask: React.FC<AddTaskProps> = ({
               </div>
             )}
           </div>
-        </div>
 
-        {/* Description */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">
-            Description
-          </label>
-          <div className="relative">
-            <textarea
-              value={task.description}
-              onChange={(e) =>
-                setTask((prev) => ({ ...prev, description: e.target.value }))
-              }
-              placeholder="Add task description..."
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-            />
+          {/* Description */}
+          <div className="space-y-2">
+            <label className="block text-xs font-medium text-neutral-700 uppercase tracking-wider">
+              Description
+            </label>
+            <div className="relative">
+              <textarea
+                value={task.description}
+                onChange={(e) =>
+                  setTask((prev) => ({ ...prev, description: e.target.value }))
+                }
+                placeholder="Add any additional details..."
+                rows={4}
+                className="w-full px-3 py-2 text-sm bg-white border border-neutral-200 rounded-md focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent resize-none placeholder:text-neutral-400"
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-3 pt-4 border-t border-gray-100">
-          <button
-            type="submit"
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            Create Task
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsOpen(false)}
-            className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
+          {/* Submit Button */}
+          <div className="pt-4 border-t border-neutral-100">
+            <button
+              type="submit"
+              disabled={isSubmitting || !task.title.trim()}
+              className="w-full px-4 py-2.5 bg-neutral-900 text-white text-sm font-medium rounded-md hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isSubmitting ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Creating Task...
+                </div>
+              ) : (
+                "Create Task"
+              )}
+            </button>
+
+            {!task.title.trim() && (
+              <div className="flex items-center gap-2 mt-2 text-xs text-amber-600">
+                <AlertCircle className="h-3 w-3" />
+                Task title is required
+              </div>
+            )}
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
