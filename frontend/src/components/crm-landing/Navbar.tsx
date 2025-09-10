@@ -12,7 +12,6 @@ export default function Navbar() {
   const currentOrganization = useSelector(
     (state: RootState) => state.org.currentOrganization
   );
-  console.log("Current Organization in Navbar:", currentOrganization);
   const token = getToken();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dispatch: RootDispatch = useDispatch();

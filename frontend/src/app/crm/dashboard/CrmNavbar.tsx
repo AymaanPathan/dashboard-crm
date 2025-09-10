@@ -1,16 +1,19 @@
 "use client";
 import React from "react";
-import { LogOut, Home, Users } from "lucide-react";
+import { LogOut, Home, Users, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useDispatch } from "react-redux";
-import { RootDispatch } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { RootDispatch, RootState } from "@/store";
 import { logoutUser } from "@/store/slices/authSlice";
 import { Page } from "@/enums/page.enum";
 import { usePathname } from "next/navigation";
 
 const Navbar: React.FC = () => {
-  const pathname = usePathname(); // Automatically detects current path
+  const pathname = usePathname();
+  const todayTaskCount = useSelector(
+    (state: RootState) => state.leadTasks.todayTaskCount
+  );
   const dispatch: RootDispatch = useDispatch();
 
   const handleLogout = () => {
@@ -61,8 +64,24 @@ const Navbar: React.FC = () => {
             </nav>
           </div>
 
-          {/* Logout */}
-          <div className="flex items-center">
+          {/* Notifications & Logout */}
+          <div className="flex items-center space-x-2">
+            <Link href="/crm/todaysTask">
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 w-9 p-0 hover:bg-gray-100"
+                >
+                  <Bell className="w-4 h-4 text-gray-600" />
+                </Button>
+                {todayTaskCount > 0 && (
+                  <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center min-w-5">
+                    {todayTaskCount > 99 ? "99+" : todayTaskCount}
+                  </div>
+                )}
+              </div>
+            </Link>
             <Button
               onClick={handleLogout}
               variant="outline"

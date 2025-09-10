@@ -15,8 +15,6 @@ export const getKanbanDataByRole = async (
 
   if (role === UserRole.sales_rep) {
     leadFilter.assignedToId = userId;
-    console.log("Lead filter for sales_rep:", leadFilter);
-    console.log("User ID:", userId);
   } else if (role === UserRole.sales_manager) {
     leadFilter.OR = [
       { assignedToId: userId },

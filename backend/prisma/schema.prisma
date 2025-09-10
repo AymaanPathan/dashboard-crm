@@ -118,6 +118,7 @@ enum TaskRepeatInterval {
 model Task {
   id     String @id @default(uuid())
   title String
+  reminderOption String?
   description    String?
   dueDate        DateTime
   reminder DateTime?

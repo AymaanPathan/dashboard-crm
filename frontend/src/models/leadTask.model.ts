@@ -9,18 +9,21 @@ export enum TaskRepeatInterval {
   daily = "daily",
   weekly = "weekly",
   monthly = "monthly",
+  yearly = "yearly",
 }
 
 export interface LeadTask {
-  id: string;
+  reminderOption?: string;
+  id?: string;
   title: string;
   description: string;
   dueDate: Date;
-  reminder: Date;
+  reminder: Date | null;
   status: TaskStatus;
   repeatInterval: TaskRepeatInterval;
   createdAt: Date;
   updatedAt: Date;
   leadId: string;
   createdById: string;
+  timezone?: string;
 }

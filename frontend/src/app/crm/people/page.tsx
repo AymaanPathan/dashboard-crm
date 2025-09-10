@@ -93,8 +93,7 @@ const PeopleDashboard: React.FC = () => {
     });
   };
 
-  console.log("form", formData.managerId);
-  console.log("manager", myManagers);
+
 
   return (
     <div className="flex-1 space-y-6 p-6">

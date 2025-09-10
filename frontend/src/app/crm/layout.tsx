@@ -1,16 +1,23 @@
 "use client";
-import { Provider } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 import "../../app/globals.css";
-
-import { store } from "@/store";
+import { useEffect } from "react";
+import { RootDispatch, store } from "@/store";
 import { Toaster } from "sonner";
 import Navbar from "./dashboard/CrmNavbar";
+import { getTodayLeadTasksSlice } from "@/store/slices/leadTaskSlice";
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const dispatch: RootDispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getTodayLeadTasksSlice());
+  }, [dispatch]);
+
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <body suppressHydrationWarning={true}>

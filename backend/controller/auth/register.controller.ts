@@ -1,12 +1,11 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import prisma from "../../utils/prisma";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
-import bcrypt from "bcryptjs";
 import validator from "validator";
-import jwt from "jsonwebtoken";
+
 import deleteUnverifiedUsersQueue, {
   queueName,
-} from "../../utils/queues/deleteUnverifiedUsersQueue";
+} from "../../queues/deleteUnverifiedUsersQueue";
 import { generateOTP } from "../../utils/generateOtp";
 import { sendOTPEmail } from "../../utils/sendEmail";
 import { hashPassword } from "../../utils/hashPassword.utils";

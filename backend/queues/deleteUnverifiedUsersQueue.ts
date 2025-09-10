@@ -4,7 +4,7 @@
 // Step 3 process the job and delete the user from the database if its not verified
 
 import { Queue } from "bullmq";
-import { connection } from "../redisBullMq.utils";
+import { connection } from "../utils/redisBullMq.utils";
 
 export const queueName = "delete-unverified-users";
 

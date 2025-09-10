@@ -20,6 +20,7 @@ import { getUserByRoleSlice } from "@/store/slices/userSlice";
 import { fetchStages } from "@/store/slices/stagesSlice";
 import { AddLeadOptionsModal } from "@/components/lead/AddLeadOptionsModal";
 import { ExcelUploadModal } from "@/components/lead/ExcelUploadModal";
+import { getTodayLeadTasksSlice } from "@/store/slices/leadTaskSlice";
 
 const LeadsDashboard: React.FC = () => {
   const [isAddLeadOptionsOpen, setIsAddLeadOptionsOpen] = useState(false);
@@ -49,6 +50,7 @@ const LeadsDashboard: React.FC = () => {
     dispatch(fetchLeadForKanban());
     dispatch(getUserByRoleSlice());
     dispatch(fetchStages());
+    dispatch(getTodayLeadTasksSlice());
 
     getOrganizationData();
   }, [dispatch]);

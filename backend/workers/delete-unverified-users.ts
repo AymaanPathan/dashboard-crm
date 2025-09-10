@@ -1,7 +1,7 @@
 import { Worker, Job } from "bullmq";
 import { queueName } from "../queues/deleteUnverifiedUsersQueue";
-import prisma from "../prisma";
-import { connection } from "../redisBullMq.utils";
+import prisma from "../utils/prisma";
+import { connection } from "../utils/redisBullMq.utils";
 
 export const worker = new Worker(
   queueName,
@@ -15,7 +15,6 @@ export const worker = new Worker(
         await prisma.user.delete({
           where: { id: userId },
         });
-        console.log(`✅ Deleted unverified user: ${userId}`);
       } else {
         console.log(`❎ User is already verified or doesn't exist: ${userId}`);
       }

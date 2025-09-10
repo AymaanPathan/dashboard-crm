@@ -15,7 +15,6 @@ export const updateLeadDragDropPosition = async (
 
   try {
     const { leadId, oldStage, newStage, oldPosition, newPosition } = req.body;
-    console.log("body", req.body);
 
     if (
       !leadId ||
@@ -104,7 +103,6 @@ export const updateLeadDragDropPosition = async (
       oldPosition,
       newPosition,
     };
-    console.log("Response data:", response.data);
     return sendResponse(res, response);
   } catch (err) {
     console.error(err);
