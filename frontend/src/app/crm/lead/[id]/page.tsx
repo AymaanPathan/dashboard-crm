@@ -23,6 +23,7 @@ import { useParams } from "next/navigation";
 import { getOneLeadbyId } from "@/store/slices/leadSlice";
 import AddTask from "@/components/Task/AddTask";
 import { getLeadTasksByLeadIdSlice } from "@/store/slices/leadTaskSlice";
+import { connectSocket } from "@/lib/socket";
 
 const LeadDetailsPage = () => {
   const dispatch: RootDispatch = useDispatch();
@@ -33,6 +34,18 @@ const LeadDetailsPage = () => {
 
   const currentLead = useSelector((state: RootState) => state.lead.lead);
   const { loading } = useSelector((state: RootState) => state.lead);
+
+  useEffect(() => {
+    const socket = connectSocket();
+
+    socket.on("taskReminder", (data: string) => {
+      console.log("📩 Message from server:", data);
+    });
+
+    return () => {
+      socket.off("welcome");
+    };
+  }, []);
 
   useEffect(() => {
     if (currentLead.id) {

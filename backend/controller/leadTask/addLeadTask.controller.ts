@@ -78,11 +78,7 @@ export const addLeadTask = async (req: Request, res: Response) => {
         break;
     }
 
-    if (reminder && reminder.isBefore(dayjs().tz(taskData.timezone))) {
-      response.statusCode = 400;
-      response.message = "Reminder is in the past. Please select a valid time.";
-      return sendResponse(res, response);
-    }
+    const nowInUserTz = dayjs().tz(taskData.timezone);
 
     // Save both dates in UTC for consistency
     const createdTask = await prisma.task.create({
@@ -99,9 +95,35 @@ export const addLeadTask = async (req: Request, res: Response) => {
       },
     });
 
-    // ✅ Schedule reminder only if it exists
+    console.log("Reminder scheduled at (UTC):", reminder);
+    // Parse custom reminder correctly
+    if (taskData.reminderOption === "custom" && taskData.reminderDate) {
+      reminder = dayjs.tz(
+        `${taskData.reminderDate}T${taskData.reminderTime || "00:00"}`,
+        taskData.timezone
+      );
+    }
+
+    // Schedule queue
+    if (reminder) {
+      const delay = reminder.utc().valueOf() - dayjs.utc().valueOf();
+      if (delay > 0) {
+        await taskReminderQueue.add(
+          "sendTaskReminder",
+          {
+            taskId: createdTask.id,
+            userId,
+            title: createdTask.title,
+            description: createdTask.description,
+          },
+          { delay, attempts: 3, removeOnComplete: true }
+        );
+      }
+    }
+
     if (reminder) {
       const delay = reminder.diff(dayjs());
+      console.log("Scheduling reminder with delay (ms):", delay);
 
       if (delay > 0) {
         await taskReminderQueue.add(
@@ -113,7 +135,7 @@ export const addLeadTask = async (req: Request, res: Response) => {
             description: createdTask.description,
           },
           {
-            delay,
+            delay: 1000, // 1 second delay to ensure it's scheduled slightly after the exact time
             attempts: 3,
             removeOnComplete: true,
           }

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Calendar,
   Clock,
@@ -46,6 +46,51 @@ interface TaskFormData {
   repeatInterval: TaskRepeatInterval;
 }
 
+// Helper function to get available reminder options
+const getAvailableReminderOptions = (
+  dueDate: string,
+  dueTime: string,
+  userTimezone: string
+) => {
+  if (!dueDate) return [];
+
+  const now = dayjs().tz(userTimezone);
+  const dueDateTimeString = `${dueDate}T${dueTime || "00:00"}`;
+  const dueDateTime = dayjs.tz(dueDateTimeString, userTimezone);
+
+  const allReminderOptions = [
+    { value: "no_reminder", label: "No reminder", icon: "🚫" },
+    { value: "1_minute", label: "1 minute before", icon: "⏰" },
+    { value: "5_minutes", label: "5 minutes before", icon: "⏰" },
+    { value: "15_minutes", label: "15 minutes before", icon: "⏰" },
+    { value: "1_hour", label: "1 hour before", icon: "🕐" },
+    { value: "1_day", label: "1 day before", icon: "📅" },
+  ];
+
+  // Start with no_reminder option
+  const availableOptions = [allReminderOptions[0]]; // no_reminder
+
+  // Check each time-based reminder option
+  const timeBasedOptions = [
+    { option: allReminderOptions[1], minutes: 1 }, // 1_minute
+    { option: allReminderOptions[2], minutes: 5 }, // 5_minutes
+    { option: allReminderOptions[3], minutes: 15 }, // 15_minutes
+    { option: allReminderOptions[4], minutes: 60 }, // 1_hour
+    { option: allReminderOptions[5], minutes: 1440 }, // 1_day
+  ];
+
+  timeBasedOptions.forEach(({ option, minutes }) => {
+    const reminderTime = dueDateTime.subtract(minutes, "minute");
+
+    // Only add if reminder time is in the future
+    if (reminderTime.isAfter(now)) {
+      availableOptions.push(option);
+    }
+  });
+
+  return availableOptions;
+};
+
 const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const now = dayjs().tz(userTimezone);
@@ -62,25 +107,57 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
     dueTime: "",
     reminderDate: "",
     reminderTime: "",
-    reminderOption: "15_minutes",
+    reminderOption: "no_reminder",
     status: TaskStatus.pending,
     repeatInterval: TaskRepeatInterval.none,
   });
 
-  const reminderOptions = [
-    { value: "no_reminder", label: "No reminder", icon: "🚫" },
-    { value: "5_minutes", label: "5 minutes before", icon: "⏰" },
-    { value: "1_minute", label: "1 minute before", icon: "⏰" },
-    { value: "1_hour", label: "1 hour before", icon: "🕐" },
-    { value: "custom", label: "Custom time", icon: "⚙️" },
-  ];
+  // Get available reminder options based on due date/time
+  const reminderOptions = useMemo(
+    () => getAvailableReminderOptions(task.dueDate, task.dueTime, userTimezone),
+    [task.dueDate, task.dueTime, userTimezone]
+  );
+
+  useEffect(() => {
+    const isCurrentOptionAvailable = reminderOptions.some(
+      (option) => option.value === task.reminderOption
+    );
+
+    if (!isCurrentOptionAvailable && reminderOptions.length > 0) {
+      setTask((prev) => ({
+        ...prev,
+        reminderOption: reminderOptions[0]?.value || "no_reminder",
+      }));
+    }
+  }, [task.dueDate, task.dueTime, task.reminderOption, reminderOptions]);
+  const getMinTime = () => {
+    if (task.dueDate === today) {
+      // Add 1 minute buffer to current time to ensure due date is in future
+      const bufferTime = dayjs().add(1, "minute");
+      return bufferTime.format("HH:mm");
+    }
+    return undefined;
+  };
+
+  // Check if reminders are possible (more than just "no_reminder" option)
+  const canSetReminders = reminderOptions.length > 1;
+
+  // Auto-reset reminder option if it becomes invalid
+  useEffect(() => {
+    const isCurrentOptionAvailable = reminderOptions.some(
+      (option) => option.value === task.reminderOption
+    );
+
+    if (!isCurrentOptionAvailable) {
+      setTask((prev) => ({
+        ...prev,
+        reminderOption: reminderOptions[0]?.value || "no_reminder",
+      }));
+    }
+  }, [task.dueDate, task.dueTime, reminderOptions]);
 
   const handleReminderChange = (value: string) => {
     setTask((prev) => ({ ...prev, reminderOption: value }));
-
-    if (value !== "custom") {
-      setTask((prev) => ({ ...prev, reminderDate: "", reminderTime: "" }));
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -99,10 +176,12 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
       .tz(`${task.dueDate}T${task.dueTime || "00:00"}`, userTimezone)
       .toDate();
 
-    // Calculate reminder
     let reminder: Date | undefined;
 
     switch (task.reminderOption) {
+      case "1_minute":
+        reminder = dayjs(dueDate).subtract(1, "minute").toDate();
+        break;
       case "5_minutes":
         reminder = dayjs(dueDate).subtract(5, "minute").toDate();
         break;
@@ -115,20 +194,16 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
       case "1_day":
         reminder = dayjs(dueDate).subtract(1, "day").toDate();
         break;
-      case "custom":
-        if (task.reminderDate) {
-          reminder = dayjs
-            .tz(
-              `${task.reminderDate}T${task.reminderTime || "00:00"}`,
-              userTimezone
-            )
-            .toDate();
-        }
-        break;
       case "no_reminder":
       default:
         reminder = undefined;
         break;
+    }
+
+    // Validate reminder is not in the past
+    if (reminder && dayjs(reminder).isBefore(dayjs())) {
+      alert("Reminder is in the past. Please select a valid time.");
+      return;
     }
 
     const now = new Date();
@@ -183,7 +258,7 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
       dueTime: "",
       reminderDate: "",
       reminderTime: "",
-      reminderOption: "15_minutes",
+      reminderOption: "no_reminder",
       status: TaskStatus.pending,
       repeatInterval: TaskRepeatInterval.none,
     });
@@ -235,7 +310,7 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
               <div className="relative">
                 <input
                   type="time"
-                  min={task.dueDate === today ? currentTime : undefined}
+                  min={getMinTime()}
                   value={task.dueTime}
                   onChange={(e) =>
                     setTask((prev) => ({ ...prev, dueTime: e.target.value }))
@@ -247,72 +322,40 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
             </div>
           </div>
 
-          {/* Reminder */}
-          <div className="space-y-3">
-            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-              <Bell className="h-4 w-4" />
-              Reminder
-            </label>
-            <div className="relative">
-              <select
-                value={task.reminderOption}
-                onChange={(e) => handleReminderChange(e.target.value)}
-                className="w-full px-4 py-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer pr-12"
-              >
-                {reminderOptions.map((reminder) => (
-                  <option key={reminder.value} value={reminder.value}>
-                    {reminder.icon} {reminder.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-4 top-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
-            </div>
-
-            {/* Custom Time Selector */}
-            {task.reminderOption === "custom" && (
-              <div className="mt-3 p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-3">
-                <p className="text-sm font-medium text-gray-700 mb-3">
-                  Set custom reminder time
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="relative">
-                    <input
-                      type="date"
-                      value={task.reminderDate}
-                      onChange={(e) =>
-                        setTask((prev) => ({
-                          ...prev,
-                          reminderDate: e.target.value,
-                        }))
-                      }
-                      className="w-full px-4 py-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
-                    />
-                    <Calendar className="absolute right-4 top-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
-                  </div>
-                  <div className="relative">
-                    <input
-                      type="time"
-                      value={task.reminderTime}
-                      onChange={(e) =>
-                        setTask((prev) => ({
-                          ...prev,
-                          reminderTime: e.target.value,
-                        }))
-                      }
-                      className="w-full px-4 py-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
-                    />
-                    <Clock className="absolute right-4 top-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <AlertCircle className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                  <span className="text-sm text-blue-700">
-                    Set your preferred reminder date and time
-                  </span>
-                </div>
+          {/* Reminder - Only show if reminders are possible */}
+          {canSetReminders && (
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Bell className="h-4 w-4" />
+                Reminder
+              </label>
+              <div className="relative">
+                <select
+                  value={task.reminderOption}
+                  onChange={(e) => handleReminderChange(e.target.value)}
+                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer pr-12"
+                >
+                  {reminderOptions.map((reminder) => (
+                    <option key={reminder.value} value={reminder.value}>
+                      {reminder.icon} {reminder.label}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-4 top-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* No Reminder Available Message */}
+          {!canSetReminders && task.dueDate && (
+            <div className="flex items-center gap-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+              <AlertCircle className="h-4 w-4 text-orange-600 flex-shrink-0" />
+              <span className="text-sm text-orange-700">
+                No reminder options available - due date is too close to current
+                time
+              </span>
+            </div>
+          )}
 
           {/* Description */}
           <div className="space-y-3">
