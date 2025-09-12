@@ -6,6 +6,7 @@ import { RootDispatch, store } from "@/store";
 import { Toaster } from "sonner";
 import Navbar from "./dashboard/CrmNavbar";
 import { getTodayLeadTasksSlice } from "@/store/slices/leadTaskSlice";
+import GlobalReminderProvider from "@/components/providers/GlobalReminderProvider";
 
 export default function RootLayout({
   children,
@@ -22,6 +23,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning={true}>
       <body suppressHydrationWarning={true}>
         <Navbar />
+        <GlobalReminderProvider />
         <Provider store={store}>{children}</Provider>
         <Toaster
           position="top-right"
