@@ -24,6 +24,7 @@ import { getOneLeadbyId } from "@/store/slices/leadSlice";
 import AddTask from "@/components/Task/AddTask";
 import { getLeadTasksByLeadIdSlice } from "@/store/slices/leadTaskSlice";
 import { connectSocket } from "@/lib/socket";
+import ReminderModal from "@/components/modals/reminder.modal";
 
 const LeadDetailsPage = () => {
   const dispatch: RootDispatch = useDispatch();
@@ -31,6 +32,7 @@ const LeadDetailsPage = () => {
   const tasks = useSelector((state: RootState) => state.leadTasks.leadTasks);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
+  const [showReminderModal, setShowReminderModal] = useState(false);
 
   const currentLead = useSelector((state: RootState) => state.lead.lead);
   const { loading } = useSelector((state: RootState) => state.lead);
@@ -40,6 +42,7 @@ const LeadDetailsPage = () => {
 
     const handleTaskReminder = (data: string) => {
       console.log("📩 Message from server:", data);
+      setShowReminderModal(true);
     };
 
     socket.on("taskReminder", handleTaskReminder);
@@ -94,6 +97,26 @@ const LeadDetailsPage = () => {
 
   return (
     <div className="h-screen bg-gray-50 flex overflow-hidden">
+      <ReminderModal
+        isOpen={showReminderModal}
+        onClose={() => setShowReminderModal(false)}
+        reminderData={{
+          id: tasks?.[0]?.id || "1",
+          title: tasks?.[0]?.title || "Task Reminder",
+          description: tasks?.[0]?.description || "You have a pending task.",
+          type: "task",
+          priority: "medium",
+          dueDate: "",
+          leadName: currentLead?.name || "Lead",
+          leadId: currentLead?.id || "",
+          timestamp: new Date().toISOString(),
+        }}
+        onAction={(action, id) => {
+          console.log(`Action: ${action}, Reminder ID: ${id}`);
+          setShowReminderModal(false);
+        }}
+      />
+
       {/* Sidebar */}
       <div
         className={`${

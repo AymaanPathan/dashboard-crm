@@ -11,7 +11,13 @@ export const initSocket = (httpServer: any) => {
     },
   });
   io.on("connection", (socket) => {
-    console.log("Socket connected:", socket.id);
+    console.log(`🔌 New socket connected: ${socket.id}`);
+    socket.on("register", ({ userId }) => {
+      if (userId) {
+        socket.join(userId);
+        console.log(`🟢 Socket ${socket.id} joined room for user: ${userId}`);
+      }
+    });
   });
 
   return io;

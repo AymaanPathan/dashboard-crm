@@ -11,14 +11,14 @@ export const setLeadTaskReminderWorker = new Worker(
 
     try {
       const io = getIO();
-      const socket = io.emit("taskReminder", {
+      const socket = io.to(userId).emit("taskReminder", {
         taskId,
         title,
         description,
         message: `🔔 Reminder for task: ${title}`,
       });
       console.log(`✅ Reminder sent for task ${taskId} to user ${userId}`);
-      console.log('Emitted socket event:', socket);
+      console.log("Emitted socket event:", socket);
     } catch (err: any) {
       console.error("❌ Socket.io not initialized:", err.message);
     }
