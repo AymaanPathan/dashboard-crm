@@ -38,12 +38,14 @@ const LeadDetailsPage = () => {
   useEffect(() => {
     const socket = connectSocket();
 
-    socket.on("taskReminder", (data: string) => {
+    const handleTaskReminder = (data: string) => {
       console.log("📩 Message from server:", data);
-    });
+    };
+
+    socket.on("taskReminder", handleTaskReminder);
 
     return () => {
-      socket.off("welcome");
+      socket.off("taskReminder", handleTaskReminder);
     };
   }, []);
 

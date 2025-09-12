@@ -53,40 +53,37 @@ export const addLeadTask = async (req: Request, res: Response) => {
     const dueDate = dayjs.tz(taskData.dueDate, taskData.timezone);
 
     // Calculate reminder based on option
-    let reminder: dayjs.Dayjs | undefined;
-    switch (taskData.reminderOption) {
-      case "1_minute":
-        reminder = dueDate.subtract(1, "minute");
-        break;
-      case "5_minutes":
-        reminder = dueDate.subtract(5, "minute");
-        break;
-      case "15_minutes":
-        reminder = dueDate.subtract(15, "minute");
-        break;
-      case "1_hour":
-        reminder = dueDate.subtract(1, "hour");
-        break;
-      case "custom":
-        if (taskData.reminderDate) {
-          reminder = dayjs.tz(taskData.reminderDate, taskData.timezone);
-        }
-        break;
-      case "no_reminder":
-      default:
-        reminder = undefined;
-        break;
-    }
+    const reminder = taskData.reminder;
+    // switch (taskData.reminderOption) {
+    //   case "1_minute":
+    //     reminder = dueDate.subtract(1, "minute");
+    //     break;
+    //   case "5_minutes":
+    //     reminder = dueDate.subtract(5, "minute");
+    //     break;
+    //   case "15_minutes":
+    //     reminder = dueDate.subtract(15, "minute");
+    //     break;
+    //   case "1_hour":
+    //     reminder = dueDate.subtract(1, "hour");
+    //     break;
+    //   case "custom":
+    //     if (taskData.reminderDate) {
+    //       reminder = dayjs.tz(taskData.reminderDate, taskData.timezone);
+    //     }
+    //     break;
+    //   case "no_reminder":
+    //   default:
+    //     reminder = undefined;
+    //     break;
+    // }
 
-    const nowInUserTz = dayjs().tz(taskData.timezone);
-
-    // Save both dates in UTC for consistency
     const createdTask = await prisma.task.create({
       data: {
         title: taskData.title,
         description: taskData.description,
-        dueDate: dueDate.utc().toDate(),
-        reminder: reminder?.utc().toDate(),
+        dueDate: new Date(taskData.dueDate),
+        reminder: taskData.reminder ? new Date(taskData.reminder) : null,
         reminderOption: taskData.reminderOption || "no_reminder",
         status: taskData.status || "pending",
         repeatInterval: taskData.repeatInterval || "none",
@@ -95,18 +92,10 @@ export const addLeadTask = async (req: Request, res: Response) => {
       },
     });
 
-    console.log("Reminder scheduled at (UTC):", reminder);
-    // Parse custom reminder correctly
-    if (taskData.reminderOption === "custom" && taskData.reminderDate) {
-      reminder = dayjs.tz(
-        `${taskData.reminderDate}T${taskData.reminderTime || "00:00"}`,
-        taskData.timezone
-      );
-    }
-
-    // Schedule queue
     if (reminder) {
-      const delay = reminder.utc().valueOf() - dayjs.utc().valueOf();
+      const delay = reminder
+        ? dayjs(reminder).utc().valueOf() - dayjs.utc().valueOf()
+        : 0;
       if (delay > 0) {
         await taskReminderQueue.add(
           "sendTaskReminder",
@@ -122,25 +111,23 @@ export const addLeadTask = async (req: Request, res: Response) => {
     }
 
     if (reminder) {
-      const delay = reminder.diff(dayjs());
+      const delay = dayjs(reminder).utc().valueOf() - dayjs.utc().valueOf();
       console.log("Scheduling reminder with delay (ms):", delay);
 
-      if (delay > 0) {
-        await taskReminderQueue.add(
-          "sendTaskReminder",
-          {
-            taskId: createdTask.id,
-            userId: userId,
-            title: createdTask.title,
-            description: createdTask.description,
-          },
-          {
-            delay: 1000, // 1 second delay to ensure it's scheduled slightly after the exact time
-            attempts: 3,
-            removeOnComplete: true,
-          }
-        );
-      }
+      await taskReminderQueue.add(
+        "sendTaskReminder",
+        {
+          taskId: createdTask.id,
+          userId: userId,
+          title: createdTask.title,
+          description: createdTask.description,
+        },
+        {
+          delay: delay,
+          attempts: 3,
+          removeOnComplete: true,
+        }
+      );
     }
 
     response.data = [createdTask];
