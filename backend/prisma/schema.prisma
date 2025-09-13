@@ -22,7 +22,7 @@ model user {
   role       Role     @default(sales_rep)
   managerId  String?
   manager       user?   @relation("UserManager", fields: [managerId], references: [id])
-  teamMembers   user[]  @relation("UserManager")  // All Users under this user
+  teamMembers   user[]  @relation("UserManager") 
   username   String
   email      String   @unique
   password   String
@@ -41,7 +41,7 @@ model user {
 model Stage {
   id             String        @id @default(uuid())
   name           String
-  order          Int           @default(0) // Optional, to allow drag-drop or display order
+  order          Int           @default(0) 
   organizationId String
   organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 

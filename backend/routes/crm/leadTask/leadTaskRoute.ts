@@ -27,4 +27,10 @@ leadTaskRouter.get(
   authenticate,
   leadTaskController.getMissedTaskReminders
 );
+
+leadTaskRouter.post(
+  "/completeTask",
+  authenticate,
+  leadTaskController.completeTask
+);
 export default leadTaskRouter;

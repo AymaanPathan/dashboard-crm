@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { LeadTask } from "@/models/leadTask.model";
 import {
   addLeadTaskApi,
+  completeTaskApi,
   getLeadTasksByLeadIdApi,
   getMissedTaskRemindersApi,
   getTodayLeadTasksApi,
@@ -60,6 +61,14 @@ export const getMissedTaskRemindersSlice = createAsyncThunk(
   "leadTasks/getMissedReminders",
   async () => {
     const response = await getMissedTaskRemindersApi();
+    return response;
+  }
+);
+
+export const completeTaskSlice = createAsyncThunk(
+  "/leadTasks/getMissedReminders",
+  async () => {
+    const response = await completeTaskApi();
     return response;
   }
 );
@@ -138,6 +147,20 @@ const leadTasksSlice = createSlice({
         state.reminderList = action.payload;
       })
       .addCase(getMissedTaskRemindersSlice.rejected, (state, action) => {
+        state.loading.addingTask = false;
+        state.error = action.payload as string;
+      })
+      .addCase(completeTaskSlice.pending, (state) => {
+        state.loading.addingTask = true;
+        state.error = "";
+      })
+      .addCase(completeTaskSlice.fulfilled, (state, action) => {
+        state.loading.addingTask = false;
+        state.leadTasks = state.leadTasks.map((task) =>
+          task.id === action.payload.id ? action.payload : task
+        );
+      })
+      .addCase(completeTaskSlice.rejected, (state, action) => {
         state.loading.addingTask = false;
         state.error = action.payload as string;
       });
