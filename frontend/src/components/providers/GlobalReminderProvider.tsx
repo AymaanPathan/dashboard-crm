@@ -1,23 +1,31 @@
-// components/providers/GlobalReminderProvider.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import ReminderModal from "../modals/reminder.modal";
 import { connectSocket } from "@/lib/socket";
+import {
+  getMissedTaskRemindersSlice,
+  setReminderList,
+} from "@/store/slices/leadTaskSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { RootDispatch, RootState } from "@/store";
+import { IReminderData } from "@/models/LeadTaskReminder.model";
 
 const GlobalReminderProvider = () => {
-  const [showReminderModal, setShowReminderModal] = useState(false);
-  const [reminderData, setReminderData] = useState<any>(null);
-  const [remindersLitst, setRemindersList] = useState<any[]>([]);
+  const dispatch: RootDispatch = useDispatch();
+
+  const reminderList = useSelector(
+    (state: RootState) => state.leadTasks.reminderList
+  );
+
+  // Show modal if there's at least one reminder
+  const showReminderModal = reminderList.length > 0;
 
   useEffect(() => {
     const socket = connectSocket();
 
-    const handleTaskReminder = (data: any) => {
-      console.log("📩 Global reminder received:", data);
-      setReminderData(data);
-      setRemindersList((prev) => [...prev, data]);
-      setShowReminderModal(true);
+    const handleTaskReminder = (data: IReminderData) => {
+      dispatch(setReminderList([...reminderList, data]));
     };
 
     socket.on("taskReminder", handleTaskReminder);
@@ -25,21 +33,28 @@ const GlobalReminderProvider = () => {
     return () => {
       socket.off("taskReminder", handleTaskReminder);
     };
-  }, []);
-  console.log("🔔 GlobalReminderProvider rendered", remindersLitst);
+  }, [dispatch, reminderList]); // depend on reminderList to always get latest
+
+  useEffect(() => {
+    dispatch(getMissedTaskRemindersSlice());
+  }, [dispatch]);
+
+  const handleRemoveReminder = (taskId: string) => {
+    const updatedList = reminderList.filter(
+      (reminder) => reminder.taskId !== taskId
+    );
+    dispatch(setReminderList(updatedList));
+  };
 
   return (
     <>
-      {showReminderModal && reminderData && (
+      {showReminderModal && (
         <ReminderModal
-          reminderList={remindersLitst}
-          isOpen={showReminderModal}
-          onClose={() => setShowReminderModal(false)}
-          reminderData={reminderData}
-          onAction={(action, id) => {
-            console.log(`Global Action: ${action} | Task ID: ${id}`);
-            setShowReminderModal(false);
-          }}
+          isOpen={true}
+          onClose={() => handleRemoveReminder(reminderList[0].taskId!)}
+          reminderData={reminderList[0]}
+          onAction={(action, id) => handleRemoveReminder(id!)}
+          onRemoveReminder={handleRemoveReminder}
         />
       )}
     </>

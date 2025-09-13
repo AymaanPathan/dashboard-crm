@@ -15,4 +15,16 @@ leadTaskRouter.get(
   authenticate,
   leadTaskController.getTodayLeadTasks
 );
+
+leadTaskRouter.patch(
+  "/updateReminderStatus",
+  authenticate,
+  leadTaskController.updateTaskReminderStatus
+);
+
+leadTaskRouter.get(
+  "/missedReminders",
+  authenticate,
+  leadTaskController.getMissedTaskReminders
+);
 export default leadTaskRouter;

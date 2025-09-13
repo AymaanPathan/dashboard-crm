@@ -18,3 +18,19 @@ export const getTodayLeadTasksApi = async () => {
   const response = await axiosSetup.get("/leadTask/todayTasks");
   return response.data.data;
 };
+
+export const updateTaskReminderStatusApi = async (
+  taskId: string,
+  status: string
+) => {
+  const response = await axiosSetup.patch("/leadTask/updateReminderStatus", {
+    taskId,
+    status,
+  });
+  return response.data.data;
+};
+
+export const getMissedTaskRemindersApi = async () => {
+  const response = await axiosSetup.get("/leadTask/missedReminders");
+  return response.data.data;
+};

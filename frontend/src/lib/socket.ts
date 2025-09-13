@@ -8,7 +8,6 @@ const SOCKET_URL =
 let socket: Socket | null = null;
 
 const user = getUser();
-console.log("User in socket.ts:", user);
 
 export const connectSocket = (): Socket => {
   if (!socket) {

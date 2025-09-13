@@ -26,4 +26,5 @@ export interface LeadTask {
   leadId: string;
   createdById: string;
   timezone?: string;
+  reminderStatus?: string;
 }

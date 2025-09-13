@@ -224,7 +224,6 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
       timezone: userTimezone,
     };
 
-    console.log("Creating task:", newTask);
 
     try {
       await dispatch(
