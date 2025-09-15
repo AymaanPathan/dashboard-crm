@@ -1,4 +1,5 @@
 "use client";
+
 import { Provider, useDispatch } from "react-redux";
 import "../../app/globals.css";
 import { useEffect } from "react";
@@ -20,23 +21,21 @@ export default function RootLayout({
   }, [dispatch]);
 
   return (
-    <html lang="en" suppressHydrationWarning={true}>
-      <body suppressHydrationWarning={true}>
-        <Navbar />
-        <GlobalReminderProvider />
-        <Provider store={store}>{children}</Provider>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              padding: "1rem",
-              borderRadius: "0.5rem",
-              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-            },
-          }}
-        />
-      </body>
-    </html>
+    <>
+      <Navbar />
+      <GlobalReminderProvider />
+      <Provider store={store}>{children}</Provider>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            padding: "1rem",
+            borderRadius: "0.5rem",
+            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+          },
+        }}
+      />
+    </>
   );
 }

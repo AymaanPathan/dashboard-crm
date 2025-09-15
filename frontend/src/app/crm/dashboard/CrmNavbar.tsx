@@ -66,7 +66,7 @@ const Navbar: React.FC = () => {
 
           {/* Notifications & Logout */}
           <div className="flex items-center space-x-2">
-            <Link href="/crm/todaysTask">
+            <Link href="/crm/tasks">
               <div className="relative">
                 <Button
                   variant="ghost"

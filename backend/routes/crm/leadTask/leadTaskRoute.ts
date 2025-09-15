@@ -33,4 +33,10 @@ leadTaskRouter.post(
   authenticate,
   leadTaskController.completeTask
 );
+leadTaskRouter.get("/allTasks", authenticate, leadTaskController.getAllTask);
+leadTaskRouter.get(
+  "/incompleteTasks",
+  authenticate,
+  leadTaskController.getIncompleteTasks
+);
 export default leadTaskRouter;

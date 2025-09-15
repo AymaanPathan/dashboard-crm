@@ -35,7 +35,20 @@ export const getMissedTaskRemindersApi = async () => {
   return response.data.data;
 };
 
-export const completeTaskApi = async () => {
-  const response = await axiosSetup.post("leadTask/completeTask");
+export const completeTaskApi = async (taskId: string, status: string) => {
+  const response = await axiosSetup.post("leadTask/completeTask", {
+    taskId,
+    status,
+  });
   return response.data.api;
 };
+
+export const getAllMyTasksApi = async () => {
+  const response = await axiosSetup.get("/leadTask/allTasks");
+  return response.data.data;
+};
+
+export const getIncompleteTasksApi = async () => {
+  const response = await axiosSetup.get("/leadTask/incompleteTasks");
+  return response.data.data;
+}

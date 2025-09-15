@@ -13,6 +13,7 @@ export enum TaskRepeatInterval {
 }
 
 export interface LeadTask {
+  createdBy: any;
   reminderOption?: string;
   id?: string;
   title: string;

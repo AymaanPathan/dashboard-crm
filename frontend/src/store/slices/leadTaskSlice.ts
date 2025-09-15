@@ -3,6 +3,8 @@ import { LeadTask } from "@/models/leadTask.model";
 import {
   addLeadTaskApi,
   completeTaskApi,
+  getAllMyTasksApi,
+  getIncompleteTasksApi,
   getLeadTasksByLeadIdApi,
   getMissedTaskRemindersApi,
   getTodayLeadTasksApi,
@@ -11,11 +13,16 @@ import {
 import { IReminderData } from "@/models/LeadTaskReminder.model";
 
 const initialState = {
+  myAllTasks: [] as LeadTask[],
+  myIncompleteTasks: [] as LeadTask[],
+  myIncompleteTaskCount: 0,
+  allTaskCount: 0,
   todaysTasks: [] as LeadTask[],
   todayTaskCount: 0,
   leadTasks: [] as LeadTask[],
   reminderList: [] as IReminderData[],
   loading: {
+    gettingTasks: false,
     addingTask: false,
     updatingTask: false,
     deletingTask: false,
@@ -67,8 +74,23 @@ export const getMissedTaskRemindersSlice = createAsyncThunk(
 
 export const completeTaskSlice = createAsyncThunk(
   "/leadTasks/getMissedReminders",
+  async ({ taskId, status }: { taskId: string; status: string }) => {
+    const response = await completeTaskApi(taskId, status);
+    return response;
+  }
+);
+
+export const getAllMyTasksSlice = createAsyncThunk(
+  "leadTasks/getAllMyTasks",
   async () => {
-    const response = await completeTaskApi();
+    const response = await getAllMyTasksApi();
+    return response;
+  }
+);
+export const getIncompleteTasksSlice = createAsyncThunk(
+  "leadTasks/getIncompleteTasks",
+  async () => {
+    const response = await getIncompleteTasksApi();
     return response;
   }
 );
@@ -143,7 +165,7 @@ const leadTasksSlice = createSlice({
       })
       .addCase(getMissedTaskRemindersSlice.fulfilled, (state, action) => {
         state.loading.addingTask = false;
-        console.log("reminder payload:", action.payload);
+
         state.reminderList = action.payload;
       })
       .addCase(getMissedTaskRemindersSlice.rejected, (state, action) => {
@@ -162,6 +184,32 @@ const leadTasksSlice = createSlice({
       })
       .addCase(completeTaskSlice.rejected, (state, action) => {
         state.loading.addingTask = false;
+        state.error = action.payload as string;
+      })
+      .addCase(getAllMyTasksSlice.pending, (state) => {
+        state.loading.gettingTasks = true;
+        state.error = "";
+      })
+      .addCase(getAllMyTasksSlice.fulfilled, (state, action) => {
+        state.loading.gettingTasks = false;
+        state.myAllTasks = action.payload.tasks;
+        state.allTaskCount = action.payload.count;
+      })
+      .addCase(getAllMyTasksSlice.rejected, (state, action) => {
+        state.loading.gettingTasks = false;
+        state.error = action.payload as string;
+      })
+      .addCase(getIncompleteTasksSlice.pending, (state) => {
+        state.loading.gettingTasks = true;
+        state.error = "";
+      })
+      .addCase(getIncompleteTasksSlice.fulfilled, (state, action) => {
+        state.loading.gettingTasks = false;
+        state.myIncompleteTasks = action.payload.tasks;
+        state.myIncompleteTaskCount = action.payload.count;
+      })
+      .addCase(getIncompleteTasksSlice.rejected, (state, action) => {
+        state.loading.gettingTasks = false;
         state.error = action.payload as string;
       });
   },
