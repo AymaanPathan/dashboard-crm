@@ -122,7 +122,7 @@ const ReminderModal: React.FC<ReminderModalProps> = ({
                     <button
                       onClick={() => updateReminderStatus("seen", data.id)}
                       className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 hover:border-gray-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
-                    >k
+                    >
                       Complete
                     </button>
                   </div>

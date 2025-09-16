@@ -35,8 +35,11 @@ export const getTodayLeadTasks = async (req: Request, res: Response) => {
         lte: todayEnd,
       },
       lead: {
-        organizationId,
+        is: {
+          organizationId: organizationId,
+        },
       },
+      status: { not: "completed" },
     };
 
     // Only non-admins should be restricted to assigned leads

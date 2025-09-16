@@ -14,8 +14,8 @@ import {
 
 import { TodayTasksComponent } from "@/components/leadTask/todayTask";
 import { PendingTasksComponent } from "@/components/leadTask/PendingTask";
-import { RootDispatch } from "@/store";
-import { useDispatch } from "react-redux";
+import { RootDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getAllMyTasksSlice,
   getIncompleteTasksSlice,
@@ -24,90 +24,17 @@ import {
 import { TaskStatus } from "@/models/leadTask.model";
 import { AllTasksComponent } from "@/components/leadTask/AllTask";
 
-const mockTasks = [
-  {
-    id: "1",
-    title: "Follow up with Enterprise Lead - Acme Corp",
-    description:
-      "Schedule demo call with CTO and discuss integration requirements for their 500+ user deployment",
-    status: "pending",
-    dueDate: new Date(Date.now() + 2 * 60 * 60 * 1000),
-    leadId: "LEAD-2024-001",
-    priority: "high",
-    assignee: "Sarah Johnson",
-    leadValue: "$250,000",
-    tags: ["Enterprise", "Hot Lead", "Demo Required"],
-  },
-  {
-    id: "2",
-    title: "Send pricing proposal to StartupXYZ",
-    description:
-      "Prepare custom pricing for their Series A startup with 50 users, include onboarding package",
-    status: "in-progress",
-    dueDate: new Date(Date.now() + 4 * 60 * 60 * 1000),
-    leadId: "LEAD-2024-002",
-    priority: "medium",
-    assignee: "Mike Chen",
-    leadValue: "$45,000",
-    tags: ["Startup", "Pricing", "Series A"],
-  },
-  {
-    id: "3",
-    title: "Technical integration call with TechFlow Inc",
-    description:
-      "Deep dive into API requirements and data migration strategy for Q1 2025 implementation",
-    status: "completed",
-    dueDate: new Date(),
-    leadId: "LEAD-2024-003",
-    priority: "high",
-    assignee: "David Park",
-    leadValue: "$180,000",
-    tags: ["Technical", "API", "Migration"],
-  },
-  {
-    id: "4",
-    title: "Contract negotiation - Global Solutions Ltd",
-    description:
-      "Review legal terms and finalize enterprise contract for multi-year agreement",
-    status: "pending",
-    dueDate: new Date(Date.now() + 6 * 60 * 60 * 1000),
-    leadId: "LEAD-2024-004",
-    priority: "high",
-    assignee: "Jennifer Liu",
-    leadValue: "$420,000",
-    tags: ["Legal", "Enterprise", "Contract"],
-  },
-  {
-    id: "5",
-    title: "Product demo for mid-market prospect",
-    description:
-      "Showcase new AI features and ROI calculator to decision makers at RegionalCorp",
-    status: "in-progress",
-    dueDate: new Date(),
-    leadId: "LEAD-2024-005",
-    priority: "medium",
-    assignee: "Alex Rodriguez",
-    leadValue: "$85,000",
-    tags: ["Demo", "AI Features", "Mid-Market"],
-  },
-  {
-    id: "6",
-    title: "Follow up on security questionnaire",
-    description:
-      "Address remaining security concerns from FinanceFirst regarding SOC2 compliance",
-    status: "pending",
-    dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    leadId: "LEAD-2024-006",
-    priority: "low",
-    assignee: "Sarah Johnson",
-    leadValue: "$95,000",
-    tags: ["Security", "Compliance", "Finance"],
-  },
-];
-
 const TasksDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("today");
   const [searchQuery, setSearchQuery] = useState("");
+  const todaysTaskCount = useSelector(
+    (state: RootState) => state.leadTasks.todaysTasks.length
+  );
+  const allTask = useSelector((state: RootState) => state.leadTasks.myAllTasks);
+  const allTaskCount = useSelector(
+    (state: RootState) => state.leadTasks.allTaskCount
+  );
+
   const dispatch: RootDispatch = useDispatch();
 
   useEffect(() => {
@@ -116,27 +43,17 @@ const TasksDashboard: React.FC = () => {
     dispatch(getAllMyTasksSlice());
   }, [dispatch]);
 
-  const completedCount = mockTasks.filter(
+  const completedCount = allTask.filter(
     (task) => task.status === TaskStatus.completed
   ).length;
 
-  const pendingCount = mockTasks.filter(
+  const pendingCount = allTask.filter(
     (task) => task.status === TaskStatus.pending
   ).length;
-  const totalValue = mockTasks.reduce(
-    (sum, task) => sum + parseInt(task.leadValue.replace(/[$,]/g, "")),
-    0
-  );
-
-  const todayCount = mockTasks.filter((task) => {
-    const taskDate = new Date(task.dueDate);
-    const today = new Date();
-    return taskDate.toDateString() === today.toDateString();
-  }).length;
 
   const tabs = [
-    { id: "today", label: "Today", count: todayCount },
-    { id: "all", label: "All Tasks", count: mockTasks.length },
+    { id: "today", label: "Today", count: todaysTaskCount },
+    { id: "all", label: "All Tasks", count: allTaskCount },
     { id: "pending", label: "Pending", count: pendingCount },
   ];
 
@@ -214,12 +131,9 @@ const TasksDashboard: React.FC = () => {
                   Total Pipeline
                 </p>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-2xl font-bold">{mockTasks.length}</p>
+                  <p className="text-2xl font-bold">{allTaskCount}</p>
                   <span className="text-sm text-muted-foreground">tasks</span>
                 </div>
-                <p className="text-xs text-emerald-600 font-medium">
-                  ${(totalValue / 1000).toFixed(0)}K value
-                </p>
               </div>
               <Activity className="h-4 w-4 text-muted-foreground" />
             </div>
@@ -236,26 +150,11 @@ const TasksDashboard: React.FC = () => {
                   <span className="text-sm text-muted-foreground">done</span>
                 </div>
                 <p className="text-xs text-emerald-600 font-medium">
-                  {Math.round((completedCount / mockTasks.length) * 100)}%
+                  {Math.round((completedCount / allTask.length) * 100)}%
                   completion
                 </p>
               </div>
               <CheckCircle className="h-4 w-4 text-emerald-600" />
-            </div>
-          </div>
-
-          <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-            <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">In Progress</p>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-sm text-muted-foreground">active</span>
-                </div>
-                <p className="text-xs text-blue-600 font-medium">
-                  High velocity
-                </p>
-              </div>
-              <Zap className="h-4 w-4 text-blue-600" />
             </div>
           </div>
 

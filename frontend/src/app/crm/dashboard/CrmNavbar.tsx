@@ -3,22 +3,18 @@ import React from "react";
 import { LogOut, Home, Users, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useDispatch, useSelector } from "react-redux";
-import { RootDispatch, RootState } from "@/store";
-import { logoutUser } from "@/store/slices/authSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 import { Page } from "@/enums/page.enum";
 import { usePathname } from "next/navigation";
+import { useLogout } from "@/hooks/useLogout";
 
 const Navbar: React.FC = () => {
   const pathname = usePathname();
   const todayTaskCount = useSelector(
     (state: RootState) => state.leadTasks.todayTaskCount
   );
-  const dispatch: RootDispatch = useDispatch();
-
-  const handleLogout = () => {
-    dispatch(logoutUser());
-  };
+  const logout = useLogout();
 
   const getVariant = (page: Page) =>
     pathname.includes(page.toLowerCase()) ? "default" : "ghost";
@@ -83,7 +79,7 @@ const Navbar: React.FC = () => {
               </div>
             </Link>
             <Button
-              onClick={handleLogout}
+              onClick={logout}
               variant="outline"
               size="sm"
               className="h-9 border-gray-200 hover:border-red-300 hover:bg-red-50 hover:text-red-600 text-gray-700 shadow-sm font-medium transition-all duration-200"

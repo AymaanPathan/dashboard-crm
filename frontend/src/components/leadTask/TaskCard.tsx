@@ -12,9 +12,9 @@ import { RootDispatch } from "@/store";
 import { useDispatch } from "react-redux";
 import {
   completeTaskSlice,
-  getAllMyTasksSlice,
   optimisticCompleteTask,
 } from "@/store/slices/leadTaskSlice";
+import Link from "next/link";
 
 const getTaskIcon = (status: string) => {
   switch (status?.toLowerCase()) {
@@ -86,9 +86,11 @@ export const TaskCard = ({ task }: { task: LeadTask }) => {
         </div>
 
         <div className="flex items-center gap-2 ml-4">
-          <Button variant="outline" size="sm">
-            View Lead
-          </Button>
+          <Link href={`/crm/lead/${task.leadId}`} passHref>
+            <Button variant="outline" size="sm">
+              View Lead
+            </Button>
+          </Link>
           <Button variant="ghost" size="sm">
             <MoreHorizontal className="h-4 w-4" />
           </Button>
