@@ -12,11 +12,6 @@ export const TodayTasksComponent = ({
     (state: RootState) => state.leadTasks.todaysTasks
   );
 
-  const handleComplete = (taskId: string) => {
-    console.log("Completing task:", taskId);
-    // Handle completion logic here
-  };
-
   if (todayTasks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
@@ -48,7 +43,7 @@ export const TodayTasksComponent = ({
       </div>
 
       {todayTasks.map((task) => (
-        <TaskCard key={task.id} task={task} onComplete={handleComplete} />
+        <TaskCard key={task.id} task={task} />
       ))}
     </div>
   );

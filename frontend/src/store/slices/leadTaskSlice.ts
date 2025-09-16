@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { LeadTask } from "@/models/leadTask.model";
 import {
@@ -74,9 +75,20 @@ export const getMissedTaskRemindersSlice = createAsyncThunk(
 
 export const completeTaskSlice = createAsyncThunk(
   "/leadTasks/getMissedReminders",
-  async ({ taskId, status }: { taskId: string; status: string }) => {
-    const response = await completeTaskApi(taskId, status);
-    return response;
+  async (
+    { taskId, status }: { taskId: string; status: string },
+    { rejectWithValue, getState }
+  ) => {
+    try {
+      const response = await completeTaskApi(taskId, status);
+      return { taskId, status, data: response.data };
+    } catch (error: any) {
+      const state = getState() as { leadTasks: typeof initialState };
+      const originalTask = state.leadTasks.leadTasks.find(
+        (t) => t.id === taskId
+      );
+      return rejectWithValue({ taskId, originalTask, error: error.message });
+    }
   }
 );
 
@@ -99,6 +111,82 @@ const leadTasksSlice = createSlice({
   name: "leadTasks",
   initialState,
   reducers: {
+    optimisticCompleteTask: (state, action) => {
+      const { taskId, status } = action.payload;
+
+      // Update in leadTasks
+      const leadTask = state.leadTasks.find((task) => task.id === taskId);
+      if (leadTask) {
+        leadTask.status = status;
+      }
+
+      // Update in myAllTasks
+      const myTask = state.myAllTasks.find((task) => task.id === taskId);
+      if (myTask) {
+        myTask.status = status;
+      }
+
+      // Update in todaysTasks
+      const todayTask = state.todaysTasks.find((task) => task.id === taskId);
+      if (todayTask) {
+        todayTask.status = status;
+      }
+
+      // Remove from incomplete tasks if completing
+      if (status === "completed" || status === "done") {
+        state.myIncompleteTasks = state.myIncompleteTasks.filter(
+          (task) => task.id !== taskId
+        );
+        state.myIncompleteTaskCount = Math.max(
+          0,
+          state.myIncompleteTaskCount - 1
+        );
+      }
+    },
+    rollbackTaskUpdate: (state, action) => {
+      const { taskId, originalTask } = action.payload;
+
+      if (!originalTask) return;
+
+      // Rollback in leadTasks
+      const leadTaskIndex = state.leadTasks.findIndex(
+        (task) => task.id === taskId
+      );
+      if (leadTaskIndex !== -1) {
+        state.leadTasks[leadTaskIndex] = { ...originalTask };
+      }
+
+      // Rollback in myAllTasks
+      const myTaskIndex = state.myAllTasks.findIndex(
+        (task) => task.id === taskId
+      );
+      if (myTaskIndex !== -1) {
+        state.myAllTasks[myTaskIndex] = { ...originalTask };
+      }
+
+      // Rollback in todaysTasks
+      const todayTaskIndex = state.todaysTasks.findIndex(
+        (task) => task.id === taskId
+      );
+      if (todayTaskIndex !== -1) {
+        state.todaysTasks[todayTaskIndex] = { ...originalTask };
+      }
+
+      // Re-add to incomplete tasks if it was incomplete before
+      if (
+        originalTask.status !== "completed" &&
+        originalTask.status !== "done"
+      ) {
+        const existsInIncomplete = state.myIncompleteTasks.some(
+          (task) => task.id === taskId
+        );
+        if (!existsInIncomplete) {
+          state.myIncompleteTasks.push({ ...originalTask });
+          state.myIncompleteTaskCount += 1;
+        }
+      }
+    },
+
     setReminderList: (state, action) => {
       state.reminderList = action.payload;
     },
@@ -179,7 +267,7 @@ const leadTasksSlice = createSlice({
       .addCase(completeTaskSlice.fulfilled, (state, action) => {
         state.loading.addingTask = false;
         state.leadTasks = state.leadTasks.map((task) =>
-          task.id === action.payload.id ? action.payload : task
+          task.id === action.payload.data.id ? action.payload.data : task
         );
       })
       .addCase(completeTaskSlice.rejected, (state, action) => {
@@ -215,5 +303,6 @@ const leadTasksSlice = createSlice({
   },
 });
 
-export const { setReminderList } = leadTasksSlice.actions;
+export const { setReminderList, rollbackTaskUpdate, optimisticCompleteTask } =
+  leadTasksSlice.actions;
 export default leadTasksSlice.reducer;

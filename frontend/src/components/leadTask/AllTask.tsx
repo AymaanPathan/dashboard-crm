@@ -17,11 +17,6 @@ export const AllTasksComponent = ({ searchQuery }: { searchQuery: string }) => {
     );
   });
 
-  const handleComplete = (taskId: string) => {
-    console.log("Completing task:", taskId);
-    // Handle completion logic here
-  };
-
   const completedCount = filteredTasks.filter(
     (task: LeadTask) => task.status === TaskStatus.completed
   ).length;
@@ -60,7 +55,7 @@ export const AllTasksComponent = ({ searchQuery }: { searchQuery: string }) => {
       </div>
 
       {filteredTasks.map((task: LeadTask) => (
-        <TaskCard key={task.id} task={task} onComplete={handleComplete} />
+        <TaskCard key={task.id} task={task} />
       ))}
     </div>
   );

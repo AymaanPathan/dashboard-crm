@@ -40,7 +40,8 @@ export const completeTaskApi = async (taskId: string, status: string) => {
     taskId,
     status,
   });
-  return response.data.api;
+  console.log("completeTaskApi response:", response.data.data);
+  return response.data;
 };
 
 export const getAllMyTasksApi = async () => {

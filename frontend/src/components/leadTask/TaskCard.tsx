@@ -8,6 +8,13 @@ import {
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { LeadTask } from "@/models/leadTask.model";
+import { RootDispatch } from "@/store";
+import { useDispatch } from "react-redux";
+import {
+  completeTaskSlice,
+  getAllMyTasksSlice,
+  optimisticCompleteTask,
+} from "@/store/slices/leadTaskSlice";
 
 const getTaskIcon = (status: string) => {
   switch (status?.toLowerCase()) {
@@ -39,62 +46,65 @@ const getStatusStyle = (status: string) => {
   }
 };
 
-export const TaskCard = ({
-  task,
-  onComplete,
-}: {
-  task: LeadTask;
-  onComplete: (id: string) => void;
-}) => (
-  <div className="rounded-lg border bg-card p-4 transition-colors hover:bg-accent/50">
-    <div className="flex items-start justify-between">
-      <div className="flex items-start gap-4 flex-1">
-        <div className="mt-1">{getTaskIcon(task.status)}</div>
+export const TaskCard = ({ task }: { task: LeadTask }) => {
+  const dispatch: RootDispatch = useDispatch();
 
-        <div className="flex-1 min-w-0 space-y-3">
-          <div className="flex items-start gap-3 flex-wrap">
-            <h3 className="font-medium text-sm leading-none">{task.title}</h3>
-            <div className="flex items-center gap-2">
-              <span
-                className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors ${getStatusStyle(
-                  task.status
-                )}`}
-              >
-                {task.status.replace("-", " ")}
-              </span>
+  const handleComplete = async (taskId: string) => {
+    dispatch(optimisticCompleteTask({ taskId, status: "completed" }));
+
+    await dispatch(completeTaskSlice({ taskId, status: "completed" }));
+  };
+  return (
+    <div className="rounded-lg border bg-card p-4 transition-colors hover:bg-accent/50">
+      <div className="flex items-start justify-between">
+        <div className="flex items-start gap-4 flex-1">
+          <div className="mt-1">{getTaskIcon(task.status)}</div>
+
+          <div className="flex-1 min-w-0 space-y-3">
+            <div className="flex items-start gap-3 flex-wrap">
+              <h3 className="font-medium text-sm leading-none">{task.title}</h3>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors ${getStatusStyle(
+                    task.status
+                  )}`}
+                >
+                  {task.status.replace("-", " ")}
+                </span>
+              </div>
             </div>
-          </div>
 
-          <p className="text-sm text-muted-foreground">{task?.description}</p>
+            <p className="text-sm text-muted-foreground">{task?.description}</p>
 
-          <div className="flex items-center gap-6 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <User className="h-3 w-3" />
-              <span>{task?.createdBy?.username}</span>
+            <div className="flex items-center gap-6 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <User className="h-3 w-3" />
+                <span>{task?.createdBy?.username}</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex items-center gap-2 ml-4">
-        <Button variant="outline" size="sm">
-          View Lead
-        </Button>
-        <Button variant="ghost" size="sm">
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-
-        {task.status !== "completed" && task.status !== "cancelled" && (
-          <Button
-            onClick={() => onComplete(task.id!)}
-            size="sm"
-            className="gap-1.5"
-          >
-            <CheckCircle className="h-3 w-3" />
-            Complete
+        <div className="flex items-center gap-2 ml-4">
+          <Button variant="outline" size="sm">
+            View Lead
           </Button>
-        )}
+          <Button variant="ghost" size="sm">
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+
+          {task.status !== "completed" && task.status !== "cancelled" && (
+            <Button
+              onClick={() => handleComplete(task.id!)}
+              size="sm"
+              className="gap-1.5"
+            >
+              <CheckCircle className="h-3 w-3" />
+              Complete
+            </Button>
+          )}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
