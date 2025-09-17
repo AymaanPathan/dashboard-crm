@@ -74,6 +74,28 @@ export const updateLeadDragDropPosition = async (
           })
         ),
       ]);
+      console.log("updateing log........");
+      console.log("req.user", req.user);
+
+      const findOldStage = await prisma.stage.findUnique({
+        where: { id: oldStage },
+      });
+      const findNewStage = await prisma.stage.findUnique({
+        where: { id: newStage },
+      });
+      console.log("findOldStage", findOldStage);
+      console.log("findNewStage", findNewStage);
+
+      await prisma.leadLog.create({
+        data: {
+          leadId,
+          userId: req?.user?.id!,
+          userName: req?.user?.username!,
+          action: "Moved lead to a different stage",
+          details: `Lead moved from stage ${findOldStage?.name} to ${findNewStage?.name}`,
+          type: "stage_change",
+        },
+      });
     } else {
       const leadsInStage = await prisma.lead.findMany({
         where: {

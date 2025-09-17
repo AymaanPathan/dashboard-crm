@@ -67,6 +67,20 @@ model Organization {
   leads                    Lead[]
 }
 
+model LeadLog {
+  id        String   @id @default(uuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  userId    String
+  userName  String
+  action    String
+  details   String?
+  timestamp DateTime @default(now())
+  type      String
+
+  @@index([leadId, timestamp])
+}
+
 model Lead {
   position          Int      @default(0)
   @@index([organizationId, stageId, position])
@@ -97,6 +111,7 @@ model Lead {
   stageId           String?
   stage             Stage? @relation("LeadStage", fields: [stageId], references: [id])
   tasks Task[]
+  logs LeadLog[]
 }
 
 

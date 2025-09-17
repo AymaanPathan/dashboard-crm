@@ -17,11 +17,36 @@ export const updateAssignee = async (req: Request, res: Response) => {
       response.message = "leadId and newAssigneeId are required";
       return sendResponse(res, response);
     }
+    const findOldAssignee = await prisma.lead.findUnique({
+      where: { id: leadId },
+      include: { assignedTo: true },
+    });
+
     const findLeadAndUpdate = await prisma.lead.update({
       where: { id: leadId },
       data: { assignedToId: newAssigneeId },
     });
-    response.data = findLeadAndUpdate;
+
+    const findNewAssignee = await prisma.user.findUnique({
+      where: { id: newAssigneeId },
+    });
+
+    console.log("oldAssignee", findOldAssignee);
+    console.log("newAssignee", findNewAssignee);
+
+    await prisma.leadLog.create({
+      data: {
+        leadId,
+        userId: req.user?.id,
+        userName: req.user?.username,
+        action: "Updated lead assignee",
+        details: `Lead reassigned from ${
+          findOldAssignee?.assignedTo?.username || "unassigned"
+        } to ${findNewAssignee?.username || "unassigned"}`,
+        type: "assignee_change",
+      },
+    }),
+      (response.data = findLeadAndUpdate);
 
     return sendResponse(res, response);
   } catch (error) {

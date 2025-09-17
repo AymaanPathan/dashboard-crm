@@ -17,11 +17,13 @@ import {
   MoreHorizontal,
   Plus,
   User,
+  Activity,
 } from "lucide-react";
 import { RootDispatch, RootState } from "@/store";
 import { useParams } from "next/navigation";
 import { getOneLeadbyId } from "@/store/slices/leadSlice";
 import AddTask from "@/components/Task/AddTask";
+import LeadLogs from "@/components/lead/LeadLogs";
 import { getLeadTasksByLeadIdSlice } from "@/store/slices/leadTaskSlice";
 
 const LeadDetailsPage = () => {
@@ -30,6 +32,8 @@ const LeadDetailsPage = () => {
   const tasks = useSelector((state: RootState) => state.leadTasks.leadTasks);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
+  const [showLogs, setShowLogs] = useState(false);
+  const [activeTab, setActiveTab] = useState("tasks"); // "tasks" or "logs"
 
   const currentLead = useSelector((state: RootState) => state.lead.lead);
   const { loading } = useSelector((state: RootState) => state.lead);
@@ -75,6 +79,16 @@ const LeadDetailsPage = () => {
       pending: "bg-gray-100 text-gray-700 border-gray-200",
     };
     return styles[status as keyof typeof styles] || styles.pending;
+  };
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    if (tab === "logs") {
+      setShowLogs(true);
+      setShowAddTask(false);
+    } else {
+      setShowLogs(false);
+    }
   };
 
   return (
@@ -203,121 +217,174 @@ const LeadDetailsPage = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="h-16 border-b border-gray-200 bg-white px-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            {!sidebarOpen && (
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <PanelRightOpen className="h-4 w-4" />
-              </button>
-            )}
-            <div>
-              <h1 className="text-lg font-semibold text-gray-900">Tasks</h1>
-              <p className="text-sm text-gray-500">
-                {tasks?.length || 0} tasks for {currentLead.name || "this lead"}
-              </p>
+        <div className="border-b border-gray-200 bg-white">
+          <div className="h-16 px-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {!sidebarOpen && (
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <PanelRightOpen className="h-4 w-4" />
+                </button>
+              )}
+              <div>
+                <h1 className="text-lg font-semibold text-gray-900">
+                  {activeTab === "tasks" ? "Tasks" : "Activity Log"}
+                </h1>
+                <p className="text-sm text-gray-500">
+                  {activeTab === "tasks"
+                    ? `${tasks?.length || 0} tasks for ${
+                        currentLead.name || "this lead"
+                      }`
+                    : `Activity history for ${currentLead.name || "this lead"}`}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {activeTab === "tasks" && (
+                <>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search tasks..."
+                      className="pl-9 pr-4 py-2 w-64 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+                  <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                    <Filter className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setShowAddTask(!showAddTask)}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Task
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search tasks..."
-                className="pl-9 pr-4 py-2 w-64 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-              />
+          {/* Tab Navigation */}
+          <div className="px-6">
+            <div className="flex space-x-8 border-b border-gray-200">
+              <button
+                onClick={() => handleTabChange("tasks")}
+                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === "tasks"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Tasks
+                  <span className="ml-1 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">
+                    {tasks?.length || 0}
+                  </span>
+                </div>
+              </button>
+              <button
+                onClick={() => handleTabChange("logs")}
+                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === "logs"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Activity className="h-4 w-4" />
+                  Activity Log
+                </div>
+              </button>
             </div>
-            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-              <Filter className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setShowAddTask(!showAddTask)}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Add Task
-            </button>
           </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Tasks List */}
-          <div className="flex-1 overflow-y-auto p-6">
-            {tasks?.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 className="h-8 w-8 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No tasks yet
-                </h3>
-                <p className="text-gray-500 mb-6">
-                  Create your first task to get started with this lead
-                </p>
-                <button
-                  onClick={() => setShowAddTask(true)}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
-                >
-                  Create First Task
-                </button>
+          {/* Main Content Area */}
+          <div className="flex-1 overflow-y-auto">
+            {activeTab === "tasks" ? (
+              <div className="p-6">
+                {tasks?.length === 0 ? (
+                  <div className="text-center py-16">
+                    <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle2 className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      No tasks yet
+                    </h3>
+                    <p className="text-gray-500 mb-6">
+                      Create your first task to get started with this lead
+                    </p>
+                    <button
+                      onClick={() => setShowAddTask(true)}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      Create First Task
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {tasks.map((task, index) => (
+                      <div
+                        key={task?.id || index}
+                        className="group bg-white border border-gray-200 rounded-xl p-4 hover:border-gray-300 hover:shadow-sm transition-all"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="mt-1">
+                            {getTaskStatusIcon(task?.status)}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between mb-2">
+                              <h4 className="font-medium text-gray-900 pr-4">
+                                {task.title}
+                              </h4>
+                              <button className="p-1 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </button>
+                            </div>
+
+                            <div className="flex items-center gap-2 mb-3">
+                              <span
+                                className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border ${getStatusBadge(
+                                  task?.status
+                                )}`}
+                              >
+                                {task?.status}
+                              </span>
+                              {task.dueDate && (
+                                <span className="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-md">
+                                  <Calendar className="h-3 w-3" />
+                                  {new Date(task.dueDate).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
+
+                            {task.description && (
+                              <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">
+                                {task.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ) : (
-              <div className="space-y-3">
-                {tasks.map((task, index) => (
-                  <div
-                    key={task?.id || index}
-                    className="group bg-white border border-gray-200 rounded-xl p-4 hover:border-gray-300 hover:shadow-sm transition-all"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="mt-1">
-                        {getTaskStatusIcon(task?.status)}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between mb-2">
-                          <h4 className="font-medium text-gray-900 pr-4">
-                            {task.title}
-                          </h4>
-                          <button className="p-1 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </button>
-                        </div>
-
-                        <div className="flex items-center gap-2 mb-3">
-                          <span
-                            className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border ${getStatusBadge(
-                              task?.status
-                            )}`}
-                          >
-                            {task?.status}
-                          </span>
-                          {task.dueDate && (
-                            <span className="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-md">
-                              <Calendar className="h-3 w-3" />
-                              {new Date(task.dueDate).toLocaleDateString()}
-                            </span>
-                          )}
-                        </div>
-
-                        {task.description && (
-                          <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">
-                            {task.description}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <LeadLogs leadId={currentLead?.id} />
             )}
           </div>
 
-          {/* Add Task Sidebar */}
-          {showAddTask && (
+          {/* Right Sidebar for Add Task */}
+          {showAddTask && activeTab === "tasks" && (
             <div className="w-96 border-l border-gray-200 bg-white">
               <div className="h-full overflow-y-auto">
                 <div className="p-4 border-b border-gray-200 flex items-center justify-between"></div>
