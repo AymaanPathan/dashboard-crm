@@ -64,3 +64,13 @@ export const getOneLeadApi = async (leadId: string) => {
     throw error;
   }
 };
+
+export const getLeadLogsApi = async (leadId: string) => {
+  try {
+    const response = await axiosSetup.post("/lead/logs", { leadId });
+    return response.data.data;
+  } catch (error: any) {
+    console.error("Error fetching lead logs:", error);
+    throw error;
+  }
+};

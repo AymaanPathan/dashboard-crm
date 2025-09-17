@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Clock,
   User,
@@ -13,6 +13,9 @@ import {
   AlertCircle,
   MessageSquare,
 } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootDispatch, RootState } from "@/store";
+import { getLeadLogs } from "@/store/slices/leadSlice";
 
 interface LogEntry {
   id: string;
@@ -42,101 +45,12 @@ interface LeadLogsProps {
 }
 
 const LeadLogs: React.FC<LeadLogsProps> = ({ leadId, className = "" }) => {
-  // Mock data - replace with actual API call
-  const mockLogs: LogEntry[] = [
-    {
-      id: "1",
-      userId: "user-1",
-      userName: "Jack Wilson",
-      action: "moved lead to Won",
-      details: "Lead successfully converted to won status",
-      timestamp: "2024-01-15T10:30:00Z",
-      type: "status_change",
-      metadata: {
-        from: "Qualified",
-        to: "Won",
-      },
-    },
-    {
-      id: "2",
-      userId: "user-2",
-      userName: "Sarah Chen",
-      action: "completed task",
-      details: "Follow-up call completed successfully",
-      timestamp: "2024-01-15T09:15:00Z",
-      type: "task",
-      metadata: {
-        taskTitle: "Follow-up call",
-      },
-    },
-    {
-      id: "3",
-      userId: "user-1",
-      userName: "Jack Wilson",
-      action: "sent email",
-      details: "Sent proposal document to client",
-      timestamp: "2024-01-14T16:45:00Z",
-      type: "communication",
-    },
-    {
-      id: "4",
-      userId: "user-3",
-      userName: "Mike Rodriguez",
-      action: "scheduled meeting",
-      details: "Product demo scheduled for next week",
-      timestamp: "2024-01-14T14:20:00Z",
-      type: "meeting",
-      metadata: {
-        duration: "1 hour",
-      },
-    },
-    {
-      id: "5",
-      userId: "user-2",
-      userName: "Sarah Chen",
-      action: "added note",
-      details: "Client expressed interest in premium package",
-      timestamp: "2024-01-14T11:30:00Z",
-      type: "note",
-    },
-    {
-      id: "6",
-      userId: "user-1",
-      userName: "Jack Wilson",
-      action: "created task",
-      details: "Prepare pricing proposal",
-      timestamp: "2024-01-13T15:10:00Z",
-      type: "task",
-      metadata: {
-        taskTitle: "Prepare pricing proposal",
-      },
-    },
-    {
-      id: "7",
-      userId: "user-3",
-      userName: "Mike Rodriguez",
-      action: "made phone call",
-      details: "Initial discovery call - 30 minutes",
-      timestamp: "2024-01-13T10:00:00Z",
-      type: "communication",
-      metadata: {
-        duration: "30 minutes",
-      },
-    },
-    {
-      id: "8",
-      userId: "user-2",
-      userName: "Sarah Chen",
-      action: "moved lead to Qualified",
-      details: "Lead qualified based on budget and timeline",
-      timestamp: "2024-01-12T13:45:00Z",
-      type: "status_change",
-      metadata: {
-        from: "New",
-        to: "Qualified",
-      },
-    },
-  ];
+  const leadLogs = useSelector((state: RootState) => state.lead.leadLogs);
+  const dispatch: RootDispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getLeadLogs(leadId!));
+  }, [dispatch, leadId]);
 
   const getLogIcon = (type: string) => {
     switch (type) {
@@ -240,7 +154,7 @@ const LeadLogs: React.FC<LeadLogsProps> = ({ leadId, className = "" }) => {
       <div className="h-full flex flex-col">
         {/* Logs List */}
         <div className="flex-1 overflow-y-auto p-4">
-          {mockLogs.length === 0 ? (
+          {leadLogs.length === 0 ? (
             <div className="text-center py-8">
               <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <Clock className="h-6 w-6 text-gray-400" />
@@ -254,10 +168,10 @@ const LeadLogs: React.FC<LeadLogsProps> = ({ leadId, className = "" }) => {
             </div>
           ) : (
             <div className="space-y-4">
-              {mockLogs.map((log, index) => (
+              {leadLogs.map((log, index) => (
                 <div key={log.id} className="relative">
                   {/* Timeline line */}
-                  {index < mockLogs.length - 1 && (
+                  {index < leadLogs.length - 1 && (
                     <div className="absolute left-5 top-8 bottom-0 w-px bg-gray-200" />
                   )}
 
