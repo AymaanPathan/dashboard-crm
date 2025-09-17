@@ -11,7 +11,7 @@ export const getLeadLogsByLeadId = async (req: Request, res: Response) => {
   };
 
   try {
-    const { leadId } = req.params;
+    const { leadId } = req.body;
 
     if (!leadId?.trim()) {
       return sendResponse(res, {
@@ -23,7 +23,7 @@ export const getLeadLogsByLeadId = async (req: Request, res: Response) => {
 
     const logs = await prisma.leadLog.findMany({
       where: { leadId },
-      orderBy: { timestamp: "desc" }, // Most recent first
+      orderBy: { timestamp: "desc" },
     });
 
     response.data = logs;

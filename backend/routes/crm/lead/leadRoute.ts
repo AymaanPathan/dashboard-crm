@@ -28,4 +28,6 @@ leadRouter.patch(
   leadController.updateAssignee
 );
 
+leadRouter.post("/logs", authenticate, leadController.getLeadLogsByLeadId);
+
 export default leadRouter;
