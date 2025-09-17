@@ -150,7 +150,7 @@ const LeadLogs: React.FC<LeadLogsProps> = ({ leadId, className = "" }) => {
   };
 
   return (
-    <div className={`bg-white ${className}`}>
+    <div className={`${leadLogs.length > 0 && `bg-white`} ${className}`}>
       <div className="h-full flex flex-col">
         {/* Logs List */}
         <div className="flex-1 overflow-y-auto p-4">
@@ -220,13 +220,6 @@ const LeadLogs: React.FC<LeadLogsProps> = ({ leadId, className = "" }) => {
               ))}
             </div>
           )}
-        </div>
-
-        {/* Footer */}
-        <div className="p-4 border-t border-gray-200">
-          <p className="text-xs text-gray-500 text-center">
-            All times are in your local timezone
-          </p>
         </div>
       </div>
     </div>
