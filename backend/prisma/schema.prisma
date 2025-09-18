@@ -85,11 +85,10 @@ model LeadNotes{
   id        String   @id @default(uuid())
   leadId    String
   lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  userId    String
   userName  String
   note      String
+  createdById  String?
   timestamp DateTime @default(now())
-  createdById String
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 

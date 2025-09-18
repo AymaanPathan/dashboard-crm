@@ -39,7 +39,7 @@ export const addLeadNote = async (req: Request, res: Response) => {
       data: {
         leadId,
         note,
-        userId: req?.user?.id,
+        createdById: req?.user?.id,
         userName: req?.user?.username,
       },
     });

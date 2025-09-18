@@ -76,6 +76,8 @@ const LeadDetailsPage = () => {
     await dispatch(
       addLeadNote({ leadId: currentLead.id || "", note: newNote })
     );
+    setNewNote("");
+    setIsAddingNote(false);
   };
 
   const formatDate = (dateString: string) => {
@@ -573,9 +575,7 @@ const LeadDetailsPage = () => {
                                 <button className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors">
                                   <Edit3 className="h-3 w-3" />
                                 </button>
-                                <button
-                                  className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                                >
+                                <button className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
                                   <Trash2 className="h-3 w-3" />
                                 </button>
                               </div>

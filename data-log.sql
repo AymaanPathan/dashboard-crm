@@ -1,9 +1,12 @@
 select * from "user";
 select * from "Organization"
+select * from "LeadNotes"
 
 
 -- delete from "user" where email ='aymaan2@gmail.com';
 delete from "Organization"
+delete from "LeadNotes"
+
 -- delete from "user";
 
 

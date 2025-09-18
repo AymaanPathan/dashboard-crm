@@ -88,7 +88,7 @@ const leadSlice = createSlice({
       })
       .addCase(addLeadNote.fulfilled, (state, action) => {
         state.loadingState.addingLeadNoteLoading = false;
-        state.leadNotes.push(action.payload);
+        state.leadNotes.unshift(action.payload);
       })
       .addCase(addLeadNote.rejected, (state, action) => {
         state.loadingState.addingLeadNoteLoading = false;

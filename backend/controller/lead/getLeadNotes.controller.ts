@@ -35,6 +35,7 @@ export const getNotesByLeadId = async (req: Request, res: Response) => {
     // Fetch notes for the lead
     const notes = await prisma.leadNotes.findMany({
       where: { leadId },
+      orderBy: { createdAt: "desc" },
     });
 
     response.data = notes;
