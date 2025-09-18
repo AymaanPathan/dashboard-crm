@@ -29,5 +29,5 @@ leadRouter.patch(
 );
 
 leadRouter.post("/logs", authenticate, leadController.getLeadLogsByLeadId);
-
+leadRouter.post("/addNote", authenticate, leadController.addLeadNote);
 export default leadRouter;

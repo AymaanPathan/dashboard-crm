@@ -4,6 +4,7 @@ import { updateLeadDragDropPosition } from "./updateLeadDragDropPosition.control
 import importLeadsFromExcel from "./importLeadsFromExcel.controller";
 import getOneLeadById from "./getOneLeadById.controller";
 import { getLeadLogsByLeadId } from "./getLeadLogs.controller";
+import { addLeadNote } from "./addLeadNote.controller";
 export {
   createLead,
   updateAssignee,
@@ -11,4 +12,5 @@ export {
   getOneLeadById,
   importLeadsFromExcel,
   getLeadLogsByLeadId,
+  addLeadNote,
 };

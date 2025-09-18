@@ -18,13 +18,45 @@ import {
   Plus,
   User,
   Activity,
+  FileText,
+  Send,
+  Edit3,
+  Trash2,
 } from "lucide-react";
 import { RootDispatch, RootState } from "@/store";
 import { useParams } from "next/navigation";
-import { getOneLeadbyId } from "@/store/slices/leadSlice";
+import { addLeadNote, getOneLeadbyId } from "@/store/slices/leadSlice";
 import AddTask from "@/components/Task/AddTask";
 import LeadLogs from "@/components/lead/LeadLogs";
 import { getLeadTasksByLeadIdSlice } from "@/store/slices/leadTaskSlice";
+
+// Mock notes data
+const mockNotes = [
+  {
+    id: "1",
+    content:
+      "Initial contact made via phone. Client seems interested in our premium package. Discussed pricing and timeline.",
+    createdAt: "2024-01-15T10:30:00Z",
+    updatedAt: "2024-01-15T10:30:00Z",
+    author: "John Doe",
+  },
+  {
+    id: "2",
+    content:
+      "Follow-up meeting scheduled for next week. Client requested additional documentation about our services.",
+    createdAt: "2024-01-14T14:15:00Z",
+    updatedAt: "2024-01-14T14:15:00Z",
+    author: "Jane Smith",
+  },
+  {
+    id: "3",
+    content:
+      "Client mentioned budget constraints. Proposed alternative solution with phased implementation approach.",
+    createdAt: "2024-01-13T09:45:00Z",
+    updatedAt: "2024-01-13T16:20:00Z",
+    author: "Mike Johnson",
+  },
+];
 
 const LeadDetailsPage = () => {
   const dispatch: RootDispatch = useDispatch();
@@ -33,10 +65,15 @@ const LeadDetailsPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
-  const [activeTab, setActiveTab] = useState("tasks"); // "tasks" or "logs"
+  const [activeTab, setActiveTab] = useState("tasks");
+  const [notes, setNotes] = useState(mockNotes);
+  const [newNote, setNewNote] = useState("");
+  const [isAddingNote, setIsAddingNote] = useState(false);
 
   const currentLead = useSelector((state: RootState) => state.lead.lead);
-  const { loading } = useSelector((state: RootState) => state.lead);
+  // const { loading } = useSelector(
+  //   (state: RootState) => state.lead.loadingState.addingLeadNoteLoading
+  // );
 
   useEffect(() => {
     if (currentLead.id) {
@@ -50,16 +87,42 @@ const LeadDetailsPage = () => {
     }
   }, [id, dispatch]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-blue-600" />
-          <p className="text-sm text-gray-600">Loading lead details...</p>
-        </div>
-      </div>
+  const handleAddNote = async () => {
+    await dispatch(
+      addLeadNote({ leadId: currentLead.id || "", note: newNote })
     );
-  }
+  };
+
+  const handleDeleteNote = (noteId: string) => {
+    setNotes(notes.filter((note) => note.id !== noteId));
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+
+    if (diffInHours < 24) {
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } else if (diffInHours < 168) {
+      // 7 days
+      return date.toLocaleDateString([], {
+        weekday: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } else {
+      return date.toLocaleDateString([], {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+  };
 
   const getTaskStatusIcon = (status: string) => {
     switch (status) {
@@ -88,6 +151,37 @@ const LeadDetailsPage = () => {
       setShowAddTask(false);
     } else {
       setShowLogs(false);
+      if (tab !== "tasks") {
+        setShowAddTask(false);
+      }
+    }
+  };
+
+  const getTabTitle = () => {
+    switch (activeTab) {
+      case "tasks":
+        return "Tasks";
+      case "logs":
+        return "Activity Log";
+      case "notes":
+        return "Notes";
+      default:
+        return "Tasks";
+    }
+  };
+
+  const getTabSubtitle = () => {
+    switch (activeTab) {
+      case "tasks":
+        return `${tasks?.length || 0} tasks for ${
+          currentLead.name || "this lead"
+        }`;
+      case "logs":
+        return `Activity history for ${currentLead.name || "this lead"}`;
+      case "notes":
+        return `${notes.length} notes for ${currentLead.name || "this lead"}`;
+      default:
+        return "";
     }
   };
 
@@ -204,6 +298,10 @@ const LeadDetailsPage = () => {
                 <button
                   key={action}
                   className="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors text-left flex items-center justify-between group"
+                  onClick={() =>
+                    action === "Add Note" &&
+                    (setActiveTab("notes"), setIsAddingNote(true))
+                  }
                 >
                   <span>{action}</span>
                   <ChevronRight className="h-3 w-3 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
@@ -230,15 +328,9 @@ const LeadDetailsPage = () => {
               )}
               <div>
                 <h1 className="text-lg font-semibold text-gray-900">
-                  {activeTab === "tasks" ? "Tasks" : "Activity Log"}
+                  {getTabTitle()}
                 </h1>
-                <p className="text-sm text-gray-500">
-                  {activeTab === "tasks"
-                    ? `${tasks?.length || 0} tasks for ${
-                        currentLead.name || "this lead"
-                      }`
-                    : `Activity history for ${currentLead.name || "this lead"}`}
-                </p>
+                <p className="text-sm text-gray-500">{getTabSubtitle()}</p>
               </div>
             </div>
 
@@ -265,6 +357,15 @@ const LeadDetailsPage = () => {
                   </button>
                 </>
               )}
+              {activeTab === "notes" && (
+                <button
+                  onClick={() => setIsAddingNote(true)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Note
+                </button>
+              )}
             </div>
           </div>
 
@@ -284,6 +385,22 @@ const LeadDetailsPage = () => {
                   Tasks
                   <span className="ml-1 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">
                     {tasks?.length || 0}
+                  </span>
+                </div>
+              </button>
+              <button
+                onClick={() => handleTabChange("notes")}
+                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === "notes"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Notes
+                  <span className="ml-1 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">
+                    {notes.length}
                   </span>
                 </div>
               </button>
@@ -371,6 +488,117 @@ const LeadDetailsPage = () => {
                                 {task.description}
                               </p>
                             )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : activeTab === "notes" ? (
+              <div className="p-6">
+                {/* Add Note Input */}
+                {isAddingNote && (
+                  <div className="mb-6 bg-white border border-gray-200 rounded-xl p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <User className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div className="flex-1">
+                        <textarea
+                          value={newNote}
+                          onChange={(e) => setNewNote(e.target.value)}
+                          placeholder="Add your note here..."
+                          className="w-full p-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          rows={4}
+                          autoFocus
+                        />
+                        <div className="flex items-center justify-between mt-3">
+                          <span className="text-xs text-gray-500">
+                            Adding note as Current User
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                setIsAddingNote(false);
+                                setNewNote("");
+                              }}
+                              className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={handleAddNote}
+                              disabled={!newNote.trim()}
+                              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5"
+                            >
+                              <Send className="h-3 w-3" />
+                              Save Note
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Notes List */}
+                {notes.length === 0 ? (
+                  <div className="text-center py-16">
+                    <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <FileText className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      No notes yet
+                    </h3>
+                    <p className="text-gray-500 mb-6">
+                      Start documenting your interactions with this lead
+                    </p>
+                    <button
+                      onClick={() => setIsAddingNote(true)}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      Add First Note
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {notes.map((note) => (
+                      <div
+                        key={note.id}
+                        className="group bg-white border border-gray-200 rounded-xl p-4 hover:border-gray-300 hover:shadow-sm transition-all"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <User className="h-4 w-4 text-gray-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <span className="text-sm font-medium text-gray-900">
+                                  {note.author}
+                                </span>
+                                <span className="text-xs text-gray-500 ml-2">
+                                  {formatDate(note.createdAt)}
+                                  {note.updatedAt !== note.createdAt &&
+                                    " • edited"}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors">
+                                  <Edit3 className="h-3 w-3" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteNote(note.id)}
+                                  className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </button>
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                              {note.content}
+                            </p>
                           </div>
                         </div>
                       </div>

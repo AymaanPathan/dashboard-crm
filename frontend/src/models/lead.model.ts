@@ -24,6 +24,29 @@ export interface ILead {
   stage?: string;
 }
 
+export interface ILeadNotes {
+  id: string;
+  leadId: string;
+  lead: ILead;
+  userId: string;
+  userName: string;
+  note: string;
+  timestamp?: Date;
+  createdById: string;
+  updatedAt?: Date;
+  createdAt?: Date;
+}
+
+export interface ILeadLogs {
+  id?: string;
+  leadId: string;
+  userId: string;
+  userName: string;
+  action: string;
+  details: string;
+  timestamp: Date;
+}
+
 export interface Status {
   stageId: string;
   stageName: string;

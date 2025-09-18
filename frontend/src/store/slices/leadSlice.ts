@@ -1,12 +1,14 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getLeadLogsApi } from "@/api/lead.api";
-import { ILead } from "@/models/lead.model";
+import { addLeadNoteApi, getLeadLogsApi } from "@/api/lead.api";
+import { ILead, ILeadLogs, ILeadNotes } from "@/models/lead.model";
 import { getOneLeadApi } from "@/api/lead.api";
 
 const initialState = {
   lead: {} as ILead,
-  leadLogs: [] as any[],
+  leadNotes: [] as ILeadNotes[],
+  leadLogs: [] as ILeadLogs[],
   loadingState: {
+    addingLeadNoteLoading: false,
     getOneLeadLoading: false,
     getLeadLogsLoading: false,
   },
@@ -26,6 +28,14 @@ export const getLeadLogs = createAsyncThunk(
   "lead/getLogs",
   async (leadId: string) => {
     const response = await getLeadLogsApi(leadId);
+    return response;
+  }
+);
+
+export const addLeadNote = createAsyncThunk(
+  "lead/addNote",
+  async (noteData: { leadId: string; note: string }) => {
+    const response = await addLeadNoteApi(noteData.leadId, noteData.note);
     return response;
   }
 );
@@ -58,6 +68,18 @@ const leadSlice = createSlice({
       })
       .addCase(getLeadLogs.rejected, (state, action) => {
         state.loadingState.getLeadLogsLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(addLeadNote.pending, (state) => {
+        state.error = "";
+        state.loadingState.addingLeadNoteLoading = true;
+      })
+      .addCase(addLeadNote.fulfilled, (state, action) => {
+        state.loadingState.addingLeadNoteLoading = false;
+        state.leadNotes.push(action.payload);
+      })
+      .addCase(addLeadNote.rejected, (state, action) => {
+        state.loadingState.addingLeadNoteLoading = false;
         state.error = action.payload as string;
       });
   },
