@@ -5,6 +5,7 @@ import importLeadsFromExcel from "./importLeadsFromExcel.controller";
 import getOneLeadById from "./getOneLeadById.controller";
 import { getLeadLogsByLeadId } from "./getLeadLogs.controller";
 import { addLeadNote } from "./addLeadNote.controller";
+import { getNotesByLeadId } from "./getLeadNotes.controller";
 export {
   createLead,
   updateAssignee,
@@ -13,4 +14,5 @@ export {
   importLeadsFromExcel,
   getLeadLogsByLeadId,
   addLeadNote,
+  getNotesByLeadId,
 };

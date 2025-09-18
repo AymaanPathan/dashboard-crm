@@ -84,3 +84,13 @@ export const addLeadNoteApi = async (leadId: string, note: string) => {
     throw error;
   }
 };
+
+export const getLeadNotesApi = async (leadId: string) => {
+  try {
+    const response = await axiosSetup.post("/lead/getNotes", { leadId });
+    return response.data.data;
+  } catch (error: any) {
+    console.error("Error fetching lead notes:", error);
+    throw error;
+  }
+};

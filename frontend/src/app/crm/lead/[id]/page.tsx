@@ -25,48 +25,25 @@ import {
 } from "lucide-react";
 import { RootDispatch, RootState } from "@/store";
 import { useParams } from "next/navigation";
-import { addLeadNote, getOneLeadbyId } from "@/store/slices/leadSlice";
+import {
+  addLeadNote,
+  getLeadNotes,
+  getOneLeadbyId,
+} from "@/store/slices/leadSlice";
 import AddTask from "@/components/Task/AddTask";
 import LeadLogs from "@/components/lead/LeadLogs";
 import { getLeadTasksByLeadIdSlice } from "@/store/slices/leadTaskSlice";
-
-// Mock notes data
-const mockNotes = [
-  {
-    id: "1",
-    content:
-      "Initial contact made via phone. Client seems interested in our premium package. Discussed pricing and timeline.",
-    createdAt: "2024-01-15T10:30:00Z",
-    updatedAt: "2024-01-15T10:30:00Z",
-    author: "John Doe",
-  },
-  {
-    id: "2",
-    content:
-      "Follow-up meeting scheduled for next week. Client requested additional documentation about our services.",
-    createdAt: "2024-01-14T14:15:00Z",
-    updatedAt: "2024-01-14T14:15:00Z",
-    author: "Jane Smith",
-  },
-  {
-    id: "3",
-    content:
-      "Client mentioned budget constraints. Proposed alternative solution with phased implementation approach.",
-    createdAt: "2024-01-13T09:45:00Z",
-    updatedAt: "2024-01-13T16:20:00Z",
-    author: "Mike Johnson",
-  },
-];
 
 const LeadDetailsPage = () => {
   const dispatch: RootDispatch = useDispatch();
   const { id } = useParams();
   const tasks = useSelector((state: RootState) => state.leadTasks.leadTasks);
+  const leadNotes = useSelector((state: RootState) => state.lead.leadNotes);
+  console.log("leadNotes", leadNotes);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
   const [activeTab, setActiveTab] = useState("tasks");
-  const [notes, setNotes] = useState(mockNotes);
   const [newNote, setNewNote] = useState("");
   const [isAddingNote, setIsAddingNote] = useState(false);
 
@@ -81,6 +58,14 @@ const LeadDetailsPage = () => {
     }
   }, [currentLead.id, dispatch]);
 
+  console.log("currentLead", currentLead);
+
+  useEffect(() => {
+    if (currentLead.id) {
+      dispatch(getLeadNotes(currentLead.id!));
+    }
+  }, [currentLead.id, dispatch]);
+
   useEffect(() => {
     if (typeof id === "string") {
       dispatch(getOneLeadbyId(id));
@@ -91,10 +76,6 @@ const LeadDetailsPage = () => {
     await dispatch(
       addLeadNote({ leadId: currentLead.id || "", note: newNote })
     );
-  };
-
-  const handleDeleteNote = (noteId: string) => {
-    setNotes(notes.filter((note) => note.id !== noteId));
   };
 
   const formatDate = (dateString: string) => {
@@ -179,7 +160,9 @@ const LeadDetailsPage = () => {
       case "logs":
         return `Activity history for ${currentLead.name || "this lead"}`;
       case "notes":
-        return `${notes.length} notes for ${currentLead.name || "this lead"}`;
+        return `${leadNotes.length} notes for ${
+          currentLead.name || "this lead"
+        }`;
       default:
         return "";
     }
@@ -400,7 +383,7 @@ const LeadDetailsPage = () => {
                   <FileText className="h-4 w-4" />
                   Notes
                   <span className="ml-1 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">
-                    {notes.length}
+                    {leadNotes.length}
                   </span>
                 </div>
               </button>
@@ -543,7 +526,7 @@ const LeadDetailsPage = () => {
                 )}
 
                 {/* Notes List */}
-                {notes.length === 0 ? (
+                {leadNotes.length === 0 ? (
                   <div className="text-center py-16">
                     <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <FileText className="h-8 w-8 text-gray-400" />
@@ -563,7 +546,7 @@ const LeadDetailsPage = () => {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {notes.map((note) => (
+                    {leadNotes.map((note) => (
                       <div
                         key={note.id}
                         className="group bg-white border border-gray-200 rounded-xl p-4 hover:border-gray-300 hover:shadow-sm transition-all"
@@ -576,10 +559,12 @@ const LeadDetailsPage = () => {
                             <div className="flex items-start justify-between mb-2">
                               <div>
                                 <span className="text-sm font-medium text-gray-900">
-                                  {note.author}
+                                  {note.userName}
                                 </span>
                                 <span className="text-xs text-gray-500 ml-2">
-                                  {formatDate(note.createdAt)}
+                                  {formatDate(
+                                    note?.createdAt?.toLocaleString() || ""
+                                  )}
                                   {note.updatedAt !== note.createdAt &&
                                     " • edited"}
                                 </span>
@@ -589,7 +574,6 @@ const LeadDetailsPage = () => {
                                   <Edit3 className="h-3 w-3" />
                                 </button>
                                 <button
-                                  onClick={() => handleDeleteNote(note.id)}
                                   className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                                 >
                                   <Trash2 className="h-3 w-3" />
@@ -597,7 +581,7 @@ const LeadDetailsPage = () => {
                               </div>
                             </div>
                             <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-                              {note.content}
+                              {note.note}
                             </p>
                           </div>
                         </div>

@@ -11,7 +11,7 @@ export const getNotesByLeadId = async (req: Request, res: Response) => {
   };
 
   try {
-    const { leadId } = req.body; // or req.params if you're using route params
+    const { leadId } = req.body;
 
     if (!leadId) {
       response.statusCode = 400;
