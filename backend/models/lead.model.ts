@@ -7,6 +7,7 @@ export interface ILead {
   contactPersonName?: string;
   category?: string;
   requirements?: string;
+  leadType?: string;
   assignedToId?: string;
   organizationId: string;
   status?: string;

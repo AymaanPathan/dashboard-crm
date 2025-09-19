@@ -108,6 +108,7 @@ model Lead {
   leadType          String?
   contactPersonName String?
   address           Json?
+  requirements     String?
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt

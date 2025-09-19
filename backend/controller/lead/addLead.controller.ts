@@ -19,6 +19,7 @@ const createLead = async (req: Request, res: Response) => {
       source = "",
       address = {},
       contactPersonName = "",
+      leadType = "",
       requirements = "",
       assignedToId = "",
       stageId = "",
@@ -117,6 +118,8 @@ const createLead = async (req: Request, res: Response) => {
         phone: mobileNumber?.trim() || null,
         source: source?.trim() || null,
         contactPersonName: contactPersonName?.trim() || null,
+        leadType: leadType?.trim() || null,
+        requirements: requirements?.trim(),
         address:
           address && Object.keys(address).length > 0 ? { ...address } : {},
         assignedToId: assignedToId?.trim() || null,
