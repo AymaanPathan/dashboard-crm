@@ -67,3 +67,9 @@ export interface Address {
   state: string;
   pincode: string;
 }
+
+export interface LeadFilters {
+  assigneeId?: string;
+  category?: string;
+  leadType?: "hot" | "cold" | "warm";
+}

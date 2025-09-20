@@ -6,7 +6,7 @@ import {
   updateAssigneeApi,
   updateLeadDragDropApi,
 } from "@/api/lead.api";
-import { ILead, KanbanState } from "@/models/lead.model";
+import { ILead, KanbanState, LeadFilters } from "@/models/lead.model";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: KanbanState = {
@@ -24,8 +24,8 @@ const initialState: KanbanState = {
 
 export const fetchLeadForKanban = createAsyncThunk(
   "leads/fetchByKanban",
-  async () => {
-    const response = await getKanbanData();
+  async (filters?: LeadFilters) => {
+    const response = await getKanbanData(filters);
     return response.data;
   }
 );
