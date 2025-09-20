@@ -1,5 +1,6 @@
 import { IKanbanLoadingState } from "./loadings.model";
 import { IStage } from "./stage.model";
+import { IUser } from "./user.model";
 
 export interface ILead {
   name: string;
@@ -70,8 +71,8 @@ export interface Address {
 }
 
 export interface LeadFilters {
-  stageId?: IStage;
-  assigneeId?: string;
+  stageId?: string;
+  assignedToId?: string;
   category?: string;
   leadType?: "hot" | "cold" | "warm" | "All";
 }

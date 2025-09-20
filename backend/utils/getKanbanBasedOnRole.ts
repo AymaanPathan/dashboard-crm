@@ -9,6 +9,7 @@ export const getKanbanDataByRole = async (
   organizationId: string,
   leadFilterParams?: LeadFilter
 ) => {
+  console.log("Lead Filter Params:", leadFilterParams);
   let leadFilter: any = {};
 
   if (role == UserRole.admin) {
@@ -46,6 +47,7 @@ export const getKanbanDataByRole = async (
     leadFilter.leadType = leadFilterParams.leadType;
   }
 
+  console.log("Lead Filter Applied:", leadFilter);
   const stages = await prisma.stage.findMany({
     where: { organizationId },
     orderBy: { order: "asc" },

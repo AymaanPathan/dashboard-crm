@@ -19,14 +19,16 @@ export const DropdownMenuForArrayOfObjects: React.FC<
   DropdownMenuShortcutProps
 > = ({ dropdownLabel, selectedType, setSelectedType, items }) => {
   const handleSelect = (type: any) => {
+    console.log("Selected Type in handleSelect:", type);
     setSelectedType(type);
   };
+  console.log("Selected Type in Dropdown:", selectedType);
   return (
     <div className="flex  items-center justify-between space-y-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline">
-            {dropdownLabel} {selectedType?.name ?? "All"}
+            {dropdownLabel} {selectedType?.name || selectedType || "All"}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
