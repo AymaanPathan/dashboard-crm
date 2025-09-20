@@ -54,7 +54,6 @@ const LeadsDashboard: React.FC = () => {
     (state: RootState) => state.org.currentOrganization
   );
 
-  
   useEffect(() => {
     const filters: LeadFilters = {
       leadType: selectedType
@@ -62,13 +61,12 @@ const LeadsDashboard: React.FC = () => {
           ? undefined
           : (selectedType.toLowerCase() as LeadFilters["leadType"])
         : undefined,
-      stage:
+      stageId:
         selectedStage && selectedStage?.name === "All"
           ? undefined
           : selectedStage?.id,
     };
 
-    
     const getOrganizationData = async (): Promise<void> => {
       await dispatch(getOrganizationInfo());
     };
@@ -80,7 +78,7 @@ const LeadsDashboard: React.FC = () => {
     getOrganizationData();
     console.log("Filters applied:", filters);
   }, [dispatch, selectedStage, selectedType]);
-  
+
   if (!currentOrg) {
     return (
       <div className="flex h-screen items-center justify-center">

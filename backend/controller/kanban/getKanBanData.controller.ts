@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
 import { getKanbanDataByRole } from "../../utils/getKanbanBasedOnRole";
+import { LeadFilter } from "../../models/lead.model";
 
 export const getLeadWithStageKanban = async (req: Request, res: Response) => {
   const response: ResponseModel = {
@@ -23,7 +24,8 @@ export const getLeadWithStageKanban = async (req: Request, res: Response) => {
       });
     }
 
-    const filters = {
+    const filters: LeadFilter = {
+      stageId: req.query.stageId as string,
       assignedToId: req.query.assignedToId as string,
       source: req.query.source as string,
       leadType: req.query.leadType as string,

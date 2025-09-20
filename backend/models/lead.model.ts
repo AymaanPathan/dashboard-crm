@@ -21,3 +21,10 @@ interface IAddress {
   district?: string;
   pincode?: string;
 }
+
+export interface LeadFilter {
+  stageId?: string;
+  assignedToId?: string;
+  source?: string;
+  leadType?: string;
+}

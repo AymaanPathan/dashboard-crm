@@ -1,12 +1,7 @@
 import prisma from "../utils/prisma";
 import { Role } from "@prisma/client";
 import { UserRole } from "./enums/role.enum";
-
-interface LeadFilter {
-  assignedToId?: string;
-  source?: string;
-  leadType?: string;
-}
+import { LeadFilter } from "../models/lead.model";
 
 export const getKanbanDataByRole = async (
   userId: string,
@@ -39,6 +34,9 @@ export const getKanbanDataByRole = async (
 
   if (leadFilterParams?.assignedToId) {
     leadFilter.assignedToId = leadFilterParams.assignedToId;
+  }
+  if (leadFilterParams?.stageId) {
+    leadFilter.stageId = leadFilterParams.stageId;
   }
   if (leadFilterParams?.source) {
     leadFilter.source = leadFilterParams.source;

@@ -70,7 +70,7 @@ export interface Address {
 }
 
 export interface LeadFilters {
-  stage?: IStage;
+  stageId?: IStage;
   assigneeId?: string;
   category?: string;
   leadType?: "hot" | "cold" | "warm" | "All";
