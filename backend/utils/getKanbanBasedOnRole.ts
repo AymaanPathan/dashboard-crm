@@ -2,10 +2,17 @@ import prisma from "../utils/prisma";
 import { Role } from "@prisma/client";
 import { UserRole } from "./enums/role.enum";
 
+interface LeadFilter {
+  assignedToId?: string;
+  source?: string;
+  leadType?: string;
+}
+
 export const getKanbanDataByRole = async (
   userId: string,
   role: Role,
-  organizationId: string
+  organizationId: string,
+  leadFilterParams?: LeadFilter
 ) => {
   let leadFilter: any = {};
 
@@ -28,6 +35,17 @@ export const getKanbanDataByRole = async (
     leadFilter = { organizationId };
   } else {
     return { stages: [], leads: [], kanbanData: [] };
+  }
+
+  if (leadFilterParams?.assignedToId) {
+    leadFilter.assignedToId = leadFilterParams.assignedToId;
+  }
+  if (leadFilterParams?.source) {
+    leadFilter.source = leadFilterParams.source;
+  }
+
+  if (leadFilterParams?.leadType) {
+    leadFilter.leadType = leadFilterParams.leadType;
   }
 
   const stages = await prisma.stage.findMany({

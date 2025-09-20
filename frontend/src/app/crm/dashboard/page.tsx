@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Plus, Search, Filter } from "lucide-react";
+import { Plus, Search, Filter, UserPlus, Upload, FileText } from "lucide-react";
 
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,6 +21,7 @@ import { fetchStages } from "@/store/slices/stagesSlice";
 import { AddLeadOptionsModal } from "@/components/lead/AddLeadOptionsModal";
 import { ExcelUploadModal } from "@/components/lead/ExcelUploadModal";
 import { getTodayLeadTasksSlice } from "@/store/slices/leadTaskSlice";
+import { DropdownMenuShortcut } from "@/components/dropdown/Dropdown";
 
 const LeadsDashboard: React.FC = () => {
   const [isAddLeadOptionsOpen, setIsAddLeadOptionsOpen] = useState(false);
@@ -92,8 +93,12 @@ const LeadsDashboard: React.FC = () => {
                   Add Lead
                 </Button>
               </div>
+              <div className="flex items-center justify-between space-y-2">
+               <DropdownMenuShortcut/>
+              </div>
             </div>
           </div>
+
           <AddLeadOptionsModal
             isOpen={isAddLeadOptionsOpen}
             onClose={() => setIsAddLeadOptionsOpen(false)}

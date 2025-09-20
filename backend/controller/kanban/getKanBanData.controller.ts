@@ -23,7 +23,18 @@ export const getLeadWithStageKanban = async (req: Request, res: Response) => {
       });
     }
 
-    const data = await getKanbanDataByRole(userId, role, organizationId);
+    const filters = {
+      assignedToId: req.query.assignedToId as string,
+      source: req.query.source as string,
+      leadType: req.query.leadType as string,
+    };
+
+    const data = await getKanbanDataByRole(
+      userId,
+      role,
+      organizationId,
+      filters
+    );
 
     response.data = data;
     return sendResponse(res, response);
