@@ -118,7 +118,7 @@ const createLead = async (req: Request, res: Response) => {
         phone: mobileNumber?.trim() || null,
         source: source?.trim() || null,
         contactPersonName: contactPersonName?.trim() || null,
-        leadType: leadType?.trim() || null,
+        leadType: leadType?.trim().toLowerCase() || null,
         requirements: requirements?.trim(),
         address:
           address && Object.keys(address).length > 0 ? { ...address } : {},

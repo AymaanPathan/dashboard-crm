@@ -22,9 +22,14 @@ import { AddLeadOptionsModal } from "@/components/lead/AddLeadOptionsModal";
 import { ExcelUploadModal } from "@/components/lead/ExcelUploadModal";
 import { getTodayLeadTasksSlice } from "@/store/slices/leadTaskSlice";
 import { DropdownMenuShortcut } from "@/components/dropdown/Dropdown";
+import { LeadFilters } from "@/models/lead.model";
 
 const LeadsDashboard: React.FC = () => {
   const [isAddLeadOptionsOpen, setIsAddLeadOptionsOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState<
+    LeadFilters["leadType"] | null
+  >(null);
+  console.log("Selected Type:", selectedType);
   const [isAddLeadFormOpen, setIsAddLeadFormOpen] = useState(false);
   const [isExcelUploadOpen, setIsExcelUploadOpen] = useState(false);
 
@@ -45,16 +50,24 @@ const LeadsDashboard: React.FC = () => {
   );
 
   useEffect(() => {
+    const filters: LeadFilters = {
+      leadType: selectedType
+        ? selectedType === "All"
+          ? undefined
+          : (selectedType.toLowerCase() as LeadFilters["leadType"])
+        : undefined,
+    };
+
     const getOrganizationData = async (): Promise<void> => {
       await dispatch(getOrganizationInfo());
     };
-    dispatch(fetchLeadForKanban());
+    dispatch(fetchLeadForKanban(filters));
     dispatch(getUserByRoleSlice());
     dispatch(fetchStages());
     dispatch(getTodayLeadTasksSlice());
 
     getOrganizationData();
-  }, [dispatch]);
+  }, [dispatch, selectedType]);
 
   if (!currentOrg) {
     return (
@@ -94,7 +107,10 @@ const LeadsDashboard: React.FC = () => {
                 </Button>
               </div>
               <div className="flex items-center justify-between space-y-2">
-               <DropdownMenuShortcut/>
+                <DropdownMenuShortcut
+                  selectedType={selectedType!}
+                  setSelectedType={setSelectedType}
+                />
               </div>
             </div>
           </div>

@@ -71,5 +71,5 @@ export interface Address {
 export interface LeadFilters {
   assigneeId?: string;
   category?: string;
-  leadType?: "hot" | "cold" | "warm";
+  leadType?: "hot" | "cold" | "warm" | "All";
 }
