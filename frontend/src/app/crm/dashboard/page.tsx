@@ -142,14 +142,16 @@ const LeadsDashboard: React.FC = () => {
                   dropdownLabel="Stage"
                 />
               </div>
-              <div className="flex items-center justify-between space-y-2">
-                <DropdownMenuForArrayOfObjects
-                  selectedType={selectedUser ? selectedUser.username : "All"}
-                  setSelectedType={setSelectedUser}
-                  items={usersByRole.salesReps.map((user) => user)}
-                  dropdownLabel="User"
-                />
-              </div>
+              {usersByRole.salesReps && (
+                <div className="flex items-center justify-between space-y-2">
+                  <DropdownMenuForArrayOfObjects
+                    selectedType={selectedUser ? selectedUser.username : "All"}
+                    setSelectedType={setSelectedUser}
+                    items={usersByRole.salesReps.map((user) => user)}
+                    dropdownLabel="User"
+                  />
+                </div>
+              )}
             </div>
           </div>
 

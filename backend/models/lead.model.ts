@@ -23,6 +23,7 @@ interface IAddress {
 }
 
 export interface LeadFilter {
+  search?: string;
   stageId?: string;
   assignedToId?: string;
   source?: string;

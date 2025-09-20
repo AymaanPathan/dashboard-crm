@@ -25,6 +25,7 @@ export const getLeadWithStageKanban = async (req: Request, res: Response) => {
     }
 
     const filters: LeadFilter = {
+      search: req.query.search as string,
       stageId: req.query.stageId as string,
       assignedToId: req.query.assignedToId as string,
       source: req.query.source as string,

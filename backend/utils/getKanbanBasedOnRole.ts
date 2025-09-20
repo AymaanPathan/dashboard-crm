@@ -33,6 +33,22 @@ export const getKanbanDataByRole = async (
     return { stages: [], leads: [], kanbanData: [] };
   }
 
+  if (leadFilterParams?.search) {
+    const searchTerm = leadFilterParams.search.trim();
+    const searchCondition = {
+      OR: [
+        { name: { contains: searchTerm, mode: "insensitive" } },
+        { email: { contains: searchTerm, mode: "insensitive" } },
+        { mobileNumber: { contains: searchTerm, mode: "insensitive" } },
+      ],
+    };
+    if (leadFilter.OR) {
+      leadFilter.AND = [searchCondition, { OR: leadFilter.OR }];
+      delete leadFilter.OR;
+    } else {
+      leadFilter.AND = [searchCondition];
+    }
+  }
   if (leadFilterParams?.assignedToId) {
     leadFilter.assignedToId = leadFilterParams.assignedToId;
   }
