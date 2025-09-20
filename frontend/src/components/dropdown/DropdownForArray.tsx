@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { Button } from "../ui/button";
 import {
@@ -6,30 +7,33 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { LeadFilters } from "@/models/lead.model";
-
-const leadTypes = ["All", "Hot", "Cold", "Warm"];
 
 interface DropdownMenuShortcutProps {
-  selectedType: LeadFilters["leadType"] | null;
-  setSelectedType: (type: LeadFilters["leadType"] | null) => void;
+  dropdownLabel?: string;
+  selectedType: any | null;
+  setSelectedType: (type: any | null) => void;
+  items?: any[];
 }
 
-export const DropdownMenuShortcut: React.FC<DropdownMenuShortcutProps> = ({
+export const DropdownMenuForArray: React.FC<DropdownMenuShortcutProps> = ({
+  dropdownLabel,
   selectedType,
   setSelectedType,
+  items,
 }) => {
   const handleSelect = (type: string) => {
-    setSelectedType(type as LeadFilters["leadType"]);
+    setSelectedType(type as any);
   };
   return (
     <div className="flex  items-center justify-between space-y-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline">Filter: {selectedType || "All"}</Button>
+          <Button variant="outline">
+            {dropdownLabel} {selectedType}
+          </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          {leadTypes.map((type) => (
+          {items?.map((type) => (
             <DropdownMenuItem key={type} onClick={() => handleSelect(type)}>
               {type}
             </DropdownMenuItem>

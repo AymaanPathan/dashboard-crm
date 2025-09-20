@@ -21,17 +21,22 @@ import { fetchStages } from "@/store/slices/stagesSlice";
 import { AddLeadOptionsModal } from "@/components/lead/AddLeadOptionsModal";
 import { ExcelUploadModal } from "@/components/lead/ExcelUploadModal";
 import { getTodayLeadTasksSlice } from "@/store/slices/leadTaskSlice";
-import { DropdownMenuShortcut } from "@/components/dropdown/Dropdown";
+import { DropdownMenuForArray } from "@/components/dropdown/DropdownForArray";
 import { LeadFilters } from "@/models/lead.model";
+import { DropdownMenuForArrayOfObjects } from "@/components/dropdown/DropdownForArrayOfObj";
 
 const LeadsDashboard: React.FC = () => {
   const [isAddLeadOptionsOpen, setIsAddLeadOptionsOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<
     LeadFilters["leadType"] | null
   >(null);
+  const [selectedStage, setSelectedStage] = useState<IStage | null>(null);
   console.log("Selected Type:", selectedType);
   const [isAddLeadFormOpen, setIsAddLeadFormOpen] = useState(false);
   const [isExcelUploadOpen, setIsExcelUploadOpen] = useState(false);
+  const leadTypes = ["All", "Hot", "Cold", "Warm"];
+  const stages = useSelector((state: RootState) => state.stages.stages);
+  console.log("Stages from Redux:", selectedStage);
 
   const handleSelectForm = () => {
     setIsAddLeadOptionsOpen(false);
@@ -49,6 +54,7 @@ const LeadsDashboard: React.FC = () => {
     (state: RootState) => state.org.currentOrganization
   );
 
+  
   useEffect(() => {
     const filters: LeadFilters = {
       leadType: selectedType
@@ -56,8 +62,13 @@ const LeadsDashboard: React.FC = () => {
           ? undefined
           : (selectedType.toLowerCase() as LeadFilters["leadType"])
         : undefined,
+      stage:
+        selectedStage && selectedStage?.name === "All"
+          ? undefined
+          : selectedStage?.id,
     };
 
+    
     const getOrganizationData = async (): Promise<void> => {
       await dispatch(getOrganizationInfo());
     };
@@ -67,8 +78,9 @@ const LeadsDashboard: React.FC = () => {
     dispatch(getTodayLeadTasksSlice());
 
     getOrganizationData();
-  }, [dispatch, selectedType]);
-
+    console.log("Filters applied:", filters);
+  }, [dispatch, selectedStage, selectedType]);
+  
   if (!currentOrg) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -107,9 +119,19 @@ const LeadsDashboard: React.FC = () => {
                 </Button>
               </div>
               <div className="flex items-center justify-between space-y-2">
-                <DropdownMenuShortcut
-                  selectedType={selectedType!}
+                <DropdownMenuForArray
+                  selectedType={selectedType ? selectedType : "All"}
                   setSelectedType={setSelectedType}
+                  items={leadTypes}
+                  dropdownLabel="Lead Type"
+                />
+              </div>
+              <div className="flex items-center justify-between space-y-2">
+                <DropdownMenuForArrayOfObjects
+                  selectedType={selectedStage ? selectedStage : "All"}
+                  setSelectedType={setSelectedStage}
+                  items={stages.map((stage) => stage)}
+                  dropdownLabel="Stage"
                 />
               </div>
             </div>
