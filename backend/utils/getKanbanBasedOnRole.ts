@@ -39,7 +39,7 @@ export const getKanbanDataByRole = async (
       OR: [
         { name: { contains: searchTerm, mode: "insensitive" } },
         { email: { contains: searchTerm, mode: "insensitive" } },
-        { mobileNumber: { contains: searchTerm, mode: "insensitive" } },
+        { phone: { contains: searchTerm, mode: "insensitive" } },
       ],
     };
     if (leadFilter.OR) {

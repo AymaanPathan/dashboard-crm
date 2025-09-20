@@ -32,6 +32,7 @@ const LeadsDashboard: React.FC = () => {
   const [selectedType, setSelectedType] = useState<
     LeadFilters["leadType"] | null
   >(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedStage, setSelectedStage] = useState<IStage | null>(null);
   const [isAddLeadFormOpen, setIsAddLeadFormOpen] = useState(false);
   const [isExcelUploadOpen, setIsExcelUploadOpen] = useState(false);
@@ -64,30 +65,47 @@ const LeadsDashboard: React.FC = () => {
 
   useEffect(() => {
     const filters: LeadFilters = {
-      leadType: selectedType
-        ? selectedType === "All"
-          ? undefined
-          : (selectedType.toLowerCase() as LeadFilters["leadType"])
-        : undefined,
+      leadType:
+        selectedType && selectedType !== "All"
+          ? (selectedType.toLowerCase() as LeadFilters["leadType"])
+          : undefined,
       stageId:
-        selectedStage && selectedStage?.name !== "All"
+        selectedStage && selectedStage.name !== "All"
           ? selectedStage.id
           : undefined,
-
-      assignedToId: selectedUser === null ? undefined : selectedUser.id,
+      assignedToId: selectedUser?.id,
+      search: undefined,
     };
-    console.log("Filters applied:", filters);
 
     const getOrganizationData = async (): Promise<void> => {
       await dispatch(getOrganizationInfo());
     };
+
     dispatch(fetchLeadForKanban(filters));
     dispatch(getUserByRoleSlice());
     dispatch(fetchStages());
     dispatch(getTodayLeadTasksSlice());
-
     getOrganizationData();
-  }, [dispatch, selectedStage, selectedType, selectedUser]);
+  }, [dispatch, selectedStage, selectedType, selectedUser, searchTerm]);
+
+  const handleSearchChange = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || searchTerm.trim() === "") {
+      const filters: LeadFilters = {
+        leadType:
+          selectedType && selectedType !== "All"
+            ? (selectedType.toLowerCase() as LeadFilters["leadType"])
+            : undefined,
+        stageId:
+          selectedStage && selectedStage.name !== "All"
+            ? selectedStage.id
+            : undefined,
+        assignedToId: selectedUser?.id,
+        search: searchTerm.trim() === "" ? undefined : searchTerm.trim(),
+      };
+
+      dispatch(fetchLeadForKanban(filters));
+    }
+  };
 
   if (!currentOrg) {
     return (
@@ -109,6 +127,10 @@ const LeadsDashboard: React.FC = () => {
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
+                  onKeyDown={handleSearchChange}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  type="text"
                   placeholder="Search leads..."
                   className="pl-8 h-9 w-[250px] lg:w-[300px]"
                 />

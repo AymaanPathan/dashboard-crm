@@ -71,6 +71,7 @@ export interface Address {
 }
 
 export interface LeadFilters {
+  search?: string;
   stageId?: string;
   assignedToId?: string;
   category?: string;
