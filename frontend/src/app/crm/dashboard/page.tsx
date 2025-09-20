@@ -24,6 +24,7 @@ import { getTodayLeadTasksSlice } from "@/store/slices/leadTaskSlice";
 import { DropdownMenuForArray } from "@/components/dropdown/DropdownForArray";
 import { LeadFilters } from "@/models/lead.model";
 import { DropdownMenuForArrayOfObjects } from "@/components/dropdown/DropdownForArrayOfObj";
+import { IStage } from "@/models/stage.model";
 
 const LeadsDashboard: React.FC = () => {
   const [isAddLeadOptionsOpen, setIsAddLeadOptionsOpen] = useState(false);
@@ -31,12 +32,13 @@ const LeadsDashboard: React.FC = () => {
     LeadFilters["leadType"] | null
   >(null);
   const [selectedStage, setSelectedStage] = useState<IStage | null>(null);
-  console.log("Selected Type:", selectedType);
   const [isAddLeadFormOpen, setIsAddLeadFormOpen] = useState(false);
   const [isExcelUploadOpen, setIsExcelUploadOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const usersByRole = useSelector((state: RootState) => state.user.teamMembers);
+
   const leadTypes = ["All", "Hot", "Cold", "Warm"];
   const stages = useSelector((state: RootState) => state.stages.stages);
-  console.log("Stages from Redux:", selectedStage);
 
   const handleSelectForm = () => {
     setIsAddLeadOptionsOpen(false);
@@ -53,6 +55,10 @@ const LeadsDashboard: React.FC = () => {
   const currentOrg = useSelector(
     (state: RootState) => state.org.currentOrganization
   );
+
+  useEffect(() => {
+    dispatch(getUserByRoleSlice());
+  }, [dispatch]);
 
   useEffect(() => {
     const filters: LeadFilters = {
@@ -76,7 +82,6 @@ const LeadsDashboard: React.FC = () => {
     dispatch(getTodayLeadTasksSlice());
 
     getOrganizationData();
-    console.log("Filters applied:", filters);
   }, [dispatch, selectedStage, selectedType]);
 
   if (!currentOrg) {
@@ -130,6 +135,14 @@ const LeadsDashboard: React.FC = () => {
                   setSelectedType={setSelectedStage}
                   items={stages.map((stage) => stage)}
                   dropdownLabel="Stage"
+                />
+              </div>
+              <div className="flex items-center justify-between space-y-2">
+                <DropdownMenuForArrayOfObjects
+                  selectedType={selectedUser ? selectedUser : "All"}
+                  setSelectedType={setSelectedUser}
+                  items={usersByRole.salesReps.map((user) => user)}
+                  dropdownLabel="User"
                 />
               </div>
             </div>

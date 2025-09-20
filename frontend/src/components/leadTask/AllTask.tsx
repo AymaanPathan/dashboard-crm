@@ -8,7 +8,6 @@ export const AllTasksComponent = ({ searchQuery }: { searchQuery: string }) => {
   const myAllTasks = useSelector(
     (state: RootState) => state.leadTasks.myAllTasks
   );
-  console.log("AllTasksComponent myAllTasks:", myAllTasks);
   const filteredTasks = myAllTasks.filter((task: LeadTask) => {
     if (!searchQuery) return true;
     return (

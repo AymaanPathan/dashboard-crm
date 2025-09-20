@@ -84,7 +84,7 @@ export const getUserBasedOnRoles = async (
       currentUserRole === UserRole.ops
     ) {
       const user = await prisma.user.findUnique({
-        where: { id: currentUserId },
+        where: { id: currentUserId, currentOrganizationId: userOrganizationId },
         select: {
           id: true,
           username: true,

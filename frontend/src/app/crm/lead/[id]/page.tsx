@@ -39,7 +39,6 @@ const LeadDetailsPage = () => {
   const { id } = useParams();
   const tasks = useSelector((state: RootState) => state.leadTasks.leadTasks);
   const leadNotes = useSelector((state: RootState) => state.lead.leadNotes);
-  console.log("leadNotes", leadNotes);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
@@ -58,7 +57,6 @@ const LeadDetailsPage = () => {
     }
   }, [currentLead.id, dispatch]);
 
-  console.log("currentLead", currentLead);
 
   useEffect(() => {
     if (currentLead.id) {

@@ -14,8 +14,6 @@ export const PendingTasksComponent = ({
   const myPendingTaskCount = useSelector(
     (state: RootState) => state.leadTasks.myIncompleteTaskCount
   );
-  console.log("PendingTasksComponent pendingTasks:", pendingTasks);
-  console.log("PendingTasksComponent myPendingTaskCount:", myPendingTaskCount);
 
   const handleComplete = (taskId: string) => {
     console.log("Completing task:", taskId);

@@ -26,7 +26,7 @@ export const DropdownMenuForArrayOfObjects: React.FC<
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline">
-            {dropdownLabel} {selectedType?.name}
+            {dropdownLabel} {selectedType?.name ?? "All"}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
@@ -35,7 +35,7 @@ export const DropdownMenuForArrayOfObjects: React.FC<
           </DropdownMenuItem>
           {items?.map((type) => (
             <DropdownMenuItem key={type.id} onClick={() => handleSelect(type)}>
-              {type.name}
+              {type.name || type.username}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
