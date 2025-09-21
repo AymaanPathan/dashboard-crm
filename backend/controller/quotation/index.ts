@@ -1,2 +1,3 @@
 import { createQuotationController } from "./create-quotation";
-export { createQuotationController };
+import { getTestQuotationsController } from "./getTestQuotationsController";
+export { createQuotationController, getTestQuotationsController };

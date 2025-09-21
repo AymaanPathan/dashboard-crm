@@ -57,6 +57,16 @@ const Navbar: React.FC = () => {
                   People
                 </Button>
               </Link>
+              <Link href="/crm/templates">
+                <Button
+                  variant={getVariant(Page.TEMPLATES)}
+                  size="sm"
+                  className="h-8"
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Templates
+                </Button>
+              </Link>
             </nav>
           </div>
 
