@@ -201,6 +201,7 @@ model Quotation {
   company           Organization @relation(fields: [companyId], references: [id])
   templateId        String?
   template          QuotationTemplate? @relation(fields: [templateId], references: [id])
+   quotationName     String? 
 
   customerName      String
   customerCompany   String?
