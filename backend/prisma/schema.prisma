@@ -65,6 +65,8 @@ model Organization {
 
   stages                   Stage[]
   leads                    Lead[]
+    quotations               Quotation[]
+  quotationTemplates       QuotationTemplate[]
 }
 
 model LeadLog {
@@ -167,4 +169,50 @@ enum ReminderStatus {
   pending     
   seen        
   missed      
+}
+
+
+model QuotationTemplate {
+  id            String   @id @default(uuid())
+  companyId     String
+  company       Organization @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  templateType  String   // "classic" | "modern" | "minimal"
+  templateName  String   // e.g., "Minimal"
+
+  logoUrl       String?
+  headerFont    String?
+  brandColor    String?
+  signatureUrl  String?
+  termsAndConditions String?
+  bankDetails   Json?
+  defaultNotes  String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Optional: keep a thumbnail or preview image
+  previewUrl    String?
+  quotations     Quotation[]
+}
+model Quotation {
+  id                String   @id @default(uuid())
+  companyId         String
+  company           Organization @relation(fields: [companyId], references: [id])
+  templateId        String?
+  template          QuotationTemplate? @relation(fields: [templateId], references: [id])
+
+  customerName      String
+  customerCompany   String?
+  customerEmail     String?
+  customerPhone     String?
+  items             Json
+  subtotal          Float
+  tax               Float
+  total             Float
+  validUntil        DateTime
+  quoteNumber       String
+  isOrder           Boolean @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
