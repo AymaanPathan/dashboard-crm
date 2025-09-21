@@ -9,7 +9,7 @@ export interface CompanyInfo {
 }
 
 export interface CustomerInfo {
-  gstin: any;
+  gstin?: any;
   address: string;
   name: string;
   company: string;
