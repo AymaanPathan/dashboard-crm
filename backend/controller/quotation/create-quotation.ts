@@ -8,13 +8,18 @@ import {
 } from "../../quote-templates/classic-template";
 import { getMinimalTemplate } from "../../quote-templates/minimal-template";
 import { getModernTemplate } from "../../quote-templates/modern-template";
-
 export const createQuotationController = async (
   req: Request,
   res: Response
 ) => {
   try {
-    const { customerInfo, orderDetails, templateType, companyId } = req.body;
+    const {
+      customerInfo,
+      orderDetails,
+      templateType,
+      companyId,
+      quotationName,
+    } = req.body;
 
     if (!customerInfo || !orderDetails || !templateType || !companyId) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -29,18 +34,21 @@ export const createQuotationController = async (
       return res.status(404).json({ message: "Template not found" });
     }
 
-    // 2️⃣ Prepare totals
+    // 1️⃣ Calculate totals
     const items = orderDetails.items || [];
     const subtotal = items.reduce(
-      (sum: number, item: { quantity: number; price: number }) => 0
+      (sum: number, item: { quantity: number; price: number }) =>
+        sum + item.quantity * item.price,
+      0
     );
     const tax = subtotal * (orderDetails.taxRate || 0.18);
     const total = subtotal + tax;
 
-    // 3️⃣ Save quotation in DB
+    // 2️⃣ Save quotation in DB
     const quotation = await prisma.quotation.create({
       data: {
         companyId,
+        quotationName: quotationName,
         templateId: template.id,
         customerName: customerInfo.name,
         customerCompany: customerInfo.company,
@@ -56,18 +64,17 @@ export const createQuotationController = async (
       },
     });
 
-    // 4️⃣ Prepare company info
+    // 3️⃣ Prepare company info
     const companyInfo: CompanyInfo = {
       name: template.company.organization_name,
       logo: template.logoUrl,
-      address: "123, Example Street, City",
+      address: template.company.company_website || "123, Example Street, City",
       phone: "9876543210",
       email: "info@example.com",
       website: template.company.company_website || "www.example.com",
-      gstin: "22AAAAA0000A1Z5", // optional
+      gstin: "22AAAAA0000A1Z5",
     };
 
-    // 5️⃣ Config
     const config: Config = {
       signature: template.signatureUrl,
       termsAndConditions: template.termsAndConditions!,
@@ -76,7 +83,7 @@ export const createQuotationController = async (
       headerFont: template.headerFont!,
     };
 
-    // 6️⃣ Generate HTML
+    // 4️⃣ Generate HTML
     let html = "";
     switch (template.templateType) {
       case "minimal":
@@ -107,14 +114,14 @@ export const createQuotationController = async (
         return res.status(400).json({ message: "Invalid templateType" });
     }
 
-    // 7️⃣ Convert HTML → PDF
+    // 5️⃣ Convert HTML → PDF
     pdf.create(html).toBuffer((err, buffer) => {
       if (err) return res.status(500).send("PDF generation failed");
 
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
-        `inline; filename=${quotation.quoteNumber}.pdf`
+        `inline; filename=${quotation.quoteNumber || "quotation"}.pdf`
       );
       res.send(buffer);
     });
