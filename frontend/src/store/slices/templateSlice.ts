@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { ITemplate } from "@/models/template.model";
+import { ICreateTemplatePayload } from "@/models/template.model";
 import { createTemplateApi } from "@/api/template.api";
 
 const initialState = {
-  myTemplates: [] as ITemplate[],
+  myTemplates: [] as ICreateTemplatePayload[],
 
   loading: {
     gettingTemplates: false,

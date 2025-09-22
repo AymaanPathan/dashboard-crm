@@ -178,6 +178,7 @@ model QuotationTemplate {
   company       Organization? @relation(fields: [companyId], references: [id], onDelete: Cascade)
   companyName   String?
   companyEmail  String?
+  companyPhone  String?
   companyAddress String?
   gstin         String?
   website       String?
@@ -186,6 +187,10 @@ model QuotationTemplate {
   templateType  String   // "classic" | "modern" | "minimal"
   templateName  String   // e.g., "Minimal"
 
+  logoUrl       String?
+  headerFont    String?
+  brandColor    String?
+  signatureUrl  String?
   termsAndConditions String?
   bankDetails   Json?
   defaultNotes  String?

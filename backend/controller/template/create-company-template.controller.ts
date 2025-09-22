@@ -2,7 +2,10 @@ import prisma from "../../utils/prisma";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
 import { Request, Response } from "express";
 
-export const createCompanyTemplateController = async (req: Request, res: Response) => {
+export const createCompanyTemplateController = async (
+  req: Request,
+  res: Response
+) => {
   const response: ResponseModel = {
     statusCode: 200,
     message: "Template created successfully",
@@ -19,36 +22,48 @@ export const createCompanyTemplateController = async (req: Request, res: Respons
     }
 
     // ✅ 1. Check if company exists
-    const company = await prisma.organization.findUnique({
+    const companyFound = await prisma.organization.findUnique({
       where: { id: companyId },
     });
 
-    if (!company) {
+    if (!companyFound) {
       response.statusCode = 404;
       response.message = "Company not found";
       return sendResponse(res, response);
     }
 
-    // ✅ 2. Extract fields from req.body
+    // ✅ 2. Extract nested fields from req.body
     const {
       templateName,
       templateType,
-      logoUrl,
-      headerFont,
-      brandColor,
-      signatureUrl,
       termsAndConditions,
       defaultNotes,
+      company,
+      bankDetails,
+    } = req.body;
+
+    const {
+      name: companyName,
+      email: companyEmail,
+      phone: companyPhone,
+      address: companyAddress,
+      gstin,
+      website,
+    } = company || {};
+
+    const { accountName, accountNumber, ifsc, bankName } = bankDetails || {};
+
+    console.log("Parsed Request Body:", {
+      templateName,
+      templateType,
       companyName,
       companyEmail,
       companyAddress,
-      gstin,
-      website,
-      accountHolderName,
+      accountName,
       accountNumber,
-      ifscCode,
+      ifsc,
       bankName,
-    } = req.body;
+    });
 
     // ✅ 3. Validate required fields
     if (
@@ -57,9 +72,9 @@ export const createCompanyTemplateController = async (req: Request, res: Respons
       !companyName ||
       !companyEmail ||
       !companyAddress ||
-      !accountHolderName ||
+      !accountName ||
       !accountNumber ||
-      !ifscCode ||
+      !ifsc ||
       !bankName
     ) {
       response.statusCode = 400;
@@ -73,10 +88,6 @@ export const createCompanyTemplateController = async (req: Request, res: Respons
         companyId,
         templateName,
         templateType,
-        logoUrl,
-        headerFont,
-        brandColor,
-        signatureUrl,
         termsAndConditions,
         defaultNotes,
         companyName,
@@ -84,14 +95,17 @@ export const createCompanyTemplateController = async (req: Request, res: Respons
         companyAddress,
         gstin,
         website,
+        companyPhone,
         bankDetails: {
-          accountName: accountHolderName,
+          accountName,
           accountNumber,
-          ifsc: ifscCode,
+          ifsc,
           bankName,
         },
       },
     });
+
+    console.log("Created Template:", createdTemplate);
 
     response.data = createdTemplate;
     return sendResponse(res, response);

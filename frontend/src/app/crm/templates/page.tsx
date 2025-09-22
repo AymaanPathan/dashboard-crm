@@ -15,32 +15,35 @@ import { getMinimalTemplate } from "@/quote-templates/minimal-template";
 import { getModernTemplate } from "@/quote-templates/modern-template";
 import { getClassicTemplate } from "@/quote-templates/classic-template";
 import { PreviewPanel } from "./PreviewPanel";
+import { RootDispatch } from "@/store";
+import { useDispatch } from "react-redux";
+import { createTemplate } from "@/store/slices/templateSlice";
 
 const NotionTemplateForm = () => {
+  const dispatch: RootDispatch = useDispatch();
   const [previewHtml, setPreviewHtml] = useState<string>("");
 
   const [formData, setFormData] = useState({
     templateType: "modern",
-    templateName: "",
-    headerFont: "Inter",
-    logoUrl: "",
-    brandColor: "#000000",
+    templateName: "Modern Default Template",
     company: {
-      name: "",
-      email: "",
-      phone: "",
-      address: "",
-      gstin: "",
-      website: "",
+      name: "SolarTech Pvt Ltd",
+      email: "contact@solartech.in",
+      phone: "9876543210",
+      address: "123 Solar Park Road, Ahmedabad, Gujarat",
+      gstin: "24ABCDE1234F1Z5",
+      website: "https://solartech.in",
     },
     bankDetails: {
-      accountName: "",
-      accountNumber: "",
-      ifsc: "",
-      bankName: "",
+      accountName: "SolarTech Pvt Ltd",
+      accountNumber: "123456789012",
+      ifsc: "SBIN0000456",
+      bankName: "State Bank of India",
     },
-    termsAndConditions: "",
-    defaultNotes: "",
+    termsAndConditions:
+      "1. Payment due within 7 days\n2. 18% GST applicable\n3. Warranty as per manufacturer",
+    defaultNotes:
+      "Thank you for choosing our services. Please contact us for any assistance.",
   });
 
   const [errors, setErrors] = useState({});
@@ -88,9 +91,9 @@ const NotionTemplateForm = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    await dispatch(createTemplate(formData));
   };
 
   const renderSelectedTemplateHtml = () => {
