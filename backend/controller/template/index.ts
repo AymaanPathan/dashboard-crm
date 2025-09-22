@@ -1,2 +1,2 @@
-import { createTemplateController } from "./create-template.controller";
+import { createTemplateController } from "./create-test-template.controller";
 export { createTemplateController };

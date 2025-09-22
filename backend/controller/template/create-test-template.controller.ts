@@ -11,7 +11,7 @@ export const createTemplateController = async (req: Request, res: Response) => {
   };
 
   try {
-    const { companyId } = req.body;
+    const companyId = req?.user?.currentOrganizationId;
     if (!companyId) {
       response.statusCode = 400;
       response.message = "Company ID is required";

@@ -20,7 +20,7 @@ const Navbar: React.FC = () => {
     pathname.includes(page.toLowerCase()) ? "default" : "ghost";
 
   return (
-    <div className="border-b border-gray-200/60 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+    <div className="border-b border-gray-200/60 bg-white/80 backdrop-blur-sm sticky top-0 z-30">
       <div className="px-8 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
