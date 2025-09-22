@@ -66,12 +66,12 @@ export const createQuotationController = async (
 
     // 3️⃣ Prepare company info
     const companyInfo: CompanyInfo = {
-      name: template.company.organization_name,
+      name: template?.company?.organization_name!,
       logo: template.logoUrl,
-      address: template.company.company_website || "123, Example Street, City",
+      address: template.company?.company_website || "123, Example Street, City",
       phone: "9876543210",
       email: "info@example.com",
-      website: template.company.company_website || "www.example.com",
+      website: template.company?.company_website || "www.example.com",
       gstin: "22AAAAA0000A1Z5",
     };
 

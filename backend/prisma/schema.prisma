@@ -174,8 +174,8 @@ enum ReminderStatus {
 
 model QuotationTemplate {
   id            String   @id @default(uuid())
-  companyId     String
-  company       Organization @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId     String?
+  company       Organization? @relation(fields: [companyId], references: [id], onDelete: Cascade)
   
   templateType  String   // "classic" | "modern" | "minimal"
   templateName  String   // e.g., "Minimal"
@@ -191,7 +191,6 @@ model QuotationTemplate {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  // Optional: keep a thumbnail or preview image
   previewUrl    String?
   quotations     Quotation[]
 }
