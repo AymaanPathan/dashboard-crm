@@ -186,10 +186,6 @@ model QuotationTemplate {
   templateType  String   // "classic" | "modern" | "minimal"
   templateName  String   // e.g., "Minimal"
 
-  logoUrl       String?
-  headerFont    String?
-  brandColor    String?
-  signatureUrl  String?
   termsAndConditions String?
   bankDetails   Json?
   defaultNotes  String?

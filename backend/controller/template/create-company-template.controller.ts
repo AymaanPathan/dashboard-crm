@@ -2,8 +2,7 @@ import prisma from "../../utils/prisma";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
 import { Request, Response } from "express";
 
-// POST /api/templates/create
-export const createTemplateController = async (req: Request, res: Response) => {
+export const createCompanyTemplateController = async (req: Request, res: Response) => {
   const response: ResponseModel = {
     statusCode: 200,
     message: "Template created successfully",
