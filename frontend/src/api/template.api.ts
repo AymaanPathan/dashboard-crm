@@ -1,7 +1,11 @@
 import axiosSetup from "../utils/axiosSetup";
-export const createTemplate = async (data: any) => {
+import { ITemplate } from "@/models/template.model";
+
+export const createTemplateApi = async (data: ITemplate) => {
   try {
     const response = await axiosSetup.post("/api/templates/create", data);
     return response.data;
-  } catch (error) {}
+  } catch (error) {
+    throw error;
+  }
 };
