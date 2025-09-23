@@ -22,6 +22,7 @@ import {
   Send,
   Edit3,
   Trash2,
+  Receipt,
 } from "lucide-react";
 import { RootDispatch, RootState } from "@/store";
 import { useParams } from "next/navigation";
@@ -33,6 +34,7 @@ import {
 import AddTask from "@/components/Task/AddTask";
 import LeadLogs from "@/components/lead/LeadLogs";
 import { getLeadTasksByLeadIdSlice } from "@/store/slices/leadTaskSlice";
+import CreateQuotationModal from "@/components/quotation/CreateQuotationModal";
 
 const LeadDetailsPage = () => {
   const dispatch: RootDispatch = useDispatch();
@@ -57,7 +59,6 @@ const LeadDetailsPage = () => {
     }
   }, [currentLead.id, dispatch]);
 
-
   useEffect(() => {
     if (currentLead.id) {
       dispatch(getLeadNotes(currentLead.id!));
@@ -76,6 +77,13 @@ const LeadDetailsPage = () => {
     );
     setNewNote("");
     setIsAddingNote(false);
+  };
+
+  const handleCreateQuotation = () => {
+    // Add your quotation creation logic here
+    // This could navigate to a quotation form or open a modal
+    console.log("Creating quotation for lead:", currentLead.id);
+    // Example: router.push(`/quotations/create?leadId=${currentLead.id}`);
   };
 
   const formatDate = (dateString: string) => {
@@ -167,6 +175,32 @@ const LeadDetailsPage = () => {
         return "";
     }
   };
+
+  const quickActions = [
+    {
+      name: "Send Email",
+      action: () => console.log("Send email"),
+      icon: Mail,
+    },
+    {
+      name: "Schedule Call",
+      action: () => console.log("Schedule call"),
+      icon: Phone,
+    },
+    {
+      name: "Create Quotation",
+      action: handleCreateQuotation,
+      icon: Receipt,
+    },
+    {
+      name: "Add Note",
+      action: () => {
+        setActiveTab("notes");
+        setIsAddingNote(true);
+      },
+      icon: FileText,
+    },
+  ];
 
   return (
     <div className="h-screen bg-gray-50 flex overflow-hidden">
@@ -277,19 +311,22 @@ const LeadDetailsPage = () => {
               Quick Actions
             </h3>
             <div className="space-y-1">
-              {["Send Email", "Schedule Call", "Add Note"].map((action) => (
-                <button
-                  key={action}
-                  className="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors text-left flex items-center justify-between group"
-                  onClick={() =>
-                    action === "Add Note" &&
-                    (setActiveTab("notes"), setIsAddingNote(true))
-                  }
-                >
-                  <span>{action}</span>
-                  <ChevronRight className="h-3 w-3 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
-                </button>
-              ))}
+              {quickActions.map((actionItem) => {
+                const IconComponent = actionItem.icon;
+                return (
+                  <button
+                    key={actionItem.name}
+                    onClick={actionItem.action}
+                    className="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors text-left flex items-center justify-between group"
+                  >
+                    <div className="flex items-center gap-2">
+                      <IconComponent className="h-4 w-4 text-gray-400" />
+                      <span>{actionItem.name}</span>
+                    </div>
+                    <ChevronRight className="h-3 w-3 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -318,6 +355,15 @@ const LeadDetailsPage = () => {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Create Quotation Button - Always Visible */}
+              <button
+                onClick={handleCreateQuotation}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+              >
+                <Receipt className="h-4 w-4" />
+                Create Quotation
+              </button>
+
               {activeTab === "tasks" && (
                 <>
                   <div className="relative">
@@ -604,6 +650,20 @@ const LeadDetailsPage = () => {
           )}
         </div>
       </div>
+      <CreateQuotationModal
+        isOpen={true}
+        onClose={() => {}}
+        leadData={{
+          id: undefined,
+          name: undefined,
+          email: undefined,
+          mobileNumber: undefined,
+          organizationId: undefined,
+        }}
+        onSubmit={function (quotationData: any): void {
+          throw new Error("Function not implemented.");
+        }}
+      />
     </div>
   );
 };
