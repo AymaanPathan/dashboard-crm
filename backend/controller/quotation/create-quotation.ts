@@ -8,25 +8,29 @@ import {
 } from "../../quote-templates/classic-template";
 import { getMinimalTemplate } from "../../quote-templates/minimal-template";
 import { getModernTemplate } from "../../quote-templates/modern-template";
+
 export const createQuotationController = async (
   req: Request,
   res: Response
 ) => {
   try {
+    const companyId = req?.user?.currentOrganizationId;
     const {
       customerInfo,
       orderDetails,
-      templateType,
-      companyId,
+
       quotationName,
     } = req.body;
 
-    if (!customerInfo || !orderDetails || !templateType || !companyId) {
+    console.log("Request Body:", req.body);
+    console.log("Company ID:", companyId);
+
+    if (!customerInfo || !orderDetails  || !companyId) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
     const template = await prisma.quotationTemplate.findFirst({
-      where: { templateType, companyId },
+      where: {  companyId },
       include: { company: true },
     });
 
@@ -34,7 +38,6 @@ export const createQuotationController = async (
       return res.status(404).json({ message: "Template not found" });
     }
 
-    // 1️⃣ Calculate totals
     const items = orderDetails.items || [];
     const subtotal = items.reduce(
       (sum: number, item: { quantity: number; price: number }) =>
@@ -44,11 +47,10 @@ export const createQuotationController = async (
     const tax = subtotal * (orderDetails.taxRate || 0.18);
     const total = subtotal + tax;
 
-    // 2️⃣ Save quotation in DB
     const quotation = await prisma.quotation.create({
       data: {
         companyId,
-        quotationName: quotationName,
+        quotationName,
         templateId: template.id,
         customerName: customerInfo.name,
         customerCompany: customerInfo.company,
@@ -64,23 +66,31 @@ export const createQuotationController = async (
       },
     });
 
-    // 3️⃣ Prepare company info
     const companyInfo: CompanyInfo = {
-      name: template?.company?.organization_name!,
-      logo: template.logoUrl,
-      address: template.company?.company_website || "123, Example Street, City",
-      phone: "9876543210",
-      email: "info@example.com",
-      website: template.company?.company_website || "www.example.com",
-      gstin: "22AAAAA0000A1Z5",
+      name:
+        template.companyName ||
+        template.company?.organization_name ||
+        "Your Company",
+      logo: template.logoUrl || "",
+      address:
+        template.companyAddress ||
+        template.company?.company_website ||
+        "123, Example Street",
+      phone: template.companyPhone || "9876543210",
+      email: template.companyEmail || "info@example.com",
+      website:
+        template.website ||
+        template.company?.company_website ||
+        "www.example.com",
+      gstin: template.gstin || "22AAAAA0000A1Z5",
     };
 
     const config: Config = {
-      signature: template.signatureUrl,
-      termsAndConditions: template.termsAndConditions!,
-      bankDetails: template.bankDetails!,
-      brandColor: template.brandColor!,
-      headerFont: template.headerFont!,
+      signature: template.signatureUrl || "",
+      termsAndConditions: template.termsAndConditions || "",
+      bankDetails: template.bankDetails || {},
+      brandColor: template.brandColor || "#000000",
+      headerFont: template.headerFont || "Arial, sans-serif",
     };
 
     // 4️⃣ Generate HTML

@@ -12,6 +12,10 @@ import {
   FileText,
   Calculator,
 } from "lucide-react";
+import { RootDispatch } from "@/store";
+import { useDispatch } from "react-redux";
+import { createQuotation } from "@/store/slices/quotationSlice";
+import { ICreateQuotationPayload } from "@/models/quotation.model";
 
 interface QuotationItem {
   id: string;
@@ -40,15 +44,15 @@ const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
   leadData,
   onSubmit,
 }) => {
+  const dispatch: RootDispatch = useDispatch();
   const [formData, setFormData] = useState({
-    quotationName: "",
+    quotationName: "John Doe Quotation",
     customerName: leadData.name || "",
     customerCompany: leadData.organizationId || "",
     customerEmail: leadData.email || "",
     customerPhone: leadData.mobileNumber || "",
     validUntil: "",
     quoteNumber: "",
-    templateId: "",
   });
 
   const [items, setItems] = useState<QuotationItem[]>([
@@ -163,17 +167,40 @@ const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const quotationData = {
-      ...formData,
-      templateId: formData.templateId || null,
-      items: items.filter((item) => item.description.trim() !== ""),
-      subtotal,
-      tax,
-      total,
-      validUntil: new Date(formData.validUntil),
+    const quotationData: ICreateQuotationPayload = {
+      quotationName: formData.quotationName,
+      customerInfo: {
+        name: formData.customerName,
+        company: formData.customerCompany || null,
+        email: formData.customerEmail || null,
+        phone: formData.customerPhone || null,
+      },
+      orderDetails: {
+        items: items
+          .filter((item) => item.description.trim() !== "")
+          .map((item) => ({
+            description: item.description,
+            quantity: item.quantity,
+            price: item.rate,
+          })),
+        taxRate: taxRate / 100,
+        validUntil: formData.validUntil,
+        quoteNumber: formData.quoteNumber,
+      },
+      isOrder: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
-    onSubmit(quotationData);
+    dispatch(createQuotation(quotationData))
+      .unwrap()
+      .then((res) => {
+        console.log("Quotation created successfully:", res);
+        handleClose();
+      })
+      .catch((err) => {
+        console.error("Failed to create quotation:", err);
+      });
   };
 
   const resetForm = () => {
@@ -185,7 +212,6 @@ const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
       customerPhone: leadData.mobileNumber || "",
       validUntil: "",
       quoteNumber: "",
-      templateId: "",
     });
     setItems([
       {

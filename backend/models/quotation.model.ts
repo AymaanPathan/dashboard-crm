@@ -1,7 +1,6 @@
-import { ITemplate } from "./template.model";
+import { ICreateTemplatePayload } from "./template.model";
 
-export interface IQuotation {
-  id: string;
+export interface ICreateQuotationPayload {
   companyId: string;
   templateId?: string | null;
   quotationName?: string | null;
@@ -24,5 +23,5 @@ export interface IQuotation {
   createdAt: string;
   updatedAt: string;
 
-  template?: ITemplate | null;
+  template?: ICreateTemplatePayload | null;
 }

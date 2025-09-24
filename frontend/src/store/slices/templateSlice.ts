@@ -15,7 +15,7 @@ const initialState = {
 
 export const createTemplate = createAsyncThunk(
   "templates/create",
-  async (data: ITemplate) => {
+  async (data: ICreateTemplatePayload) => {
     const response = await createTemplateApi(data);
     return response;
   }
