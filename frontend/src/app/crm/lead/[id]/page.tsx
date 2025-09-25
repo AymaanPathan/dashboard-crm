@@ -34,11 +34,12 @@ import {
 import AddTask from "@/components/Task/AddTask";
 import LeadLogs from "@/components/lead/LeadLogs";
 import { getLeadTasksByLeadIdSlice } from "@/store/slices/leadTaskSlice";
-import CreateQuotationModal from "@/components/quotation/CreateQuotationModal";
+import { CreateQuotationModal } from "@/components/quotation/CreateQuotationModal";
 
 const LeadDetailsPage = () => {
   const dispatch: RootDispatch = useDispatch();
   const { id } = useParams();
+  const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const tasks = useSelector((state: RootState) => state.leadTasks.leadTasks);
   const leadNotes = useSelector((state: RootState) => state.lead.leadNotes);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -47,6 +48,13 @@ const LeadDetailsPage = () => {
   const [activeTab, setActiveTab] = useState("tasks");
   const [newNote, setNewNote] = useState("");
   const [isAddingNote, setIsAddingNote] = useState(false);
+
+  const openQuotationModal = () => {
+    setIsQuotationModalOpen(true);
+  };
+  const closeQuotationModal = () => {
+    setIsQuotationModalOpen(false);
+  };
 
   const currentLead = useSelector((state: RootState) => state.lead.lead);
   // const { loading } = useSelector(
@@ -77,13 +85,6 @@ const LeadDetailsPage = () => {
     );
     setNewNote("");
     setIsAddingNote(false);
-  };
-
-  const handleCreateQuotation = () => {
-    // Add your quotation creation logic here
-    // This could navigate to a quotation form or open a modal
-    console.log("Creating quotation for lead:", currentLead.id);
-    // Example: router.push(`/quotations/create?leadId=${currentLead.id}`);
   };
 
   const formatDate = (dateString: string) => {
@@ -189,7 +190,7 @@ const LeadDetailsPage = () => {
     },
     {
       name: "Create Quotation",
-      action: handleCreateQuotation,
+      action: openQuotationModal,
       icon: Receipt,
     },
     {
@@ -357,7 +358,7 @@ const LeadDetailsPage = () => {
             <div className="flex items-center gap-3">
               {/* Create Quotation Button - Always Visible */}
               <button
-                onClick={handleCreateQuotation}
+                onClick={openQuotationModal}
                 className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
               >
                 <Receipt className="h-4 w-4" />
@@ -651,17 +652,14 @@ const LeadDetailsPage = () => {
         </div>
       </div>
       <CreateQuotationModal
-        isOpen={true}
-        onClose={() => {}}
+        isOpen={isQuotationModalOpen}
+        onClose={closeQuotationModal}
         leadData={{
           id: undefined,
           name: undefined,
           email: undefined,
           mobileNumber: undefined,
           organizationId: undefined,
-        }}
-        onSubmit={function (quotationData: any): void {
-          throw new Error("Function not implemented.");
         }}
       />
     </div>

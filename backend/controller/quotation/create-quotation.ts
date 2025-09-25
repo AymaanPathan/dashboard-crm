@@ -1,20 +1,36 @@
 import { Request, Response } from "express";
 import prisma from "../../utils/prisma";
-import pdf from "html-pdf";
 import {
   CompanyInfo,
   Config,
+  CustomerInfo,
   getClassicTemplate,
+  OrderDetails,
 } from "../../quote-templates/classic-template";
-import { getMinimalTemplate } from "../../quote-templates/minimal-template";
+import { ResponseModel, sendResponse } from "../../utils/response.utils";
 import { getModernTemplate } from "../../quote-templates/modern-template";
+import puppeteer from "puppeteer";
+import { uploadToS3 } from "../../utils/aws/s3.utils";
 
 export const createQuotationController = async (
   req: Request,
   res: Response
 ) => {
+  const response: ResponseModel = {
+    statusCode: 200,
+    message: "Quotation created successfully",
+    data: null,
+    showMessage: true,
+  };
   try {
     const companyId = req?.user?.currentOrganizationId;
+    const { lead } = req?.body;
+
+    const findLead = await prisma.lead.findUnique({
+      where: { id: lead },
+    });
+
+    console.log("findLead", findLead);
     const {
       customerInfo,
       orderDetails,
@@ -25,17 +41,21 @@ export const createQuotationController = async (
     console.log("Request Body:", req.body);
     console.log("Company ID:", companyId);
 
-    if (!customerInfo || !orderDetails  || !companyId) {
-      return res.status(400).json({ message: "Missing required fields" });
+    if (!customerInfo || !orderDetails || !companyId) {
+      response.statusCode = 400;
+      response.message = "Missing required fields";
+      return sendResponse(res, response);
     }
 
     const template = await prisma.quotationTemplate.findFirst({
-      where: {  companyId },
+      where: { companyId },
       include: { company: true },
     });
 
     if (!template) {
-      return res.status(404).json({ message: "Template not found" });
+      response.statusCode = 404;
+      response.message = "Quotation template not found";
+      return sendResponse(res, response);
     }
 
     const items = orderDetails.items || [];
@@ -65,76 +85,99 @@ export const createQuotationController = async (
         isOrder: false,
       },
     });
+    response.data = { quote: quotation, template };
 
-    const companyInfo: CompanyInfo = {
-      name:
-        template.companyName ||
-        template.company?.organization_name ||
-        "Your Company",
-      logo: template.logoUrl || "",
-      address:
-        template.companyAddress ||
-        template.company?.company_website ||
-        "123, Example Street",
-      phone: template.companyPhone || "9876543210",
-      email: template.companyEmail || "info@example.com",
-      website:
-        template.website ||
-        template.company?.company_website ||
-        "www.example.com",
-      gstin: template.gstin || "22AAAAA0000A1Z5",
+    const companyInfoForQuotation: CompanyInfo = {
+      website: template.website!,
+      gstin: template.gstin!,
+      email: template.companyEmail!,
+      name: template.companyName!,
+      address: template.companyAddress!,
+      phone: template.companyPhone!,
+    };
+
+    const customerInfoForQuotation: CustomerInfo = {
+      address: findLead?.address!,
+      name: findLead?.name!,
+      company: findLead?.name!,
+      email: findLead?.email!,
+      phone: findLead?.phone!,
+    };
+
+    const orderDetailsForQuotation: OrderDetails = {
+      paymentTerms: template.termsAndConditions!,
+      validUntil: orderDetails.validUntil,
+      quoteNumber: orderDetails.quoteNumber,
+      date: new Date().toISOString().split("T")[0],
+      items: orderDetails.items,
+      taxRate: orderDetails.taxRate || 0.18,
+    };
+
+    const bankDetails = template.bankDetails as {
+      ifsc?: string;
+      bankName?: string;
+      accountName?: string;
+      accountNumber?: string;
     };
 
     const config: Config = {
-      signature: template.signatureUrl || "",
-      termsAndConditions: template.termsAndConditions || "",
-      bankDetails: template.bankDetails || {},
-      brandColor: template.brandColor || "#000000",
-      headerFont: template.headerFont || "Arial, sans-serif",
+      termsAndConditions: template.termsAndConditions!,
+      bankDetails: {
+        ifsc: bankDetails.ifsc || "",
+        bankName: bankDetails.bankName || "",
+        accountName: bankDetails.accountName || "",
+        accountNumber: bankDetails.accountNumber || "",
+      },
     };
 
-    // 4️⃣ Generate HTML
-    let html = "";
-    switch (template.templateType) {
-      case "minimal":
-        html = getMinimalTemplate(
-          companyInfo,
-          customerInfo,
-          orderDetails,
-          config
-        );
-        break;
-      case "classic":
-        html = getClassicTemplate(
-          companyInfo,
-          customerInfo,
-          orderDetails,
-          config
-        );
-        break;
-      case "modern":
-        html = getModernTemplate(
-          companyInfo,
-          customerInfo,
-          orderDetails,
-          config
-        );
-        break;
-      default:
-        return res.status(400).json({ message: "Invalid templateType" });
+    let htmlContent = "";
+
+    if (template.templateType === "classic") {
+      getClassicTemplate(
+        companyInfoForQuotation,
+        customerInfoForQuotation,
+        orderDetailsForQuotation,
+        config
+      );
+    }
+    if (template.templateType === "modern") {
+      getModernTemplate(
+        companyInfoForQuotation,
+        customerInfoForQuotation,
+        orderDetailsForQuotation,
+        config
+      );
     }
 
-    // 5️⃣ Convert HTML → PDF
-    pdf.create(html).toBuffer((err, buffer) => {
-      if (err) return res.status(500).send("PDF generation failed");
-
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader(
-        "Content-Disposition",
-        `inline; filename=${quotation.quoteNumber || "quotation"}.pdf`
+    if (template.templateType === "minimal") {
+      getModernTemplate(
+        companyInfoForQuotation,
+        customerInfoForQuotation,
+        orderDetailsForQuotation,
+        config
       );
-      res.send(buffer);
+    }
+
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+    const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
+    await browser.close();
+
+    const pdfFileName = `quotations/${quotation.id}.pdf`;
+    const s3Url = await uploadToS3(
+      Buffer.from(pdfBuffer),
+      process.env.S3_BUCKET_NAME!,
+      pdfFileName,
+      "application/pdf"
+    );
+
+    await prisma.quotation.update({
+      where: { id: quotation.id },
+      data: { pdfUrl: s3Url },
     });
+
+    return sendResponse(res, response);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });

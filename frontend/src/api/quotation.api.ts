@@ -5,7 +5,7 @@ export const createQuotationApi = async (data: ICreateQuotationPayload) => {
   try {
     const response = await axiosSetup.post("/quotation/createQuotation", data);
     console.log("Quotation created:", response.data);
-    return response.data;
+    return response.data.data;
   } catch (error) {
     console.error("Error creating quotation:", error);
     throw error;

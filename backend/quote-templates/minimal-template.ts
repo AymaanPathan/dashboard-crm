@@ -242,11 +242,6 @@ export function getMinimalTemplate(
     <body>
       <div class="header">
         <div class="company-section">
-          ${
-            companyInfo.logo
-              ? `<img src="${companyInfo.logo}" alt="Logo" class="company-logo">`
-              : ""
-          }
           <div class="company-name">${companyInfo.name || "Company Name"}</div>
           <div class="company-details">
             ${companyInfo.address || "Company Address"}<br>
@@ -389,25 +384,6 @@ export function getMinimalTemplate(
           <div>
             ${companyInfo.website || "www.company.com"}
           </div>
-          ${
-            config.signature
-              ? `
-            <div class="signature-section">
-              <div class="signature-text">Authorized Signature</div>
-              <img src="${
-                config.signature
-              }" alt="Signature" class="signature-img">
-              <div class="signature-text">${companyInfo.name || "Company"}</div>
-            </div>
-          `
-              : `
-            <div class="signature-section">
-              <div class="signature-text">Authorized Signature</div>
-              <div style="height: 20px; border-bottom: 0.5px solid #ccc; width: 100px; margin: 3px auto;"></div>
-              <div class="signature-text">${companyInfo.name || "Company"}</div>
-            </div>
-          `
-          }
         </div>
       </div>
     </body>

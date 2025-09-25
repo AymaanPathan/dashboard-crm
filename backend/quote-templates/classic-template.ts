@@ -2,15 +2,13 @@ export interface CompanyInfo {
   website: string;
   gstin: string;
   email: string;
-  logo: any;
   name: string;
   address: string;
   phone: string;
 }
 
 export interface CustomerInfo {
-  gstin?: any;
-  address: string;
+  address: any;
   name: string;
   company: string;
   email: string;
@@ -18,9 +16,7 @@ export interface CustomerInfo {
 }
 
 export interface OrderDetails {
-  deliveryTime: string;
   paymentTerms: string;
-  discount: any;
   validUntil: string;
   quoteNumber: string;
   date: string;
@@ -34,10 +30,16 @@ export interface OrderDetails {
   taxRate?: number;
 }
 
+interface BankDetails {
+  ifsc: any;
+  bankName: any;
+  accountName: any;
+  accountNumber: any;
+}
+
 export interface Config {
-  signature: any;
   termsAndConditions: string;
-  bankDetails: any;
+  bankDetails: BankDetails;
   brandColor?: string;
   accentColor?: string;
   headerFont?: string;
@@ -341,15 +343,6 @@ export function getClassicTemplate(
             ${companyInfo.website ? ` • ${companyInfo.website}` : ""}
           </div>
         </div>
-        ${
-          companyInfo.logo
-            ? `
-        <div class="logo-container">
-          <img src="${companyInfo.logo}" alt="Company Logo" class="company-logo">
-        </div>
-        `
-            : ""
-        }
       </div>
 
       <!-- Document Header -->
@@ -379,7 +372,6 @@ export function getClassicTemplate(
             ${customerInfo.address || "Customer Address"}<br>
             Phone: ${customerInfo.phone || "Customer Phone"}<br>
             Email: ${customerInfo.email || "customer@email.com"}
-            ${customerInfo.gstin ? `<br>GSTIN: ${customerInfo.gstin}` : ""}
           </div>
         </div>
         <div class="customer-box">
@@ -387,9 +379,6 @@ export function getClassicTemplate(
           <div class="customer-details">
             <strong>Payment Terms:</strong> ${
               orderDetails.paymentTerms || "Net 30 days"
-            }<br>
-            <strong>Delivery Time:</strong> ${
-              orderDetails.deliveryTime || "5-7 business days"
             }<br>
             <strong>Valid Until:</strong> ${
               orderDetails.validUntil ||
@@ -453,16 +442,6 @@ export function getClassicTemplate(
               <span>Subtotal:</span>
               <span>₹${subtotal.toLocaleString("en-IN")}</span>
             </div>
-            ${
-              orderDetails.discount
-                ? `
-            <div class="total-row">
-              <span>Discount:</span>
-              <span>-₹${orderDetails.discount.toLocaleString("en-IN")}</span>
-            </div>
-            `
-                : ""
-            }
             <div class="total-row">
               <span>Tax (${((orderDetails.taxRate || 0.18) * 100).toFixed(
                 0
@@ -471,9 +450,7 @@ export function getClassicTemplate(
             </div>
             <div class="total-row grand-total">
               <span>Total Amount:</span>
-              <span>₹${(total - (orderDetails.discount || 0)).toLocaleString(
-                "en-IN"
-              )}</span>
+              <span>₹${total.toLocaleString("en-IN")}</span>
             </div>
           </div>
         </div>
@@ -489,8 +466,7 @@ export function getClassicTemplate(
           <div class="footer-content">
             <strong>${config.bankDetails.bankName || "Bank Name"}</strong><br>
             A/c: ${config.bankDetails.accountNumber || "Account Number"}<br>
-            IFSC: ${config.bankDetails.ifscCode || "IFSC Code"}<br>
-            Branch: ${config.bankDetails.branch || "Branch"}
+            IFSC: ${config.bankDetails.ifsc || "IFSC Code"}<br>
           </div>
         </div>
         `
@@ -507,23 +483,7 @@ export function getClassicTemplate(
         </div>
       </div>
 
-      <!-- Signature -->
-      ${
-        config.signature
-          ? `
-      <div class="signature-section">
-        <img src="${
-          config.signature
-        }" alt="Signature" class="signature-img"><br>
-        <div class="signature-text">
-          <strong>Authorized Signatory</strong><br>
-          ${companyInfo.name || "Your Company"}
-        </div>
-      </div>
-      `
-          : ""
-      }
-
+     
       <!-- Final Footer -->
       <div class="final-footer">
         Thank you for considering our services • ${

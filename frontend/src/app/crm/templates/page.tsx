@@ -11,13 +11,14 @@ import {
   Settings,
   Sparkles,
 } from "lucide-react";
-import { getMinimalTemplate } from "@/quote-templates/minimal-template";
-import { getModernTemplate } from "@/quote-templates/modern-template";
-import { getClassicTemplate } from "@/quote-templates/classic-template";
+
 import { PreviewPanel } from "./PreviewPanel";
 import { RootDispatch } from "@/store";
 import { useDispatch } from "react-redux";
 import { createTemplate } from "@/store/slices/templateSlice";
+import { getClassicTemplate } from "@/assets/quote-templates/classic-template";
+import { getMinimalTemplate } from "@/assets/quote-templates/minimal-template";
+import { getModernTemplate } from "@/assets/quote-templates/modern-template";
 
 const NotionTemplateForm = () => {
   const dispatch: RootDispatch = useDispatch();

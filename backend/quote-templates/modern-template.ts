@@ -349,13 +349,6 @@ export function getModernTemplate(
             </div>
           </div>
           <div style="display: flex; align-items: center; gap: 20px;">
-            ${
-              companyInfo.logo
-                ? `
-            <img src="${companyInfo.logo}" alt="Company Logo" class="company-logo">
-            `
-                : ""
-            }
             <div class="quote-badge">
               <div class="quote-title">Quotation</div>
               <div class="quote-number">${
@@ -380,7 +373,6 @@ export function getModernTemplate(
               ${customerInfo.address || "Customer Address"}<br>
               Phone: ${customerInfo.phone || "Customer Phone"}<br>
               Email: ${customerInfo.email || "customer@email.com"}
-              ${customerInfo.gstin ? `<br>GSTIN: ${customerInfo.gstin}` : ""}
             </div>
           </div>
           <div class="info-card">
@@ -398,9 +390,6 @@ export function getModernTemplate(
               <strong>Payment Terms:</strong> ${
                 orderDetails.paymentTerms || "Net 30 days"
               }<br>
-              <strong>Delivery Time:</strong> ${
-                orderDetails.deliveryTime || "5-7 business days"
-              }
             </div>
           </div>
         </div>
@@ -459,16 +448,6 @@ export function getModernTemplate(
                 <span>Subtotal:</span>
                 <span>₹${subtotal.toLocaleString("en-IN")}</span>
               </div>
-              ${
-                orderDetails.discount
-                  ? `
-              <div class="total-row">
-                <span>Discount Applied:</span>
-                <span>-₹${orderDetails.discount.toLocaleString("en-IN")}</span>
-              </div>
-              `
-                  : ""
-              }
               <div class="total-row">
                 <span>Tax (${((orderDetails.taxRate || 0.18) * 100).toFixed(
                   0
@@ -477,9 +456,7 @@ export function getModernTemplate(
               </div>
               <div class="total-row grand-total">
                 <span>Grand Total:</span>
-                <span>₹${(total - (orderDetails.discount || 0)).toLocaleString(
-                  "en-IN"
-                )}</span>
+                <span>₹${total.toLocaleString("en-IN")}</span>
               </div>
             </div>
           </div>
@@ -500,11 +477,8 @@ export function getModernTemplate(
                 config.bankDetails.accountNumber || "Account Number"
               }<br>
               <strong>IFSC Code:</strong> ${
-                config.bankDetails.ifscCode || "IFSC Code"
+                config.bankDetails.ifsc || "IFSC Code"
               }<br>
-              <strong>Branch:</strong> ${
-                config.bankDetails.branch || "Branch Location"
-              }
             </div>
           </div>
           `
@@ -520,21 +494,6 @@ export function getModernTemplate(
             </div>
           </div>
         </div>
-
-        <!-- Signature -->
-        ${
-          config.signature
-            ? `
-        <div class="signature-section">
-          <div class="signature-text">Authorized Representative</div>
-          <img src="${config.signature}" alt="Signature" class="signature-img">
-          <div class="signature-line">
-            ${companyInfo.name || "Company Name"}
-          </div>
-        </div>
-        `
-            : ""
-        }
       </div>
 
       <!-- Footer -->

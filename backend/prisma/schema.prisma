@@ -219,6 +219,7 @@ model Quotation {
   total             Float
   validUntil        DateTime
   quoteNumber       String
+    pdfUrl            String?      
   isOrder           Boolean @default(false)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
