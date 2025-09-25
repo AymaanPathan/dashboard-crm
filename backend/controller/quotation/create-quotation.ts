@@ -1,16 +1,18 @@
 import { Request, Response } from "express";
 import prisma from "../../utils/prisma";
+import { ResponseModel, sendResponse } from "../../utils/response.utils";
+import puppeteer from "puppeteer";
+import { uploadToS3 } from "../../utils/aws/s3.utils";
 import {
   CompanyInfo,
   Config,
   CustomerInfo,
   getClassicTemplate,
   OrderDetails,
-} from "../../quote-templates/classic-template";
-import { ResponseModel, sendResponse } from "../../utils/response.utils";
-import { getModernTemplate } from "../../quote-templates/modern-template";
-import puppeteer from "puppeteer";
-import { uploadToS3 } from "../../utils/aws/s3.utils";
+} from "../../assets/quote-templates/classic-template";
+import { getModernTemplate } from "../../assets/quote-templates/modern-template";
+import { getMinimalTemplate } from "../../assets/quote-templates/minimal-template";
+import { uploadQuotationPDF } from "../../utils/aws/uploadQuotationPDF";
 
 export const createQuotationController = async (
   req: Request,
@@ -85,7 +87,6 @@ export const createQuotationController = async (
         isOrder: false,
       },
     });
-    response.data = { quote: quotation, template };
 
     const companyInfoForQuotation: CompanyInfo = {
       website: template.website!,
@@ -133,7 +134,7 @@ export const createQuotationController = async (
     let htmlContent = "";
 
     if (template.templateType === "classic") {
-      getClassicTemplate(
+      htmlContent = getClassicTemplate(
         companyInfoForQuotation,
         customerInfoForQuotation,
         orderDetailsForQuotation,
@@ -141,7 +142,7 @@ export const createQuotationController = async (
       );
     }
     if (template.templateType === "modern") {
-      getModernTemplate(
+      htmlContent = getModernTemplate(
         companyInfoForQuotation,
         customerInfoForQuotation,
         orderDetailsForQuotation,
@@ -150,33 +151,21 @@ export const createQuotationController = async (
     }
 
     if (template.templateType === "minimal") {
-      getModernTemplate(
+      htmlContent = getMinimalTemplate(
         companyInfoForQuotation,
         customerInfoForQuotation,
         orderDetailsForQuotation,
         config
       );
     }
-
-    const browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
-    const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
-    await browser.close();
-
-    const pdfFileName = `quotations/${quotation.id}.pdf`;
-    const s3Url = await uploadToS3(
-      Buffer.from(pdfBuffer),
-      process.env.S3_BUCKET_NAME!,
-      pdfFileName,
-      "application/pdf"
-    );
+    const pdfUrl = await uploadQuotationPDF(quotation.id, htmlContent);
 
     await prisma.quotation.update({
       where: { id: quotation.id },
-      data: { pdfUrl: s3Url },
+      data: { pdfUrl },
     });
 
+    response.data = { quotation: quotation, pdfUrl: pdfUrl };
     return sendResponse(res, response);
   } catch (error) {
     console.error(error);

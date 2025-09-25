@@ -17,7 +17,6 @@ export const uploadToS3 = async (
     Key: key,
     Body: buffer,
     ContentType: contentType,
-    ACL: "public-read", // or private
   };
 
   const uploadResult = await s3.upload(params).promise();
