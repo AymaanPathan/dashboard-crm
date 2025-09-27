@@ -1,14 +1,14 @@
 import {
   CompanyInfo,
   Config,
-  CustomerInfo,
-  OrderDetails,
-} from "./classic-template";
+  ICustomerInfo,
+  IOrderDetails,
+} from "../../models/quotation.model";
 
 export function getMinimalTemplate(
   companyInfo: CompanyInfo,
-  customerInfo: CustomerInfo,
-  orderDetails: OrderDetails,
+  customerInfo: ICustomerInfo,
+  orderDetails: IOrderDetails,
   config: Config
 ) {
   const items = orderDetails.items || [];
@@ -352,7 +352,7 @@ export function getMinimalTemplate(
           <div class="quote-title">QUOTATION</div>
           <div class="quote-details">
             <div class="quote-number">No: ${orderDetails.quoteNumber}</div>
-            <div>Date: ${formatDate(orderDetails.date)}</div>
+            <div>Date: ${formatDate(Date.now().toLocaleString())}</div>
             <div>Valid Until: ${formatDate(orderDetails.validUntil)}</div>
           </div>
         </div>
@@ -366,15 +366,10 @@ export function getMinimalTemplate(
             <div class="customer-info">
               <div class="customer-name">${customerInfo.company}</div>
               <div>${customerInfo.name}</div>
-              <div>${customerInfo.address}</div>
               <div>Phone: ${customerInfo.phone} | Email: ${
     customerInfo.email
   }</div>
-              ${
-                customerInfo.gstin
-                  ? `<div>GSTIN: ${customerInfo.gstin}</div>`
-                  : ""
-              }
+
             </div>
           </div>
           <div class="quote-info-section">
@@ -408,13 +403,7 @@ export function getMinimalTemplate(
                 <td class="text-center">${index + 1}</td>
                 <td>
                   <div class="item-description">${item.description}</div>
-                  ${
-                    item.details
-                      ? `<div class="item-details">${item.details}</div>`
-                      : ""
-                  }
                 </td>
-                <td class="text-center">${item.hsn}</td>
                 <td class="text-center">${item.quantity}</td>
                 <td class="text-center">Nos</td>
                 <td class="text-right">${item.price.toLocaleString("en-IN", {

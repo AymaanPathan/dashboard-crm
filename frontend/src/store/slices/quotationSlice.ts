@@ -2,9 +2,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { ICreateQuotationPayload } from "@/models/quotation.model";
 import { createQuotationApi } from "@/api/quotation.api";
-
+import { getQuotationsByLeadApi } from "@/api/quotation.api";
 interface QuotationState {
-  myQuotations: ICreateQuotationPayload[];
+  quotations: ICreateQuotationPayload[];
   loading: {
     creatingQuotation: boolean;
   };
@@ -12,7 +12,7 @@ interface QuotationState {
 }
 
 const initialState: QuotationState = {
-  myQuotations: [],
+  quotations: [],
   loading: {
     creatingQuotation: false,
   },
@@ -23,6 +23,14 @@ export const createQuotation = createAsyncThunk(
   "quotations/create",
   async (data: ICreateQuotationPayload) => {
     const response = await createQuotationApi(data);
+    return response;
+  }
+);
+
+export const getQuotationsByLead = createAsyncThunk(
+  "quotations/getByLead",
+  async (leadId: string) => {
+    const response = await getQuotationsByLeadApi(leadId);
     return response;
   }
 );
@@ -40,11 +48,20 @@ const quotationSlice = createSlice({
       .addCase(createQuotation.fulfilled, (state, action) => {
         state.loading.creatingQuotation = false;
         console.log("Created quotation:", action.payload);
-        state.myQuotations.push(action.payload);
+        state.quotations.push(action.payload);
       })
       .addCase(createQuotation.rejected, (state, action) => {
         state.loading.creatingQuotation = false;
         state.error = action.error.message || "Failed to create quotation";
+      })
+      .addCase(getQuotationsByLead.pending, (state) => {
+        state.error = "";
+      })
+      .addCase(getQuotationsByLead.fulfilled, (state, action) => {
+        state.quotations = action.payload;
+      })
+      .addCase(getQuotationsByLead.rejected, (state, action) => {
+        state.error = action.error.message || "Failed to fetch quotations";
       });
   },
 });

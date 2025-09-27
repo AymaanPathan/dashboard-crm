@@ -129,6 +129,7 @@ model Lead {
   tasks Task[]
   logs LeadLog[]
   notes LeadNotes[]   
+  quotations Quotation[]
 }
 
 
@@ -203,6 +204,8 @@ model QuotationTemplate {
 }
 model Quotation {
   id                String   @id @default(uuid())
+  leadId     String?
+  lead       Lead? @relation(fields: [leadId], references: [id], onDelete: Cascade)
   companyId         String
   company           Organization @relation(fields: [companyId], references: [id])
   templateId        String?

@@ -18,6 +18,7 @@ import { useDispatch } from "react-redux";
 import { createQuotation } from "@/store/slices/quotationSlice";
 import { getMinimalTemplate } from "@/assets/quote-templates/minimal-template";
 import { getModernTemplate } from "@/assets/quote-templates/modern-template";
+import { ICreateQuotationPayload } from "@/models/quotation.model";
 
 interface QuotationItem {
   id: string;
@@ -152,8 +153,10 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("leadData:", leadData);
 
-    const quotationData = {
+    const quotationData: ICreateQuotationPayload = {
+      lead: leadData.id!,
       quotationName: formData.quotationName,
       customerInfo: {
         name: formData.customerName,
@@ -173,53 +176,7 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
     };
 
     const response = await dispatch(createQuotation(quotationData)).unwrap();
-
-    // generate HTML for PDF/print
-    const html = getModernTemplate(
-      {
-        name: "My Company",
-        address: "123 Street, City",
-        phone: "9876543210",
-        email: "info@company.com",
-        logo: null,
-        gstin: "22AAAAA0000A1Z5",
-        website: "www.company.com",
-      },
-      quotationData.customerInfo,
-      quotationData.orderDetails,
-      {
-        brandColor: "#222",
-        termsAndConditions: "Payment due in 7 days.",
-        bankDetails: {
-          accountName: "My Company Pvt Ltd",
-          accountNumber: "1234567890",
-          ifsc: "HDFC0001234",
-          bankName: "HDFC Bank",
-        },
-      }
-    );
-
-    // Create invisible iframe
-    const iframe = document.createElement("iframe");
-    iframe.style.position = "fixed";
-    iframe.style.right = "0";
-    iframe.style.bottom = "0";
-    iframe.style.width = "0";
-    iframe.style.height = "0";
-    iframe.style.border = "none";
-
-    document.body.appendChild(iframe);
-
-    // Write HTML into iframe
-    iframe.contentWindow!.document.open();
-    iframe.contentWindow!.document.write(html);
-    iframe.contentWindow!.document.close();
-
-    // Wait a bit for content to load, then print
-    iframe.onload = () => {
-      iframe.contentWindow!.focus();
-      iframe.contentWindow!.print();
-    };
+    console.log("Quotation created:", response);
   };
 
   const resetForm = () => {

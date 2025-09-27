@@ -1,48 +1,14 @@
-export interface CompanyInfo {
-  website?: string;
-  gstin: string;
-  email: string;
-  name: string;
-  address: string;
-  phone: string;
-}
-
-export interface CustomerInfo {
-  gstin?: any;
-  address: any;
-  name: string;
-  company: string;
-  email: string;
-  phone: string;
-}
-
-export interface OrderDetails {
-  paymentTerms: string;
-  validUntil: string;
-  quoteNumber: string;
-  date: string;
-  items: Array<{
-    hsn: string;
-    details: string;
-    description: string;
-    quantity: number;
-    price: number;
-  }>;
-  taxRate?: number;
-}
-
-export interface Config {
-  termsAndConditions: string;
-  bankDetails: any;
-  brandColor?: string;
-  accentColor?: string;
-  headerFont?: string;
-}
+import {
+  CompanyInfo,
+  Config,
+  ICustomerInfo,
+  IOrderDetails,
+} from "../../models/quotation.model";
 
 export function getClassicTemplate(
   companyInfo: CompanyInfo,
-  customerInfo: CustomerInfo,
-  orderDetails: OrderDetails,
+  customerInfo: ICustomerInfo,
+  orderDetails: IOrderDetails,
   config: Config
 ) {
   const items = orderDetails.items || [];
@@ -374,7 +340,7 @@ export function getClassicTemplate(
         <div class="title-text">QUOTATION</div>
         <div class="doc-meta">
             <strong>Quote No:</strong> ${orderDetails.quoteNumber}<br>
-            <strong>Date:</strong> ${formatDate(orderDetails.date)}<br>
+            <strong>Date:</strong> ${formatDate(Date.now().toLocaleString())}<br>
             <strong>Valid Until:</strong> ${formatDate(orderDetails.validUntil)}
         </div>
     </div>
@@ -386,16 +352,13 @@ export function getClassicTemplate(
             <div class="box-content">
                 <strong>${customerInfo.company}</strong><br>
                 Attn: ${customerInfo.name}<br>
-                ${customerInfo.address}<br>
                 Phone: ${customerInfo.phone}<br>
                 Email: ${customerInfo.email}
-                ${customerInfo.gstin ? `<br>GSTIN: ${customerInfo.gstin}` : ""}
             </div>
         </div>
         <div class="info-box">
             <div class="box-title">Quote Details</div>
             <div class="box-content">
-                <strong>Payment Terms:</strong> ${orderDetails.paymentTerms}<br>
                 <strong>Quote Validity:</strong> ${formatDate(
                   orderDetails.validUntil
                 )}<br>
@@ -425,15 +388,6 @@ export function getClassicTemplate(
                     (item, index) => `
                 <tr>
                     <td class="text-center">${index + 1}</td>
-                    <td>
-                        <div class="item-desc">${item.description}</div>
-                        ${
-                          item.details
-                            ? `<div class="item-details">${item.details}</div>`
-                            : ""
-                        }
-                    </td>
-                    <td class="text-center">${item.hsn}</td>
                     <td class="text-center">${item.quantity}</td>
                     <td class="text-center">Nos</td>
                     <td class="text-right">${formatCurrency(item.price).replace(

@@ -1,14 +1,14 @@
 import {
   CompanyInfo,
   Config,
-  CustomerInfo,
-  OrderDetails,
-} from "./classic-template";
+  ICustomerInfo,
+  IOrderDetails,
+} from "../../models/quotation.model";
 
 export function getModernTemplate(
   companyInfo: CompanyInfo,
-  customerInfo: CustomerInfo,
-  orderDetails: OrderDetails,
+  customerInfo: ICustomerInfo,
+  orderDetails: IOrderDetails,
   config: Config
 ) {
   const items = orderDetails.items || [];
@@ -351,7 +351,7 @@ export function getModernTemplate(
       </style>
     </head>
     <body>
-      <!-- Professional Header -->
+      <!-- Professional Headekr -->
       <div class="header-wrapper">
         <div class="header-content">
           <div class="company-section">
@@ -368,7 +368,9 @@ export function getModernTemplate(
             <div class="quote-badge">
               <div class="quote-title">Quotation</div>
               <div class="quote-number">${orderDetails.quoteNumber}</div>
-              <div class="quote-date">${formatDate(orderDetails.date)}</div>
+              <div class="quote-date">${formatDate(
+                Date.now().toLocaleString()
+              )}</div>
             </div>
           </div>
         </div>
@@ -382,10 +384,8 @@ export function getModernTemplate(
             <div class="card-content">
               <strong>${customerInfo.company}</strong><br>
               ${customerInfo.name}<br>
-              ${customerInfo.address}<br>
               Phone: ${customerInfo.phone}<br>
               Email: ${customerInfo.email}
-              ${customerInfo.gstin ? `<br>GSTIN: ${customerInfo.gstin}` : ""}
             </div>
           </div>
           <div class="info-card">
@@ -394,7 +394,6 @@ export function getModernTemplate(
               <strong>Valid Until:</strong> ${formatDate(
                 orderDetails.validUntil
               )}<br>
-              <strong>Payment Terms:</strong> ${orderDetails.paymentTerms}<br>
               <strong>GST Rate:</strong> ${gstPercentage}%
             </div>
           </div>
@@ -424,13 +423,8 @@ export function getModernTemplate(
                 <td class="text-center">${index + 1}</td>
                 <td>
                   <div class="item-desc">${item.description}</div>
-                  ${
-                    item.details
-                      ? `<div class="item-details">${item.details}</div>`
-                      : ""
-                  }
+                
                 </td>
-                <td class="text-center">${item.hsn}</td>
                 <td class="text-center">${item.quantity}</td>
                 <td class="text-center">Nos</td>
                 <td class="text-right">${formatCurrency(item.price)}</td>

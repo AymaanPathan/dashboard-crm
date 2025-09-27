@@ -8,19 +8,16 @@ export interface CompanyInfo {
   phone: string;
 }
 
-export interface CustomerInfo {
-  gstin?: any;
-  address: string;
+export interface ICustomerInfo {
   name: string;
-  company: string;
-  email: string;
-  phone: string;
+  company?: string | null;
+  email?: string | null;
+  phone?: string | null;
 }
 
 export interface OrderDetails {
   deliveryTime: string;
   paymentTerms: string;
-  discount: any;
   validUntil: string;
   quoteNumber: string;
   date: string;
@@ -45,7 +42,7 @@ export interface Config {
 
 export function getClassicTemplate(
   companyInfo: CompanyInfo,
-  customerInfo: CustomerInfo,
+  customerInfo: ICustomerInfo,
   orderDetails: OrderDetails,
   config: Config
 ) {

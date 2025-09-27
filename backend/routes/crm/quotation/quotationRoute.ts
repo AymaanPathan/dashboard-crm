@@ -9,4 +9,9 @@ quotationRouter.post(
   quotationController.createQuotationController
 );
 
+quotationRouter.post(
+  "/getQuotationsByLead",
+  authenticate,
+  quotationController.getQuotationsByLeadController
+);
 export default quotationRouter;

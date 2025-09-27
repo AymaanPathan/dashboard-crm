@@ -7,6 +7,7 @@ import userReducer from "./slices/userSlice";
 import stageReducer from "./slices/stagesSlice";
 import leadTasksReducer from "./slices/leadTaskSlice";
 import leadReducer from "./slices/leadSlice";
+import quotationReducer from "./slices/quotationSlice";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -16,6 +17,7 @@ export const store = configureStore({
     user: userReducer,
     kanban: kanbanReducer,
     stages: stageReducer,
+    quotation: quotationReducer,
   },
 });
 

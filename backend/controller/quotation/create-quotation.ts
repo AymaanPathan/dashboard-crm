@@ -1,18 +1,17 @@
 import { Request, Response } from "express";
 import prisma from "../../utils/prisma";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
-import puppeteer from "puppeteer";
-import { uploadToS3 } from "../../utils/aws/s3.utils";
-import {
-  CompanyInfo,
-  Config,
-  CustomerInfo,
-  getClassicTemplate,
-  OrderDetails,
-} from "../../assets/quote-templates/classic-template";
+
 import { getModernTemplate } from "../../assets/quote-templates/modern-template";
 import { getMinimalTemplate } from "../../assets/quote-templates/minimal-template";
 import { uploadQuotationPDF } from "../../utils/aws/uploadQuotationPDF";
+import {
+  CompanyInfo,
+  Config,
+  ICustomerInfo,
+  IOrderDetails,
+} from "../../models/quotation.model";
+import { getClassicTemplate } from "../../assets/quote-templates/classic-template";
 
 export const createQuotationController = async (
   req: Request,
@@ -24,30 +23,27 @@ export const createQuotationController = async (
     data: null,
     showMessage: true,
   };
+
   try {
     const companyId = req?.user?.currentOrganizationId;
-    const { lead } = req?.body;
+    const { lead } = req.body;
 
-    const findLead = await prisma.lead.findUnique({
+    const findLead = await prisma.lead.findFirst({
       where: { id: lead },
     });
 
-    console.log("findLead", findLead);
-    const {
-      customerInfo,
-      orderDetails,
-
-      quotationName,
-    } = req.body;
+    const { customerInfo, orderDetails, quotationName } = req.body;
 
     console.log("Request Body:", req.body);
     console.log("Company ID:", companyId);
+    console.log("Lead:", lead);  
 
-    if (!customerInfo || !orderDetails || !companyId) {
+    if (!customerInfo || !orderDetails || !companyId || !lead) {
       response.statusCode = 400;
       response.message = "Missing required fields";
       return sendResponse(res, response);
     }
+    
 
     const template = await prisma.quotationTemplate.findFirst({
       where: { companyId },
@@ -72,6 +68,7 @@ export const createQuotationController = async (
     const quotation = await prisma.quotation.create({
       data: {
         companyId,
+        leadId: lead, 
         quotationName,
         templateId: template.id,
         customerName: customerInfo.name,
@@ -97,21 +94,18 @@ export const createQuotationController = async (
       phone: template.companyPhone!,
     };
 
-    const customerInfoForQuotation: CustomerInfo = {
-      address: findLead?.address!,
+    const customerInfoForQuotation: ICustomerInfo = {
       name: findLead?.name!,
       company: findLead?.name!,
       email: findLead?.email!,
       phone: findLead?.phone!,
     };
 
-    const orderDetailsForQuotation: OrderDetails = {
-      paymentTerms: template.termsAndConditions!,
-      validUntil: orderDetails.validUntil,
-      quoteNumber: orderDetails.quoteNumber,
-      date: new Date().toISOString().split("T")[0],
+    const orderDetailsForQuotation: IOrderDetails = {
       items: orderDetails.items,
       taxRate: orderDetails.taxRate || 0.18,
+      validUntil: orderDetails.validUntil,
+      quoteNumber: orderDetails.quoteNumber,
     };
 
     const bankDetails = template.bankDetails as {
@@ -124,10 +118,10 @@ export const createQuotationController = async (
     const config: Config = {
       termsAndConditions: template.termsAndConditions!,
       bankDetails: {
-        ifsc: bankDetails.ifsc || "",
-        bankName: bankDetails.bankName || "",
-        accountName: bankDetails.accountName || "",
-        accountNumber: bankDetails.accountNumber || "",
+        ifsc: bankDetails?.ifsc || "",
+        bankName: bankDetails?.bankName || "",
+        accountName: bankDetails?.accountName || "",
+        accountNumber: bankDetails?.accountNumber || "",
       },
     };
 
@@ -140,17 +134,14 @@ export const createQuotationController = async (
         orderDetailsForQuotation,
         config
       );
-    }
-    if (template.templateType === "modern") {
+    } else if (template.templateType === "modern") {
       htmlContent = getModernTemplate(
         companyInfoForQuotation,
         customerInfoForQuotation,
         orderDetailsForQuotation,
         config
       );
-    }
-
-    if (template.templateType === "minimal") {
+    } else if (template.templateType === "minimal") {
       htmlContent = getMinimalTemplate(
         companyInfoForQuotation,
         customerInfoForQuotation,
@@ -158,6 +149,7 @@ export const createQuotationController = async (
         config
       );
     }
+
     const pdfUrl = await uploadQuotationPDF(quotation.id, htmlContent);
 
     await prisma.quotation.update({
@@ -165,10 +157,12 @@ export const createQuotationController = async (
       data: { pdfUrl },
     });
 
-    response.data = { quotation: quotation, pdfUrl: pdfUrl };
+    response.data = { quotation, pdfUrl };
     return sendResponse(res, response);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    response.statusCode = 500;
+    response.message = "Server error";
+    return sendResponse(res, response);
   }
 };

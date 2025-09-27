@@ -23,6 +23,10 @@ import {
   Edit3,
   Trash2,
   Receipt,
+  ExternalLink,
+  Download,
+  DollarSign,
+  Eye,
 } from "lucide-react";
 import { RootDispatch, RootState } from "@/store";
 import { useParams } from "next/navigation";
@@ -35,6 +39,7 @@ import AddTask from "@/components/Task/AddTask";
 import LeadLogs from "@/components/lead/LeadLogs";
 import { getLeadTasksByLeadIdSlice } from "@/store/slices/leadTaskSlice";
 import { CreateQuotationModal } from "@/components/quotation/CreateQuotationModal";
+import { getQuotationsByLead } from "@/store/slices/quotationSlice";
 
 const LeadDetailsPage = () => {
   const dispatch: RootDispatch = useDispatch();
@@ -42,6 +47,9 @@ const LeadDetailsPage = () => {
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const tasks = useSelector((state: RootState) => state.leadTasks.leadTasks);
   const leadNotes = useSelector((state: RootState) => state.lead.leadNotes);
+  const quotations = useSelector(
+    (state: RootState) => state.quotation.quotations
+  );
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
@@ -57,13 +65,16 @@ const LeadDetailsPage = () => {
   };
 
   const currentLead = useSelector((state: RootState) => state.lead.lead);
-  // const { loading } = useSelector(
-  //   (state: RootState) => state.lead.loadingState.addingLeadNoteLoading
-  // );
 
   useEffect(() => {
     if (currentLead.id) {
       dispatch(getLeadTasksByLeadIdSlice(currentLead.id ?? ""));
+    }
+  }, [currentLead.id, dispatch]);
+
+  useEffect(() => {
+    if (currentLead.id) {
+      dispatch(getQuotationsByLead(currentLead.id!));
     }
   }, [currentLead.id, dispatch]);
 
@@ -114,6 +125,19 @@ const LeadDetailsPage = () => {
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const openQuotationInNewTab = (pdfUrl: string) => {
+    window.open(pdfUrl, "_blank", "noopener,noreferrer");
+  };
+
   const getTaskStatusIcon = (status: string) => {
     switch (status) {
       case "completed":
@@ -132,6 +156,12 @@ const LeadDetailsPage = () => {
       pending: "bg-gray-100 text-gray-700 border-gray-200",
     };
     return styles[status as keyof typeof styles] || styles.pending;
+  };
+
+  const getQuotationStatusBadge = (isOrder: boolean) => {
+    return isOrder
+      ? "bg-green-100 text-green-700 border-green-200"
+      : "bg-blue-100 text-blue-700 border-blue-200";
   };
 
   const handleTabChange = (tab: string) => {
@@ -155,6 +185,8 @@ const LeadDetailsPage = () => {
         return "Activity Log";
       case "notes":
         return "Notes";
+      case "quotations":
+        return "Quotations";
       default:
         return "Tasks";
     }
@@ -170,6 +202,10 @@ const LeadDetailsPage = () => {
         return `Activity history for ${currentLead.name || "this lead"}`;
       case "notes":
         return `${leadNotes.length} notes for ${
+          currentLead.name || "this lead"
+        }`;
+      case "quotations":
+        return `${quotations?.length || 0} quotations for ${
           currentLead.name || "this lead"
         }`;
       default:
@@ -396,6 +432,16 @@ const LeadDetailsPage = () => {
                   Add Note
                 </button>
               )}
+              {activeTab === "quotations" && (
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search quotations..."
+                    className="pl-9 pr-4 py-2 w-64 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  />
+                </div>
+              )}
             </div>
           </div>
 
@@ -415,6 +461,22 @@ const LeadDetailsPage = () => {
                   Tasks
                   <span className="ml-1 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">
                     {tasks?.length || 0}
+                  </span>
+                </div>
+              </button>
+              <button
+                onClick={() => handleTabChange("quotations")}
+                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === "quotations"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Receipt className="h-4 w-4" />
+                  Quotations
+                  <span className="ml-1 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">
+                    {quotations?.length || 0}
                   </span>
                 </div>
               </button>
@@ -517,6 +579,143 @@ const LeadDetailsPage = () => {
                               <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">
                                 {task.description}
                               </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : activeTab === "quotations" ? (
+              <div className="p-6">
+                {quotations?.length === 0 ? (
+                  <div className="text-center py-16">
+                    <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Receipt className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      No quotations yet
+                    </h3>
+                    <p className="text-gray-500 mb-6">
+                      Create your first quotation for this lead
+                    </p>
+                    <button
+                      onClick={openQuotationModal}
+                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      Create First Quotation
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {quotations.map((quotation) => (
+                      <div
+                        key={quotation.id}
+                        className="group bg-white border border-gray-200 rounded-xl p-4 hover:border-gray-300 hover:shadow-sm transition-all"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <h4 className="font-semibold text-gray-900 mb-1">
+                                  {quotation.quotationName}
+                                </h4>
+                                <p className="text-sm text-gray-600">
+                                  {quotation.quoteNumber} •{" "}
+                                  {quotation.customerName}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {quotation.pdfUrl && (
+                                  <button
+                                    onClick={() =>
+                                      openQuotationInNewTab(quotation.pdfUrl)
+                                    }
+                                    className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                                    title="Open PDF"
+                                  >
+                                    <ExternalLink className="h-4 w-4" />
+                                  </button>
+                                )}
+                                <button className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 mb-3">
+                              <span
+                                className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border ${getQuotationStatusBadge(
+                                  quotation.isOrder!
+                                )}`}
+                              >
+                                {quotation.isOrder ? "Order" : "Quote"}
+                              </span>
+                              <span className="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-md">
+                                <Calendar className="h-3 w-3" />
+                                Valid until{" "}
+                                {new Date(
+                                  quotation.validUntil
+                                ).toLocaleDateString()}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-4">
+                                <div className="text-sm">
+                                  <span className="text-gray-500">
+                                    Subtotal:{" "}
+                                  </span>
+                                  <span className="font-medium text-gray-900">
+                                    {formatCurrency(quotation.subtotal)}
+                                  </span>
+                                </div>
+                                <div className="text-sm">
+                                  <span className="text-gray-500">Total: </span>
+                                  <span className="font-semibold text-gray-900 text-lg">
+                                    {formatCurrency(quotation.total)}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500">
+                                  {quotation.items?.length || 0} items
+                                </span>
+                                <div className="h-4 w-px bg-gray-300"></div>
+                                <span className="text-xs text-gray-500">
+                                  {formatDate(quotation.createdAt!)}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Items Preview (first 2 items) */}
+                            {quotation.items && quotation.items.length > 0 && (
+                              <div className="mt-3 pt-3 border-t border-gray-100">
+                                <div className="space-y-1">
+                                  {quotation.items
+                                    .slice(0, 2)
+                                    .map((item, index) => (
+                                      <div
+                                        key={index}
+                                        className="flex items-center justify-between text-sm"
+                                      >
+                                        <span className="text-gray-600 truncate">
+                                          {item.description}
+                                        </span>
+                                        <span className="text-gray-500 ml-2 flex-shrink-0">
+                                          {item.quantity} ×{" "}
+                                          {formatCurrency(item.price)}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  {quotation.items.length > 2 && (
+                                    <div className="text-xs text-gray-500 italic">
+                                      +{quotation.items.length - 2} more items
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -654,13 +853,7 @@ const LeadDetailsPage = () => {
       <CreateQuotationModal
         isOpen={isQuotationModalOpen}
         onClose={closeQuotationModal}
-        leadData={{
-          id: undefined,
-          name: undefined,
-          email: undefined,
-          mobileNumber: undefined,
-          organizationId: undefined,
-        }}
+        leadData={currentLead}
       />
     </div>
   );
