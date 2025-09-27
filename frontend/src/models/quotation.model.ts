@@ -21,6 +21,7 @@ export interface IOrderDetails {
 }
 
 export interface ICreateQuotationPayload {
+  tax?: number;
   lead: string;
   templateType?: string | null;
   customerInfo: ICustomerInfo;

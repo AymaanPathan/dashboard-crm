@@ -1,23 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import {
-  X,
-  Plus,
-  Trash2,
-  Calendar,
-  Building2,
-  Mail,
-  Phone,
-  User,
-  FileText,
-  Calculator,
-  Receipt,
-} from "lucide-react";
-import { RootDispatch } from "@/store";
-import { useDispatch } from "react-redux";
+import { X, Plus, Calendar, User, Calculator, Receipt } from "lucide-react";
+import { RootDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
 import { createQuotation } from "@/store/slices/quotationSlice";
-import { getMinimalTemplate } from "@/assets/quote-templates/minimal-template";
-import { getModernTemplate } from "@/assets/quote-templates/modern-template";
+
 import { ICreateQuotationPayload } from "@/models/quotation.model";
 
 interface QuotationItem {
@@ -37,14 +24,20 @@ interface CreateQuotationModalProps {
     mobileNumber?: string;
     organizationId?: string;
   };
+  setActiveTab?: (tab: string) => void;
+  activeTab?: string;
 }
 
 export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
   isOpen,
   onClose,
   leadData,
+  setActiveTab,
 }) => {
   const dispatch: RootDispatch = useDispatch();
+  const isQuotationCreating = useSelector(
+    (state: RootState) => state.quotation.loading.creatingQuotation
+  );
   const [formData, setFormData] = useState({
     quotationName: "John Doe Quotation",
     customerName: "John Doe",
@@ -70,7 +63,6 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
   const [tax, setTax] = useState(0);
   const [total, setTotal] = useState(0);
 
-  // Generate quote number on component mount
   useEffect(() => {
     const generateQuoteNumber = () => {
       const date = new Date();
@@ -93,7 +85,6 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
     }
   }, [isOpen, formData.quoteNumber]);
 
-  // Calculate totals whenever items or tax rate changes
   useEffect(() => {
     const newSubtotal = items.reduce(
       (sum, item) => sum + item.quantity * item.price,
@@ -177,6 +168,8 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
 
     const response = await dispatch(createQuotation(quotationData)).unwrap();
     console.log("Quotation created:", response);
+    handleClose();
+    setActiveTab?.("quotations");
   };
 
   const resetForm = () => {
@@ -515,11 +508,15 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
                   Reset
                 </button>
                 <button
+                  disabled={isQuotationCreating}
                   type="submit"
                   onClick={handleSubmit}
-                  className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
+                  className={`px-6 py-2 cursor-pointer bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors
+                    ${
+                      isQuotationCreating ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                 >
-                  Create Quotation
+                  {isQuotationCreating ? "Creating..." : "Create Quotation"}
                 </button>
               </div>
             </div>

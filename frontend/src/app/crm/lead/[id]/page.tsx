@@ -655,9 +655,11 @@ const LeadDetailsPage = () => {
                               <span className="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-md">
                                 <Calendar className="h-3 w-3" />
                                 Valid until{" "}
-                                {new Date(
-                                  quotation.validUntil
-                                ).toLocaleDateString()}
+                                {quotation.validUntil
+                                  ? new Date(
+                                      quotation.validUntil
+                                    ).toLocaleDateString()
+                                  : ""}
                               </span>
                             </div>
 
@@ -668,7 +670,13 @@ const LeadDetailsPage = () => {
                                     Subtotal:{" "}
                                   </span>
                                   <span className="font-medium text-gray-900">
-                                    {formatCurrency(quotation.subtotal)}
+                                    {formatCurrency(quotation.subtotal!)}
+                                  </span>
+                                </div>
+                                <div className="text-sm">
+                                  <span className="text-gray-500">Tax: </span>
+                                  <span className="font-medium text-gray-900">
+                                    {quotation.tax!}%
                                   </span>
                                 </div>
                                 <div className="text-sm">
@@ -854,6 +862,8 @@ const LeadDetailsPage = () => {
         isOpen={isQuotationModalOpen}
         onClose={closeQuotationModal}
         leadData={currentLead}
+        setActiveTab={setActiveTab}
+        activeTab={activeTab}
       />
     </div>
   );

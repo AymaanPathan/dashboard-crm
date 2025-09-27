@@ -47,7 +47,6 @@ const quotationSlice = createSlice({
       })
       .addCase(createQuotation.fulfilled, (state, action) => {
         state.loading.creatingQuotation = false;
-        console.log("Created quotation:", action.payload);
         state.quotations.push(action.payload);
       })
       .addCase(createQuotation.rejected, (state, action) => {
