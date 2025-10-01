@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import prisma from "../../utils/prisma";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
-
 import { getModernTemplate } from "../../assets/quote-templates/modern-template";
 import { getMinimalTemplate } from "../../assets/quote-templates/minimal-template";
+import { getClassicTemplate } from "../../assets/quote-templates/classic-template";
 import { uploadQuotationPDF } from "../../utils/aws/uploadQuotationPDF";
 import {
   CompanyInfo,
@@ -11,7 +11,6 @@ import {
   ICustomerInfo,
   IOrderDetails,
 } from "../../models/quotation.model";
-import { getClassicTemplate } from "../../assets/quote-templates/classic-template";
 
 export const createQuotationController = async (
   req: Request,
@@ -26,25 +25,91 @@ export const createQuotationController = async (
 
   try {
     const companyId = req?.user?.currentOrganizationId;
-    const { lead } = req.body;
-
-    const findLead = await prisma.lead.findFirst({
-      where: { id: lead },
-    });
-
-    const { customerInfo, orderDetails, quotationName } = req.body;
+    const { lead, customerInfo, orderDetails, quotationName } = req.body;
 
     console.log("Request Body:", req.body);
-    console.log("Company ID:", companyId);
-    console.log("Lead:", lead);  
 
-    if (!customerInfo || !orderDetails || !companyId || !lead) {
+    // ❌ Basic null/undefined checks
+    if (!companyId) {
       response.statusCode = 400;
-      response.message = "Missing required fields";
+      response.message = "Company ID missing";
       return sendResponse(res, response);
     }
-    
 
+    if (!lead || typeof lead !== "string") {
+      response.statusCode = 400;
+      response.message = "Invalid or missing lead ID";
+      return sendResponse(res, response);
+    }
+
+    if (!quotationName || typeof quotationName !== "string") {
+      response.statusCode = 400;
+      response.message = "Invalid or missing quotation name";
+      return sendResponse(res, response);
+    }
+
+    if (
+      !customerInfo ||
+      typeof customerInfo.name !== "string" ||
+      typeof customerInfo.email !== "string" ||
+      typeof customerInfo.phone !== "string"
+    ) {
+      response.statusCode = 400;
+      response.message = "Invalid customer info";
+      return sendResponse(res, response);
+    }
+
+    if (
+      !orderDetails ||
+      !Array.isArray(orderDetails.items) ||
+      orderDetails.items.length === 0
+    ) {
+      response.statusCode = 400;
+      response.message = "Invalid or empty order items";
+      return sendResponse(res, response);
+    }
+
+    // ✅ Validate each itemqq
+    // for (const item of orderDetails.items) {
+    //   if (
+    //     typeof item.name !== "string" ||
+    //     typeof item.quantity !== "number" ||
+    //     typeof item.price !== "number"
+    //   ) {
+    //     response.statusCode = 400;
+    //     response.message = "Invalid item format in orderDetails";
+    //     return sendResponse(res, response);
+    //   }
+    // }
+
+    if (
+      !orderDetails.validUntil ||
+      isNaN(new Date(orderDetails.validUntil).getTime())
+    ) {
+      response.statusCode = 400;
+      response.message = "Invalid or missing validUntil date";
+      return sendResponse(res, response);
+    }
+
+    if (
+      !orderDetails.quoteNumber ||
+      typeof orderDetails.quoteNumber !== "string"
+    ) {
+      response.statusCode = 400;
+      response.message = "Missing or invalid quoteNumber";
+      return sendResponse(res, response);
+    }
+
+    // ✅ Lead existence check
+    const findLead = await prisma.lead.findFirst({ where: { id: lead } });
+
+    if (!findLead) {
+      response.statusCode = 404;
+      response.message = "Lead not found";
+      return sendResponse(res, response);
+    }
+
+    // ✅ Template fetch
     const template = await prisma.quotationTemplate.findFirst({
       where: { companyId },
       include: { company: true },
@@ -56,7 +121,7 @@ export const createQuotationController = async (
       return sendResponse(res, response);
     }
 
-    const items = orderDetails.items || [];
+    const items = orderDetails.items;
     const subtotal = items.reduce(
       (sum: number, item: { quantity: number; price: number }) =>
         sum + item.quantity * item.price,
@@ -68,7 +133,7 @@ export const createQuotationController = async (
     const quotation = await prisma.quotation.create({
       data: {
         companyId,
-        leadId: lead, 
+        leadId: lead,
         quotationName,
         templateId: template.id,
         customerName: customerInfo.name,
@@ -95,14 +160,14 @@ export const createQuotationController = async (
     };
 
     const customerInfoForQuotation: ICustomerInfo = {
-      name: findLead?.name!,
-      company: findLead?.name!,
-      email: findLead?.email!,
-      phone: findLead?.phone!,
+      name: findLead.name!,
+      company: findLead.name!,
+      email: findLead.email!,
+      phone: findLead.phone!,
     };
 
     const orderDetailsForQuotation: IOrderDetails = {
-      items: orderDetails.items,
+      items,
       taxRate: orderDetails.taxRate || 0.18,
       validUntil: orderDetails.validUntil,
       quoteNumber: orderDetails.quoteNumber,
@@ -126,7 +191,6 @@ export const createQuotationController = async (
     };
 
     let htmlContent = "";
-
     if (template.templateType === "classic") {
       htmlContent = getClassicTemplate(
         companyInfoForQuotation,
@@ -151,7 +215,6 @@ export const createQuotationController = async (
     }
 
     const pdfUrl = await uploadQuotationPDF(quotation.id, htmlContent);
-
     await prisma.quotation.update({
       where: { id: quotation.id },
       data: { pdfUrl },
@@ -160,7 +223,7 @@ export const createQuotationController = async (
     response.data = { quotation, pdfUrl };
     return sendResponse(res, response);
   } catch (error) {
-    console.error(error);
+    console.error("❌ Error in createQuotationController:", error);
     response.statusCode = 500;
     response.message = "Server error";
     return sendResponse(res, response);

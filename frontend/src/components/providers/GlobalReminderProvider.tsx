@@ -33,7 +33,7 @@ const GlobalReminderProvider = () => {
     return () => {
       socket.off("taskReminder", handleTaskReminder);
     };
-  }, [dispatch, reminderList]); // depend on reminderList to always get latest
+  }, [dispatch, reminderList]);
 
   useEffect(() => {
     dispatch(getMissedTaskRemindersSlice());

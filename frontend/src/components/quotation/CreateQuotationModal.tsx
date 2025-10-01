@@ -1,11 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { X, Plus, Calendar, User, Calculator, Receipt } from "lucide-react";
+import { ICreateQuotationPayload } from "@/models/quotation.model";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { createQuotation } from "@/store/slices/quotationSlice";
-
-import { ICreateQuotationPayload } from "@/models/quotation.model";
 
 interface QuotationItem {
   id: string;
@@ -34,17 +33,57 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
   leadData,
   setActiveTab,
 }) => {
-  const dispatch: RootDispatch = useDispatch();
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const isQuotationCreating = useSelector(
     (state: RootState) => state.quotation.loading.creatingQuotation
   );
+  const dispatch: RootDispatch = useDispatch();
+
+  const validateEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.quotationName.trim()) {
+      errors.quotationName = "Quotation name is required";
+    }
+
+    if (!formData.customerName.trim()) {
+      errors.customerName = "Customer name is required";
+    }
+
+    if (!formData.customerPhone.trim()) {
+      errors.customerPhone = "Customer phone number is required";
+    }
+
+    if (formData.customerEmail && !validateEmail(formData.customerEmail)) {
+      errors.customerEmail = "Please enter a valid email address";
+    }
+
+    if (!formData.validUntil) {
+      errors.validUntil = "Valid until date is required";
+    }
+
+    const nonEmptyItems = items.filter(
+      (item) => item.description.trim() !== ""
+    );
+    if (nonEmptyItems.length === 0) {
+      errors.items = "At least one item with a description is required";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const [formData, setFormData] = useState({
     quotationName: "John Doe Quotation",
     customerName: "John Doe",
     customerCompany: "Acme Corp",
     customerEmail: "john.doe@acme.com",
     customerPhone: "9876543210",
-    validUntil: "2025-12-31T23:59:59.000Z",
+    validUntil: "2025-12-31",
     quoteNumber: "QTN-1001",
   });
 
@@ -105,6 +144,10 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
       ...prev,
       [name]: value,
     }));
+    // Clear error when user starts typing
+    if (formErrors[name]) {
+      setFormErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleItemChange = (
@@ -120,6 +163,10 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
         return item;
       })
     );
+    // Clear items error when user adds description
+    if (field === "description" && formErrors.items) {
+      setFormErrors((prev) => ({ ...prev, items: "" }));
+    }
   };
 
   const addItem = () => {
@@ -142,9 +189,9 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    if (!validateForm()) return;
     e.preventDefault();
     console.log("leadData:", leadData);
-
     const quotationData: ICreateQuotationPayload = {
       lead: leadData.id!,
       quotationName: formData.quotationName,
@@ -164,13 +211,10 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-
-    const response = await dispatch(createQuotation(quotationData)).unwrap();
-    console.log("Quotation created:", response);
+    await dispatch(createQuotation(quotationData)).unwrap();
     handleClose();
     setActiveTab?.("quotations");
   };
-
   const resetForm = () => {
     setFormData({
       quotationName: "",
@@ -181,14 +225,7 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
       validUntil: "",
       quoteNumber: "",
     });
-    setItems([
-      {
-        id: "1",
-        description: "",
-        quantity: 1,
-        price: 0,
-      },
-    ]);
+    setItems([{ id: "1", description: "", quantity: 1, price: 0 }]);
     setTaxRate(18);
   };
 
@@ -203,51 +240,51 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/20 backdrop-blur-[2px] transition-opacity z-40"
+        className="fixed inset-0 bg-black/5 backdrop-blur-[1px] transition-opacity z-40"
         onClick={handleClose}
       />
 
       {/* Modal Panel */}
       <div
-        className={`fixed inset-y-0 right-0 w-full max-w-2xl bg-white border-l border-gray-200 shadow-2xl z-50 transform transition-transform duration-300 ease-out ${
+        className={`fixed inset-y-0 right-0 w-full max-w-2xl bg-white border-l border-gray-200/60 shadow-2xl z-50 transform transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="h-full flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 bg-gray-100 rounded-md flex items-center justify-center">
-                <Receipt className="h-4 w-4 text-gray-600" />
+              <div className="h-9 w-9 bg-gray-50 rounded-lg flex items-center justify-center">
+                <Receipt className="h-4 w-4 text-gray-700" />
               </div>
               <div>
-                <h2 className="text-base font-medium text-gray-900">
+                <h2 className="text-base font-semibold text-gray-900">
                   Create Quotation
                 </h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 mt-0.5">
                   Generate quotation for {leadData.name || "this lead"}
                 </p>
               </div>
             </div>
             <button
               onClick={handleClose}
-              className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-all"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
 
           {/* Content - Scrollable */}
-          <div className="flex-1 overflow-y-auto bg-gray-50">
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <div className="flex-1 overflow-y-auto bg-gray-50/40">
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
               {/* Basic Information */}
-              <div className="bg-white rounded-lg border border-gray-200 p-4">
-                <h3 className="text-sm font-medium text-gray-900 mb-4">
+              <div className="bg-white rounded-lg border border-gray-200/60 p-5 shadow-sm">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">
                   Basic Information
                 </h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    <label className="block text-sm text-gray-700 mb-2 font-medium">
                       Quotation Name
                     </label>
                     <input
@@ -255,13 +292,22 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
                       name="quotationName"
                       value={formData.quotationName}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+                      className={`w-full px-3 py-2.5 text-sm border ${
+                        formErrors.quotationName
+                          ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
+                          : "border-gray-200 focus:border-gray-900 focus:ring-gray-900/5"
+                      } rounded-lg focus:outline-none focus:ring-4 transition-all bg-white`}
                       placeholder="Enter quotation name"
-                      required
                     />
+                    {formErrors.quotationName && (
+                      <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                        <span className="inline-block w-1 h-1 bg-red-600 rounded-full"></span>
+                        {formErrors.quotationName}
+                      </p>
+                    )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    <label className="block text-sm text-gray-700 mb-2 font-medium">
                       Quote Number
                     </label>
                     <input
@@ -269,7 +315,7 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
                       name="quoteNumber"
                       value={formData.quoteNumber}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-50 focus:outline-none"
+                      className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50/50 focus:outline-none text-gray-500"
                       placeholder="Auto-generated"
                       readOnly
                     />
@@ -278,16 +324,18 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
               </div>
 
               {/* Customer Information */}
-              <div className="bg-white rounded-lg border border-gray-200 p-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <User className="h-4 w-4 text-gray-500" />
-                  <h3 className="text-sm font-medium text-gray-900">
+              <div className="bg-white rounded-lg border border-gray-200/60 p-5 shadow-sm">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className="h-5 w-5 rounded bg-gray-100 flex items-center justify-center">
+                    <User className="h-3 w-3 text-gray-600" />
+                  </div>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Customer Information
                   </h3>
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    <label className="block text-sm text-gray-700 mb-2 font-medium">
                       Customer Name
                     </label>
                     <input
@@ -295,13 +343,23 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
                       name="customerName"
                       value={formData.customerName}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
-                      required
+                      className={`w-full px-3 py-2.5 text-sm border ${
+                        formErrors.customerName
+                          ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
+                          : "border-gray-200 focus:border-gray-900 focus:ring-gray-900/5"
+                      } rounded-lg focus:outline-none focus:ring-4 transition-all`}
+                      placeholder="Enter customer name"
                     />
+                    {formErrors.customerName && (
+                      <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                        <span className="inline-block w-1 h-1 bg-red-600 rounded-full"></span>
+                        {formErrors.customerName}
+                      </p>
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-sm text-gray-700 mb-2 font-medium">
                         Company
                       </label>
                       <input
@@ -309,11 +367,12 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
                         name="customerCompany"
                         value={formData.customerCompany}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+                        className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-gray-900/5 focus:border-gray-900 transition-all"
+                        placeholder="Company name (optional)"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-sm text-gray-700 mb-2 font-medium">
                         Phone
                       </label>
                       <input
@@ -321,12 +380,23 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
                         name="customerPhone"
                         value={formData.customerPhone}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+                        className={`w-full px-3 py-2.5 text-sm border ${
+                          formErrors.customerPhone
+                            ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
+                            : "border-gray-200 focus:border-gray-900 focus:ring-gray-900/5"
+                        } rounded-lg focus:outline-none focus:ring-4 transition-all`}
+                        placeholder="Phone number"
                       />
+                      {formErrors.customerPhone && (
+                        <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                          <span className="inline-block w-1 h-1 bg-red-600 rounded-full"></span>
+                          {formErrors.customerPhone}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    <label className="block text-sm text-gray-700 mb-2 font-medium">
                       Email
                     </label>
                     <input
@@ -334,55 +404,77 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
                       name="customerEmail"
                       value={formData.customerEmail}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+                      className={`w-full px-3 py-2.5 text-sm border ${
+                        formErrors.customerEmail
+                          ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
+                          : "border-gray-200 focus:border-gray-900 focus:ring-gray-900/5"
+                      } rounded-lg focus:outline-none focus:ring-4 transition-all`}
+                      placeholder="Email address (optional)"
                     />
+                    {formErrors.customerEmail && (
+                      <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                        <span className="inline-block w-1 h-1 bg-red-600 rounded-full"></span>
+                        {formErrors.customerEmail}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Valid Until */}
-              <div className="bg-white rounded-lg border border-gray-200 p-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <Calendar className="h-4 w-4 text-gray-500" />
-                  <label className="text-sm font-medium text-gray-900">
+              <div className="bg-white rounded-lg border border-gray-200/60 p-5 shadow-sm">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className="h-5 w-5 rounded bg-gray-100 flex items-center justify-center">
+                    <Calendar className="h-3 w-3 text-gray-600" />
+                  </div>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Valid Until
-                  </label>
+                  </h3>
                 </div>
                 <input
                   type="date"
                   name="validUntil"
                   value={formData.validUntil}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
-                  required
+                  className={`w-full px-3 py-2.5 text-sm border ${
+                    formErrors.validUntil
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
+                      : "border-gray-200 focus:border-gray-900 focus:ring-gray-900/5"
+                  } rounded-lg focus:outline-none focus:ring-4 transition-all`}
                 />
+                {formErrors.validUntil && (
+                  <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                    <span className="inline-block w-1 h-1 bg-red-600 rounded-full"></span>
+                    {formErrors.validUntil}
+                  </p>
+                )}
               </div>
 
               {/* Items */}
-              <div className="bg-white rounded-lg border border-gray-200 p-4">
+              <div className="bg-white rounded-lg border border-gray-200/60 p-5 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-medium text-gray-900">
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Line Items
                   </h3>
                   <button
                     type="button"
                     onClick={addItem}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 border border-gray-300 rounded-md transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 border border-gray-200 rounded-lg transition-all"
                   >
-                    <Plus className="h-3 w-3" />
+                    <Plus className="h-3.5 w-3.5" />
                     Add Item
                   </button>
                 </div>
 
                 <div className="space-y-3">
-                  {items.map((item, index) => (
+                  {items.map((item) => (
                     <div
                       key={item.id}
-                      className="border border-gray-200 rounded-md p-3 bg-gray-50"
+                      className="border border-gray-200/60 rounded-lg p-4 bg-gray-50/40 hover:bg-gray-50/60 transition-colors"
                     >
                       <div className="space-y-3">
                         <div>
-                          <label className="block text-xs font-medium text-gray-600 mb-1">
+                          <label className="block text-xs font-medium text-gray-600 mb-1.5">
                             Description
                           </label>
                           <input
@@ -395,13 +487,13 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
                                 e.target.value
                               )
                             }
-                            className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-colors"
-                            placeholder="Item description"
+                            className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-gray-900/5 focus:border-gray-900 bg-white transition-all"
+                            placeholder="Enter item description"
                           />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
+                            <label className="block text-xs font-medium text-gray-600 mb-1.5">
                               Quantity
                             </label>
                             <input
@@ -414,12 +506,12 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
                                   parseFloat(e.target.value) || 0
                                 )
                               }
-                              className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-colors"
+                              className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-gray-900/5 focus:border-gray-900 bg-white transition-all"
                               min="0"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
+                            <label className="block text-xs font-medium text-gray-600 mb-1.5">
                               Unit Price (₹)
                             </label>
                             <input
@@ -432,56 +524,77 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
                                   parseFloat(e.target.value) || 0
                                 )
                               }
-                              className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-colors"
+                              className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-gray-900/5 focus:border-gray-900 bg-white transition-all"
                               min="0"
                             />
                           </div>
                         </div>
+                        {items.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeItem(item.id)}
+                            className="text-xs text-red-600 hover:text-red-700 font-medium transition-colors"
+                          >
+                            Remove item
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
                 </div>
+                {formErrors.items && (
+                  <p className="mt-3 text-xs text-red-600 flex items-center gap-1">
+                    <span className="inline-block w-1 h-1 bg-red-600 rounded-full"></span>
+                    {formErrors.items}
+                  </p>
+                )}
               </div>
 
               {/* Totals */}
-              <div className="bg-white rounded-lg border border-gray-200 p-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <Calculator className="h-4 w-4 text-gray-500" />
-                  <h3 className="text-sm font-medium text-gray-900">Summary</h3>
+              <div className="bg-white rounded-lg border border-gray-200/60 p-5 shadow-sm">
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className="h-5 w-5 rounded bg-gray-100 flex items-center justify-center">
+                    <Calculator className="h-3 w-3 text-gray-600" />
+                  </div>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    Summary
+                  </h3>
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center text-sm">
+                  <div className="flex justify-between items-center text-sm py-2">
                     <span className="text-gray-600">Subtotal</span>
                     <span className="font-medium text-gray-900">
                       ₹{subtotal.toFixed(2)}
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center text-sm">
+                  <div className="flex justify-between items-center text-sm py-2 border-t border-gray-100">
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-600">Tax</span>
-                      <input
-                        type="number"
-                        value={taxRate}
-                        onChange={(e) =>
-                          setTaxRate(parseFloat(e.target.value) || 0)
-                        }
-                        className="w-14 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
-                        min="0"
-                        max="100"
-                        step="0.1"
-                      />
-                      <span className="text-gray-600">%</span>
+                      <span className="text-gray-600">Tax Rate</span>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="number"
+                          value={taxRate}
+                          onChange={(e) =>
+                            setTaxRate(parseFloat(e.target.value) || 0)
+                          }
+                          className="w-16 px-2 py-1 text-xs border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900/5 focus:border-gray-900 transition-all"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                        />
+                        <span className="text-gray-600 text-xs">%</span>
+                      </div>
                     </div>
                     <span className="font-medium text-gray-900">
                       ₹{tax.toFixed(2)}
                     </span>
                   </div>
 
-                  <div className="border-t border-gray-200 pt-3">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium text-gray-900">
+                  <div className="border-t border-gray-200 pt-3 mt-2">
+                    <div className="flex justify-between items-center py-2 bg-gray-50/50 px-3 rounded-lg">
+                      <span className="font-semibold text-gray-900">
                         Total Amount
                       </span>
                       <span className="text-lg font-semibold text-gray-900">
@@ -495,12 +608,12 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="border-t border-gray-200 px-6 py-4 bg-white">
+          <div className="border-t border-gray-200/60 px-6 py-4 bg-white">
             <div className="flex justify-between items-center">
               <button
                 type="button"
                 onClick={handleClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Cancel
               </button>
@@ -508,15 +621,15 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all"
                 >
                   Reset
                 </button>
                 <button
                   disabled={isQuotationCreating}
                   type="submit"
-                  onClick={handleSubmit}
-                  className={`px-5 py-2 text-sm font-medium bg-gray-900 hover:bg-gray-800 text-white rounded-md transition-colors
+                  onClick={(e) => handleSubmit(e)}
+                  className={`px-5 cursor-pointer py-2 text-sm font-medium bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-all shadow-sm hover:shadow
                     ${
                       isQuotationCreating ? "opacity-50 cursor-not-allowed" : ""
                     }`}
