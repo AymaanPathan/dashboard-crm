@@ -217,10 +217,14 @@ export const createQuotationController = async (
     const pdfUrl = await uploadQuotationPDF(quotation.id, htmlContent);
     await prisma.quotation.update({
       where: { id: quotation.id },
-      data: { pdfUrl },
+      data: { pdfUrl: pdfUrl },
     });
 
-    response.data = { quotation, pdfUrl };
+    const updatedQuotation = await prisma.quotation.findUnique({
+      where: { id: quotation.id },
+    });
+
+    response.data = { quotation: updatedQuotation };
     return sendResponse(res, response);
   } catch (error) {
     console.error("❌ Error in createQuotationController:", error);

@@ -619,13 +619,6 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
               </button>
               <div className="flex items-center gap-3">
                 <button
-                  type="button"
-                  onClick={resetForm}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all"
-                >
-                  Reset
-                </button>
-                <button
                   disabled={isQuotationCreating}
                   type="submit"
                   onClick={(e) => handleSubmit(e)}
