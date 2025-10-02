@@ -25,11 +25,9 @@ export const createQuotationController = async (
 
   try {
     const companyId = req?.user?.currentOrganizationId;
-    const { lead, customerInfo, orderDetails, quotationName } = req.body;
+    const { lead, customerInfo, orderDetails, quotationName, hsnCode } =
+      req.body;
 
-    console.log("Request Body:", req.body);
-
-    // ❌ Basic null/undefined checks
     if (!companyId) {
       response.statusCode = 400;
       response.message = "Company ID missing";
@@ -48,6 +46,12 @@ export const createQuotationController = async (
       return sendResponse(res, response);
     }
 
+    if (!hsnCode || typeof hsnCode !== "string") {
+      response.statusCode = 400;
+      response.message = "Invalid or missing HSN code";
+      return sendResponse(res, response);
+    }
+
     if (
       !customerInfo ||
       typeof customerInfo.name !== "string" ||
@@ -59,7 +63,6 @@ export const createQuotationController = async (
       return sendResponse(res, response);
     }
 
-    // ✅ Extract and validate billing address
     const { billingAddress } = customerInfo;
 
     if (
@@ -69,8 +72,6 @@ export const createQuotationController = async (
       typeof billingAddress.state !== "string" ||
       typeof billingAddress.pincode !== "string"
     ) {
-      console.log("billingAddress:", billingAddress);
-
       response.statusCode = 400;
       response.message = "Invalid or missing billing address";
       return sendResponse(res, response);
@@ -133,7 +134,6 @@ export const createQuotationController = async (
     const tax = subtotal * (orderDetails.taxRate || 0.18);
     const total = subtotal + tax;
 
-    // ✅ Create quotation including billing address
     const quotation = await prisma.quotation.create({
       data: {
         companyId,
@@ -146,6 +146,7 @@ export const createQuotationController = async (
         customerPhone: customerInfo.phone,
         billingAddress,
         items,
+        hsnCode,
         subtotal,
         tax,
         total,

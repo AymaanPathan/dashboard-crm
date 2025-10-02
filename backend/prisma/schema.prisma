@@ -217,6 +217,7 @@ model Quotation {
   customerEmail     String?
   customerPhone     String?
   billingAddress    Json?
+  hsnCode          String?
   items             Json
   subtotal          Float
   tax               Float
