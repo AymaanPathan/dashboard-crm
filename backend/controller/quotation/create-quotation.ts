@@ -59,6 +59,21 @@ export const createQuotationController = async (
       return sendResponse(res, response);
     }
 
+    // ✅ Extract and validate billing address
+    const { billingAddress } = customerInfo;
+
+    if (
+      !billingAddress ||
+      typeof billingAddress.line !== "string" ||
+      typeof billingAddress.city !== "string" ||
+      typeof billingAddress.state !== "string" ||
+      typeof billingAddress.pincode !== "string"
+    ) {
+      response.statusCode = 400;
+      response.message = "Invalid or missing billing address";
+      return sendResponse(res, response);
+    }
+
     if (
       !orderDetails ||
       !Array.isArray(orderDetails.items) ||
@@ -68,19 +83,6 @@ export const createQuotationController = async (
       response.message = "Invalid or empty order items";
       return sendResponse(res, response);
     }
-
-    // ✅ Validate each itemqq
-    // for (const item of orderDetails.items) {
-    //   if (
-    //     typeof item.name !== "string" ||
-    //     typeof item.quantity !== "number" ||
-    //     typeof item.price !== "number"
-    //   ) {
-    //     response.statusCode = 400;
-    //     response.message = "Invalid item format in orderDetails";
-    //     return sendResponse(res, response);
-    //   }
-    // }
 
     if (
       !orderDetails.validUntil ||
@@ -130,6 +132,7 @@ export const createQuotationController = async (
     const tax = subtotal * (orderDetails.taxRate || 0.18);
     const total = subtotal + tax;
 
+    // ✅ Create quotation including billing address
     const quotation = await prisma.quotation.create({
       data: {
         companyId,
@@ -140,6 +143,7 @@ export const createQuotationController = async (
         customerCompany: customerInfo.company,
         customerEmail: customerInfo.email,
         customerPhone: customerInfo.phone,
+        billingAddress,
         items,
         subtotal,
         tax,
@@ -215,9 +219,10 @@ export const createQuotationController = async (
     }
 
     const pdfUrl = await uploadQuotationPDF(quotation.id, htmlContent);
+
     await prisma.quotation.update({
       where: { id: quotation.id },
-      data: { pdfUrl: pdfUrl },
+      data: { pdfUrl },
     });
 
     const updatedQuotation = await prisma.quotation.findUnique({
