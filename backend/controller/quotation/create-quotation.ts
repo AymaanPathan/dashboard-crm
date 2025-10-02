@@ -69,6 +69,8 @@ export const createQuotationController = async (
       typeof billingAddress.state !== "string" ||
       typeof billingAddress.pincode !== "string"
     ) {
+      console.log("billingAddress:", billingAddress);
+
       response.statusCode = 400;
       response.message = "Invalid or missing billing address";
       return sendResponse(res, response);
@@ -111,7 +113,6 @@ export const createQuotationController = async (
       return sendResponse(res, response);
     }
 
-    // ✅ Template fetch
     const template = await prisma.quotationTemplate.findFirst({
       where: { companyId },
       include: { company: true },

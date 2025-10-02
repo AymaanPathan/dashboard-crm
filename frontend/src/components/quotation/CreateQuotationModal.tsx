@@ -73,6 +73,22 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
       errors.items = "At least one item with a description is required";
     }
 
+    if (!formData.billingAddress.line.trim()) {
+      errors.billingLine = "Address line is required";
+    }
+    if (!formData.billingAddress.city.trim()) {
+      errors.billingCity = "City is required";
+    }
+    if (!formData.billingAddress.state.trim()) {
+      errors.billingState = "State is required";
+    }
+    if (!formData.billingAddress.pincode.trim()) {
+      errors.billingPincode = "Pincode is required";
+    }
+    if (formData.billingAddress.pincode.length < 6) {
+      errors.billingPincode = "Pincode should be at least 6 characters";
+    }
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -83,6 +99,12 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
     customerCompany: "Acme Corp",
     customerEmail: "john.doe@acme.com",
     customerPhone: "9876543210",
+    billingAddress: {
+      line: "",
+      city: "",
+      state: "",
+      pincode: "",
+    },
     validUntil: "2025-12-31",
     quoteNumber: "QTN-1001",
   });
@@ -197,6 +219,7 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
       quotationName: formData.quotationName,
       customerInfo: {
         name: formData.customerName,
+        billingAddress: formData.billingAddress,
         company: formData.customerCompany || null,
         email: formData.customerEmail || null,
         phone: formData.customerPhone || null,
@@ -222,6 +245,12 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
       customerCompany: leadData.organizationId || "",
       customerEmail: leadData.email || "",
       customerPhone: leadData.mobileNumber || "",
+      billingAddress: {
+        line: "",
+        city: "",
+        state: "",
+        pincode: "",
+      },
       validUntil: "",
       quoteNumber: "",
     });
@@ -369,6 +398,127 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
                       <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
                         <span className="inline-block w-1 h-1 bg-red-600 rounded-full"></span>
                         {formErrors.customerEmail}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              {/* Billing Address */}
+              <div className="mt-6">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                  Billing Address
+                </h3>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-sm text-gray-700 mb-2 font-medium">
+                      Address Line
+                    </label>
+                    <input
+                      type="text"
+                      name="line"
+                      value={formData.billingAddress.line}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          billingAddress: {
+                            ...prev.billingAddress,
+                            line: e.target.value,
+                          },
+                        }))
+                      }
+                      className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-gray-900/5 focus:border-gray-900 transition-all"
+                      placeholder="e.g. 123 Main Street"
+                    />
+                    {formErrors.billingLine && (
+                      <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                        <span className="inline-block w-1 h-1 bg-red-600 rounded-full"></span>
+                        {formErrors.billingLine}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-2 font-medium">
+                        City
+                      </label>
+                      <input
+                        type="text"
+                        name="city"
+                        value={formData.billingAddress.city}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            billingAddress: {
+                              ...prev.billingAddress,
+                              city: e.target.value,
+                            },
+                          }))
+                        }
+                        className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-gray-900/5 focus:border-gray-900 transition-all"
+                        placeholder="e.g. Mumbai"
+                      />
+                      {formErrors.billingCity && (
+                        <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                          <span className="inline-block w-1 h-1 bg-red-600 rounded-full"></span>
+                          {formErrors.billingCity}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-2 font-medium">
+                        State
+                      </label>
+                      <input
+                        type="text"
+                        name="state"
+                        value={formData.billingAddress.state}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            billingAddress: {
+                              ...prev.billingAddress,
+                              state: e.target.value,
+                            },
+                          }))
+                        }
+                        className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-gray-900/5 focus:border-gray-900 transition-all"
+                        placeholder="e.g. Maharashtra"
+                      />
+                      {formErrors.billingState && (
+                        <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                          <span className="inline-block w-1 h-1 bg-red-600 rounded-full"></span>
+                          {formErrors.billingState}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-gray-700 mb-2 font-medium">
+                      Pincode
+                    </label>
+                    <input
+                      type="text"
+                      name="pincode"
+                      value={formData.billingAddress.pincode}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          billingAddress: {
+                            ...prev.billingAddress,
+                            pincode: e.target.value,
+                          },
+                        }))
+                      }
+                      className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-gray-900/5 focus:border-gray-900 transition-all"
+                      placeholder="e.g. 400001"
+                    />
+                    {formErrors.billingPincode && (
+                      <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                        <span className="inline-block w-1 h-1 bg-red-600 rounded-full"></span>
+                        {formErrors.billingPincode}
                       </p>
                     )}
                   </div>
