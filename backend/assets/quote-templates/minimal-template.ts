@@ -422,84 +422,72 @@ export function getMinimalTemplate(
         </div>
 
         <!-- Bottom Section -->
-        <div class="bottom-section">
-          <div class="left-info">
-            <div class="terms-box">
-              <div class="box-title">Terms & Conditions</div>
-              <div class="box-content">
-                ${
-                  config.termsAndConditions
-                    ? config.termsAndConditions.split("\n").join("<br>")
-                    : "1. Prices are valid for 30 days from quote date.<br>2. Payment terms as mentioned above.<br>3. Delivery as per agreed schedule.<br>4. All disputes subject to local jurisdiction."
-                }
-              </div>
-            </div>
-            
-            ${
-              config.bankDetails
-                ? `
-            <div class="payment-box">
-              <div class="box-title">Bank Details</div>
-              <div class="box-content">
-                ${
-                  typeof config.bankDetails === "string"
-                    ? config.bankDetails.split("\n").join("<br>")
-                    : `<strong>${
-                        config.bankDetails.bankName || "Bank Name"
-                      }</strong><br>
-                   A/c No: ${config.bankDetails.accountNumber}<br>
-                   IFSC: ${config.bankDetails.ifsc}<br>
-                  `
-                }
-              </div>
-            </div>
-            `
-                : ""
-            }
-          </div>
-          
-          <!-- Totals -->
-          <div class="totals-section">
-            <table class="totals-table">
-              <thead>
-                <tr>
-                  <th colspan="2">Amount Summary</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="total-label">Subtotal</td>
-                  <td class="total-amount">${subtotal.toLocaleString("en-IN", {
-                    minimumFractionDigits: 2,
-                  })}</td>
-                </tr>
-                <tr>
-                  <td class="total-label">CGST @ ${(taxRate * 50).toFixed(
-                    1
-                  )}%</td>
-                  <td class="total-amount">${cgst.toLocaleString("en-IN", {
-                    minimumFractionDigits: 2,
-                  })}</td>
-                </tr>
-                <tr>
-                  <td class="total-label">SGST @ ${(taxRate * 50).toFixed(
-                    1
-                  )}%</td>
-                  <td class="total-amount">${sgst.toLocaleString("en-IN", {
-                    minimumFractionDigits: 2,
-                  })}</td>
-                </tr>
-                <tr class="grand-total-row">
-                  <td class="total-label"><strong>Total Amount</strong></td>
-                  <td class="total-amount"><strong>₹${total.toLocaleString(
-                    "en-IN",
-                    { minimumFractionDigits: 2 }
-                  )}</strong></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      <div class="bottom-wrapper">
+  <div class="left-info">
+    <!-- Terms & Conditions -->
+    <div class="info-section">
+      <div class="section-title">Terms & Conditions</div>
+      <div class="section-content">
+        ${
+          config.termsAndConditions && config.termsAndConditions.length > 0
+            ? config.termsAndConditions
+                .map((line, idx) => `${idx + 1}. ${line}<br>`)
+                .join("")
+            : `1. Prices are valid for 30 days from quote date.<br>
+               2. Payment terms as mentioned above.<br>
+               3. Delivery as per agreed schedule.<br>
+               4. All disputes subject to local jurisdiction.`
+        }
+      </div>
+    </div>
+
+    <!-- Bank Details -->
+    ${
+      config.bankDetails
+        ? `
+      <div class="info-section">
+        <div class="section-title">Bank Details</div>
+        <div class="section-content">
+          ${
+            Array.isArray(config.bankDetails)
+              ? config.bankDetails.map((line) => `${line}<br>`).join("")
+              : `<strong>${config.bankDetails.bankName}</strong><br>
+                 A/c No: ${config.bankDetails.accountNumber}<br>
+                 IFSC: ${config.bankDetails.ifsc}<br>`
+          }
         </div>
+      </div>
+      `
+        : ""
+    }
+  </div>
+
+  <!-- Totals -->
+  <div class="totals-wrapper">
+    <div class="totals-card">
+      <div class="totals-header">Amount Summary</div>
+      <div class="totals-body">
+        <div class="total-row">
+          <span>Subtotal:</span>
+          <span>₹${formatCurrency(subtotal)}</span>
+        </div>
+        <div class="total-row">
+          <span>CGST @ ${(taxRate * 50).toFixed(1)}%:</span>
+          <span>₹${formatCurrency(cgst)}</span>
+        </div>
+        <div class="total-row">
+          <span>SGST @ ${(taxRate * 50).toFixed(1)}%:</span>
+          <span>₹${formatCurrency(sgst)}</span>
+        </div>
+        <div class="total-row grand-total">
+          <span><strong>Total Amount:</strong></span>
+          <span><strong>₹${formatCurrency(total)}</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
         <!-- Footer -->
         <div class="footer-section">

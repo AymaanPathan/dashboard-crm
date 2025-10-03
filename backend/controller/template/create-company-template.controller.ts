@@ -42,6 +42,18 @@ export const createCompanyTemplateController = async (
       bankDetails,
     } = req.body;
 
+    const termsArray = Array.isArray(termsAndConditions)
+      ? termsAndConditions
+      : typeof termsAndConditions === "string"
+      ? termsAndConditions.split("\n").filter((line) => line.trim() !== "")
+      : [];
+
+    const notesArray = Array.isArray(defaultNotes)
+      ? defaultNotes
+      : typeof defaultNotes === "string"
+      ? defaultNotes.split("\n").filter((line) => line.trim() !== "")
+      : [];
+
     const {
       name: companyName,
       email: companyEmail,
@@ -88,8 +100,8 @@ export const createCompanyTemplateController = async (
         companyId,
         templateName,
         templateType,
-        termsAndConditions,
-        defaultNotes,
+        termsAndConditions: termsArray,
+        defaultNotes: notesArray,
         companyName,
         companyEmail,
         companyAddress,
@@ -104,8 +116,6 @@ export const createCompanyTemplateController = async (
         },
       },
     });
-
-    console.log("Created Template:", createdTemplate);
 
     response.data = createdTemplate;
     return sendResponse(res, response);

@@ -1,14 +1,10 @@
-import {
-  CompanyInfo,
-  Config,
-  CustomerInfo,
-  OrderDetails,
-} from "./classic-template";
+import { IOrderDetails } from "@/models/quotation.model";
+import { CompanyInfo, Config, ICustomerInfo } from "@/models/template.model";
 
 export function getModernTemplate(
   companyInfo: CompanyInfo,
-  customerInfo: CustomerInfo,
-  orderDetails: OrderDetails,
+  customerInfo: ICustomerInfo,
+  orderDetails: IOrderDetails,
   config: Config
 ) {
   const items = orderDetails.items || [];
@@ -16,13 +12,9 @@ export function getModernTemplate(
     (sum, item) => sum + item.quantity * item.price,
     0
   );
-  const discount = orderDetails.discount || 0;
-  const discountAmount =
-    typeof discount === "number" ? (subtotal * discount) / 100 : 0;
-  const afterDiscount = subtotal - discountAmount;
   const taxRate = orderDetails.taxRate || 0.18;
-  const tax = afterDiscount * taxRate;
-  const total = afterDiscount + tax;
+  const tax = subtotal * taxRate;
+  const total = subtotal + tax;
 
   // Format currency
   const formatCurrency = (amount: number) => {
@@ -355,7 +347,7 @@ export function getModernTemplate(
       </style>
     </head>
     <body>
-      <!-- Professional Header -->
+      <!-- Professional Headekr -->
       <div class="header-wrapper">
         <div class="header-content">
           <div class="company-section">
@@ -369,15 +361,12 @@ export function getModernTemplate(
             </div>
           </div>
           <div style="display: flex; align-items: center; gap: 15px;">
-            ${
-              companyInfo.logo
-                ? `<img src="${companyInfo.logo}" alt="Company Logo" class="company-logo">`
-                : ""
-            }
             <div class="quote-badge">
               <div class="quote-title">Quotation</div>
               <div class="quote-number">${orderDetails.quoteNumber}</div>
-              <div class="quote-date">${formatDate(orderDetails.date)}</div>
+              <div class="quote-date">${formatDate(
+                Date.now().toLocaleString()
+              )}</div>
             </div>
           </div>
         </div>
@@ -391,10 +380,8 @@ export function getModernTemplate(
             <div class="card-content">
               <strong>${customerInfo.company}</strong><br>
               ${customerInfo.name}<br>
-              ${customerInfo.address}<br>
               Phone: ${customerInfo.phone}<br>
               Email: ${customerInfo.email}
-              ${customerInfo.gstin ? `<br>GSTIN: ${customerInfo.gstin}` : ""}
             </div>
           </div>
           <div class="info-card">
@@ -403,14 +390,7 @@ export function getModernTemplate(
               <strong>Valid Until:</strong> ${formatDate(
                 orderDetails.validUntil
               )}<br>
-              <strong>Payment Terms:</strong> ${orderDetails.paymentTerms}<br>
-              <strong>Delivery Time:</strong> ${orderDetails.deliveryTime}<br>
               <strong>GST Rate:</strong> ${gstPercentage}%
-              ${
-                discount > 0
-                  ? `<br><strong>Discount:</strong> ${discount}%`
-                  : ""
-              }
             </div>
           </div>
         </div>
@@ -439,13 +419,8 @@ export function getModernTemplate(
                 <td class="text-center">${index + 1}</td>
                 <td>
                   <div class="item-desc">${item.description}</div>
-                  ${
-                    item.details
-                      ? `<div class="item-details">${item.details}</div>`
-                      : ""
-                  }
+                
                 </td>
-                <td class="text-center">${item.hsn}</td>
                 <td class="text-center">${item.quantity}</td>
                 <td class="text-center">Nos</td>
                 <td class="text-right">${formatCurrency(item.price)}</td>
@@ -465,84 +440,75 @@ export function getModernTemplate(
         </div>
 
         <!-- Bottom Section -->
-        <div class="bottom-wrapper">
-          <div class="left-info">
-            <div class="info-section">
-              <div class="section-title">Terms & Conditions</div>
-              <div class="section-content">
-                ${
-                  config.termsAndConditions
-                    ? config.termsAndConditions.split("\n").join("<br>")
-                    : "1. Prices are valid for 30 days from quote date.<br>2. Payment terms as mentioned above.<br>3. Delivery as per agreed schedule.<br>4. All disputes subject to local jurisdiction."
-                }
-              </div>
-            </div>
-            
-            ${
-              config.bankDetails
-                ? `
-            <div class="info-section">
-              <div class="section-title">Bank Details</div>
-              <div class="section-content">
-                ${
-                  typeof config.bankDetails === "string"
-                    ? config.bankDetails.split("\n").join("<br>")
-                    : `<strong>${config.bankDetails.bankName}</strong><br>
-                   A/c No: ${config.bankDetails.accountNumber}<br>
-                   IFSC: ${config.bankDetails.ifsc}<br>
-                   Branch: ${config.bankDetails.branch}`
-                }
-              </div>
-            </div>
-            `
-                : ""
-            }
-          </div>
+     <div class="bottom-wrapper">
+  <div class="left-info">
+    <!-- Terms & Conditions -->
+    <div class="info-section">
+      <div class="section-title">Terms & Conditions</div>
+      <div class="section-content">
+        ${
+          config.termsAndConditions && config.termsAndConditions.length > 0
+            ? config.termsAndConditions
+                .map((line: string, idx: number) => `${idx + 1}. ${line}<br>`)
+                .join("")
+            : `1. Prices are valid for 30 days from quote date.<br>
+               2. Payment terms as mentioned above.<br>
+               3. Delivery as per agreed schedule.<br>
+               4. All disputes subject to local jurisdiction.`
+        }
+      </div>
+    </div>
 
-          <!-- Totals -->
-          <div class="totals-wrapper">
-            <div class="totals-card">
-              <div class="totals-header">Amount Summary</div>
-              <div class="totals-body">
-                <div class="total-row">
-                  <span>Subtotal:</span>
-                  <span>₹${formatCurrency(subtotal)}</span>
-                </div>
-                ${
-                  discountAmount > 0
-                    ? `
-                <div class="total-row">
-                  <span>Discount (${discount}%):</span>
-                  <span>-₹${formatCurrency(discountAmount)}</span>
-                </div>
-                `
-                    : ""
-                }
-                <div class="total-row">
-                  <span>CGST @ ${(taxRate * 50).toFixed(1)}%:</span>
-                  <span>₹${formatCurrency(cgst)}</span>
-                </div>
-                <div class="total-row">
-                  <span>SGST @ ${(taxRate * 50).toFixed(1)}%:</span>
-                  <span>₹${formatCurrency(sgst)}</span>
-                </div>
-                <div class="total-row grand-total">
-                  <span><strong>Total Amount:</strong></span>
-                  <span><strong>₹${formatCurrency(total)}</strong></span>
-                </div>
-              </div>
-            </div>
-          </div>
+    <!-- Bank Details -->
+    ${
+      config.bankDetails
+        ? `
+      <div class="info-section">
+        <div class="section-title">Bank Details</div>
+        <div class="section-content">
+          ${
+            Array.isArray(config.bankDetails)
+              ? config.bankDetails.map((line: string) => `${line}<br>`).join("")
+              : `<strong>${config.bankDetails.bankName}</strong><br>
+                 A/c No: ${config.bankDetails.accountNumber}<br>
+                 IFSC: ${config.bankDetails.ifsc}<br>`
+          }
         </div>
+      </div>
+      `
+        : ""
+    }
+  </div>
+
+  <!-- Totals -->
+  <div class="totals-wrapper">
+    <div class="totals-card">
+      <div class="totals-header">Amount Summary</div>
+      <div class="totals-body">
+        <div class="total-row">
+          <span>Subtotal:</span>
+          <span>₹${formatCurrency(subtotal)}</span>
+        </div>
+        <div class="total-row">
+          <span>CGST @ ${(taxRate * 50).toFixed(1)}%:</span>
+          <span>₹${formatCurrency(cgst)}</span>
+        </div>
+        <div class="total-row">
+          <span>SGST @ ${(taxRate * 50).toFixed(1)}%:</span>
+          <span>₹${formatCurrency(sgst)}</span>
+        </div>
+        <div class="total-row grand-total">
+          <span><strong>Total Amount:</strong></span>
+          <span><strong>₹${formatCurrency(total)}</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
         <!-- Signature -->
         <div class="signature-section">
           <div class="signature-text">Authorized Representative</div>
-          ${
-            config.signature
-              ? `<img src="${config.signature}" alt="Signature" class="signature-img">`
-              : `<div style="height: 25px; margin: 8px 0;"></div>`
-          }
           <div class="signature-line">
             <strong>For ${companyInfo.name}</strong><br>
             Authorized Signatory

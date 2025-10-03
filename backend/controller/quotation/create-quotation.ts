@@ -199,7 +199,7 @@ export const createQuotationController = async (
     };
 
     const config: Config = {
-      termsAndConditions: template.termsAndConditions!,
+      termsAndConditions: template.termsAndConditions || [],
       bankDetails: {
         ifsc: bankDetails?.ifsc || "",
         bankName: bankDetails?.bankName || "",

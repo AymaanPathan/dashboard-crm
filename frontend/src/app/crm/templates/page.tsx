@@ -41,10 +41,14 @@ const NotionTemplateForm = () => {
       ifsc: "SBIN0000456",
       bankName: "State Bank of India",
     },
-    termsAndConditions:
-      "1. Payment due within 7 days\n2. 18% GST applicable\n3. Warranty as per manufacturer",
-    defaultNotes:
+    termsAndConditions: [
+      "Payment due within 7 days",
+      "18% GST applicable",
+      "Warranty as per manufacturer",
+    ],
+    defaultNotes: [
       "Thank you for choosing our services. Please contact us for any assistance.",
+    ],
   });
 
   const [errors, setErrors] = useState({});
@@ -90,6 +94,36 @@ const NotionTemplateForm = () => {
         [name]: value,
       }));
     }
+  };
+
+  const addLine = (field: "termsAndConditions" | "defaultNotes") => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: [...prev[field], ""],
+    }));
+  };
+
+  const removeLine = (
+    field: "termsAndConditions" | "defaultNotes",
+    index: number
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleArrayChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    field: "termsAndConditions" | "defaultNotes",
+    index: number
+  ) => {
+    const value = e.target.value;
+    setFormData((prev) => {
+      const updatedArray = [...prev[field]];
+      updatedArray[index] = value;
+      return { ...prev, [field]: updatedArray };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -453,32 +487,70 @@ const NotionTemplateForm = () => {
               </div>
 
               <div className="space-y-6">
+                {/* Terms & Conditions */}
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Terms & Conditions
                   </label>
-                  <textarea
-                    name="termsAndConditions"
-                    value={formData.termsAndConditions}
-                    onChange={handleInputChange}
-                    rows={4}
-                    placeholder="1. Payment due within 30 days of invoice date&#10;2. Late payments may incur additional charges&#10;3. All prices are exclusive of taxes unless stated otherwise"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black hover:border-gray-400 transition-all duration-200 resize-none"
-                  />
+                  {formData.termsAndConditions.map((line, index) => (
+                    <div key={index} className="flex gap-2 items-start">
+                      <textarea
+                        value={line}
+                        onChange={(e) =>
+                          handleArrayChange(e, "termsAndConditions", index)
+                        }
+                        rows={2}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeLine("termsAndConditions", index)}
+                        className="px-2 py-1 bg-red-500 text-white rounded-lg"
+                      >
+                        X
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => addLine("termsAndConditions")}
+                    className="mt-2 px-3 py-1 bg-black text-white rounded-lg"
+                  >
+                    Add More
+                  </button>
                 </div>
 
+                {/* Default Notes */}
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">
                     Default Notes
                   </label>
-                  <textarea
-                    name="defaultNotes"
-                    value={formData.defaultNotes}
-                    onChange={handleInputChange}
-                    rows={3}
-                    placeholder="Thank you for choosing our services. We look forward to working with you and delivering exceptional results for your project."
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black hover:border-gray-400 transition-all duration-200 resize-none"
-                  />
+                  {formData.defaultNotes.map((line, index) => (
+                    <div key={index} className="flex gap-2 items-start">
+                      <textarea
+                        value={line}
+                        onChange={(e) =>
+                          handleArrayChange(e, "defaultNotes", index)
+                        }
+                        rows={2}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeLine("defaultNotes", index)}
+                        className="px-2 py-1 bg-red-500 text-white rounded-lg"
+                      >
+                        X
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => addLine("defaultNotes")}
+                    className="mt-2 px-3 py-1 bg-black text-white rounded-lg"
+                  >
+                    Add More
+                  </button>
                 </div>
               </div>
             </div>

@@ -1,14 +1,10 @@
-import {
-  CompanyInfo,
-  Config,
-  CustomerInfo,
-  OrderDetails,
-} from "./classic-template";
+import { IOrderDetails } from "@/models/quotation.model";
+import { CompanyInfo, Config, ICustomerInfo } from "@/models/template.model";
 
 export function getMinimalTemplate(
   companyInfo: CompanyInfo,
-  customerInfo: CustomerInfo,
-  orderDetails: OrderDetails,
+  customerInfo: ICustomerInfo,
+  orderDetails: IOrderDetails,
   config: Config
 ) {
   const items = orderDetails.items || [];
@@ -16,13 +12,9 @@ export function getMinimalTemplate(
     (sum, item) => sum + item.quantity * item.price,
     0
   );
-  const discount = orderDetails.discount || 0;
-  const discountAmount =
-    typeof discount === "number" ? (subtotal * discount) / 100 : 0;
-  const afterDiscount = subtotal - discountAmount;
   const taxRate = orderDetails.taxRate || 0.18;
-  const tax = afterDiscount * taxRate;
-  const total = afterDiscount + tax;
+  const tax = subtotal * taxRate;
+  const total = subtotal + tax;
 
   // Format currency
   const formatCurrency = (amount: number) => {
@@ -343,11 +335,6 @@ export function getMinimalTemplate(
       <!-- Header -->
       <div class="header">
         <div class="company-section">
-          ${
-            companyInfo.logo
-              ? `<img src="${companyInfo.logo}" alt="Company Logo" class="company-logo">`
-              : ""
-          }
           <div class="company-name">${companyInfo.name}</div>
           <div class="company-details">
             ${companyInfo.address}<br>
@@ -361,7 +348,7 @@ export function getMinimalTemplate(
           <div class="quote-title">QUOTATION</div>
           <div class="quote-details">
             <div class="quote-number">No: ${orderDetails.quoteNumber}</div>
-            <div>Date: ${formatDate(orderDetails.date)}</div>
+            <div>Date: ${formatDate(Date.now().toLocaleString())}</div>
             <div>Valid Until: ${formatDate(orderDetails.validUntil)}</div>
           </div>
         </div>
@@ -375,32 +362,16 @@ export function getMinimalTemplate(
             <div class="customer-info">
               <div class="customer-name">${customerInfo.company}</div>
               <div>${customerInfo.name}</div>
-              <div>${customerInfo.address}</div>
               <div>Phone: ${customerInfo.phone} | Email: ${
     customerInfo.email
   }</div>
-              ${
-                customerInfo.gstin
-                  ? `<div>GSTIN: ${customerInfo.gstin}</div>`
-                  : ""
-              }
+
             </div>
           </div>
           <div class="quote-info-section">
             <div class="section-title">Quote Details</div>
             <div class="quote-info">
-              <div><span class="info-label">Payment Terms:</span> ${
-                orderDetails.paymentTerms
-              }</div>
-              <div><span class="info-label">Delivery Time:</span> ${
-                orderDetails.deliveryTime
-              }</div>
               <div><span class="info-label">GST:</span> ${gstPercentage}% (as applicable)</div>
-              ${
-                discount > 0
-                  ? `<div><span class="info-label">Discount:</span> ${discount}%</div>`
-                  : ""
-              }
             </div>
           </div>
         </div>
@@ -428,13 +399,7 @@ export function getMinimalTemplate(
                 <td class="text-center">${index + 1}</td>
                 <td>
                   <div class="item-description">${item.description}</div>
-                  ${
-                    item.details
-                      ? `<div class="item-details">${item.details}</div>`
-                      : ""
-                  }
                 </td>
-                <td class="text-center">${item.hsn}</td>
                 <td class="text-center">${item.quantity}</td>
                 <td class="text-center">Nos</td>
                 <td class="text-right">${item.price.toLocaleString("en-IN", {
@@ -453,97 +418,72 @@ export function getMinimalTemplate(
         </div>
 
         <!-- Bottom Section -->
-        <div class="bottom-section">
-          <div class="left-info">
-            <div class="terms-box">
-              <div class="box-title">Terms & Conditions</div>
-              <div class="box-content">
-                ${
-                  config.termsAndConditions
-                    ? config.termsAndConditions.split("\n").join("<br>")
-                    : "1. Prices are valid for 30 days from quote date.<br>2. Payment terms as mentioned above.<br>3. Delivery as per agreed schedule.<br>4. All disputes subject to local jurisdiction."
-                }
-              </div>
-            </div>
-            
-            ${
-              config.bankDetails
-                ? `
-            <div class="payment-box">
-              <div class="box-title">Bank Details</div>
-              <div class="box-content">
-                ${
-                  typeof config.bankDetails === "string"
-                    ? config.bankDetails.split("\n").join("<br>")
-                    : `<strong>${
-                        config.bankDetails.bankName || "Bank Name"
-                      }</strong><br>
-                   A/c No: ${config.bankDetails.accountNumber}<br>
-                   IFSC: ${config.bankDetails.ifsc}<br>
-                   Branch: ${config.bankDetails.branch}`
-                }
-              </div>
-            </div>
-            `
-                : ""
-            }
-          </div>
-          
-          <!-- Totals -->
-          <div class="totals-section">
-            <table class="totals-table">
-              <thead>
-                <tr>
-                  <th colspan="2">Amount Summary</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="total-label">Subtotal</td>
-                  <td class="total-amount">${subtotal.toLocaleString("en-IN", {
-                    minimumFractionDigits: 2,
-                  })}</td>
-                </tr>
-                ${
-                  discountAmount > 0
-                    ? `
-                <tr>
-                  <td class="total-label">Discount (${discount}%)</td>
-                  <td class="total-amount">-${discountAmount.toLocaleString(
-                    "en-IN",
-                    { minimumFractionDigits: 2 }
-                  )}</td>
-                </tr>
-                `
-                    : ""
-                }
-                <tr>
-                  <td class="total-label">CGST @ ${(taxRate * 50).toFixed(
-                    1
-                  )}%</td>
-                  <td class="total-amount">${cgst.toLocaleString("en-IN", {
-                    minimumFractionDigits: 2,
-                  })}</td>
-                </tr>
-                <tr>
-                  <td class="total-label">SGST @ ${(taxRate * 50).toFixed(
-                    1
-                  )}%</td>
-                  <td class="total-amount">${sgst.toLocaleString("en-IN", {
-                    minimumFractionDigits: 2,
-                  })}</td>
-                </tr>
-                <tr class="grand-total-row">
-                  <td class="total-label"><strong>Total Amount</strong></td>
-                  <td class="total-amount"><strong>₹${total.toLocaleString(
-                    "en-IN",
-                    { minimumFractionDigits: 2 }
-                  )}</strong></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      <div class="bottom-wrapper">
+  <div class="left-info">
+    <!-- Terms & Conditions -->
+    <div class="info-section">
+      <div class="section-title">Terms & Conditions</div>
+      <div class="section-content">
+        ${
+          config.termsAndConditions && config.termsAndConditions.length > 0
+            ? config.termsAndConditions
+                .map((line: string, idx: number) => `${idx + 1}. ${line}<br>`)
+                .join("")
+            : `1. Prices are valid for 30 days from quote date.<br>
+               2. Payment terms as mentioned above.<br>
+               3. Delivery as per agreed schedule.<br>
+               4. All disputes subject to local jurisdiction.`
+        }
+      </div>
+    </div>
+
+    <!-- Bank Details -->
+    ${
+      config.bankDetails
+        ? `
+      <div class="info-section">
+        <div class="section-title">Bank Details</div>
+        <div class="section-content">
+          ${
+            Array.isArray(config.bankDetails)
+              ? config.bankDetails.map((line: string) => `${line}<br>`).join("")
+              : `<strong>${config.bankDetails.bankName}</strong><br>
+                 A/c No: ${config.bankDetails.accountNumber}<br>
+                 IFSC: ${config.bankDetails.ifsc}<br>`
+          }
         </div>
+      </div>
+      `
+        : ""
+    }
+  </div>
+
+  <!-- Totals -->
+  <div class="totals-wrapper">
+    <div class="totals-card">
+      <div class="totals-header">Amount Summary</div>
+      <div class="totals-body">
+        <div class="total-row">
+          <span>Subtotal:</span>
+          <span>₹${formatCurrency(subtotal)}</span>
+        </div>
+        <div class="total-row">
+          <span>CGST @ ${(taxRate * 50).toFixed(1)}%:</span>
+          <span>₹${formatCurrency(cgst)}</span>
+        </div>
+        <div class="total-row">
+          <span>SGST @ ${(taxRate * 50).toFixed(1)}%:</span>
+          <span>₹${formatCurrency(sgst)}</span>
+        </div>
+        <div class="total-row grand-total">
+          <span><strong>Total Amount:</strong></span>
+          <span><strong>₹${formatCurrency(total)}</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
         <!-- Footer -->
         <div class="footer-section">
@@ -551,11 +491,6 @@ export function getMinimalTemplate(
             Thank you for your inquiry. We look forward to your business.
           </div>
           <div class="signature-section">
-            ${
-              config.signature
-                ? `<img src="${config.signature}" alt="Signature" class="signature-img">`
-                : `<div class="signature-placeholder"></div>`
-            }
             <div class="signature-text">
               <strong>For ${companyInfo.name}</strong><br>
               Authorized Signatory

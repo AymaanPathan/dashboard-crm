@@ -3,11 +3,6 @@ import * as templateController from "../../../controller/template/index";
 import { authenticate } from "../../../middleware/authenticate";
 const templateRouter = express.Router();
 
-templateRouter.get(
-  "/create",
-  authenticate,
-  templateController.createTemplateController
-);
 templateRouter.post(
   "/createCompanyTemplate",
   authenticate,

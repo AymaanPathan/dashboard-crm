@@ -30,7 +30,7 @@ export interface IOrderDetails {
 }
 
 export interface Config {
-  termsAndConditions: string;
+  termsAndConditions: string[];
   bankDetails: any;
   brandColor?: string;
   accentColor?: string;
