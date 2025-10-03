@@ -90,6 +90,17 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
       errors.billingPincode = "Pincode should be at least 6 characters";
     }
 
+    if (items.some((item) => item.price <= 0)) {
+      errors.items = "Item price must be positive";
+    }
+    if (items.some((item) => item.quantity <= 0)) {
+      errors.items = "Item quantity must be positive";
+    }
+
+    if (!items.every((item) => item.hsnCode && item.hsnCode.trim() !== "")) {
+      errors.items = "All items must have a valid HSN code";
+    }
+
     if (formData.validUntil) {
       const today = new Date().toISOString().split("T")[0];
       if (formData.validUntil < today) {
