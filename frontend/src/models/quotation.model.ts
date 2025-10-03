@@ -12,6 +12,7 @@ export interface IQuotationItem {
   description: string;
   quantity: number;
   price: number;
+  hsnCode?: string;
 }
 
 export interface IOrderDetails {

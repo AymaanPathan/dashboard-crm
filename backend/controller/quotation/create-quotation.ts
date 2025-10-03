@@ -25,8 +25,7 @@ export const createQuotationController = async (
 
   try {
     const companyId = req?.user?.currentOrganizationId;
-    const { lead, customerInfo, orderDetails, quotationName, hsnCode } =
-      req.body;
+    const { lead, customerInfo, orderDetails, quotationName } = req.body;
 
     if (!companyId) {
       response.statusCode = 400;
@@ -43,12 +42,6 @@ export const createQuotationController = async (
     if (!quotationName || typeof quotationName !== "string") {
       response.statusCode = 400;
       response.message = "Invalid or missing quotation name";
-      return sendResponse(res, response);
-    }
-
-    if (!hsnCode || typeof hsnCode !== "string") {
-      response.statusCode = 400;
-      response.message = "Invalid or missing HSN code";
       return sendResponse(res, response);
     }
 
@@ -87,6 +80,27 @@ export const createQuotationController = async (
       return sendResponse(res, response);
     }
 
+    // ✅ Validate each item has HSN
+    for (const item of orderDetails.items) {
+      if (!item.hsnCode || typeof item.hsnCode !== "string") {
+        response.statusCode = 400;
+        response.message = `HSN code missing for item ${item.name || ""}`;
+        return sendResponse(res, response);
+      }
+      if (
+        !item.price ||
+        typeof item.price !== "number" ||
+        !item.quantity ||
+        typeof item.quantity !== "number"
+      ) {
+        response.statusCode = 400;
+        response.message = `Invalid price or quantity for item ${
+          item.name || ""
+        }`;
+        return sendResponse(res, response);
+      }
+    }
+
     if (
       !orderDetails.validUntil ||
       isNaN(new Date(orderDetails.validUntil).getTime())
@@ -105,7 +119,6 @@ export const createQuotationController = async (
       return sendResponse(res, response);
     }
 
-    // ✅ Lead existence check
     const findLead = await prisma.lead.findFirst({ where: { id: lead } });
 
     if (!findLead) {
@@ -126,6 +139,7 @@ export const createQuotationController = async (
     }
 
     const items = orderDetails.items;
+
     const subtotal = items.reduce(
       (sum: number, item: { quantity: number; price: number }) =>
         sum + item.quantity * item.price,
@@ -136,17 +150,15 @@ export const createQuotationController = async (
 
     const quotation = await prisma.quotation.create({
       data: {
-        companyId,
         leadId: lead,
+        companyId: companyId,
         quotationName,
-        templateId: template.id,
         customerName: customerInfo.name,
         customerCompany: customerInfo.company,
         customerEmail: customerInfo.email,
         customerPhone: customerInfo.phone,
-        billingAddress,
-        items,
-        hsnCode,
+        billingAddress: customerInfo.billingAddress,
+        items: orderDetails.items,
         subtotal,
         tax,
         total,

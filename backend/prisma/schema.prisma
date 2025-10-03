@@ -203,29 +203,30 @@ model QuotationTemplate {
   quotations     Quotation[]
 }
 model Quotation {
-  id                String   @id @default(uuid())
-  leadId     String?
-  lead       Lead? @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  companyId         String
-  company           Organization @relation(fields: [companyId], references: [id])
-  templateId        String?
-  template          QuotationTemplate? @relation(fields: [templateId], references: [id])
-   quotationName     String? 
+  id               String   @id @default(uuid())
+  leadId           String?
+  lead             Lead?    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  companyId        String
+  company          Organization @relation(fields: [companyId], references: [id])
+  templateId       String?
+  template         QuotationTemplate? @relation(fields: [templateId], references: [id])
+  quotationName    String?
 
-  customerName      String
-  customerCompany   String?
-  customerEmail     String?
-  customerPhone     String?
-  billingAddress    Json?
-  hsnCode          String?
-  items             Json
-  subtotal          Float
-  tax               Float
-  total             Float
-  validUntil        DateTime
-  quoteNumber       String
-    pdfUrl            String?      
-  isOrder           Boolean @default(false)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  customerName     String
+  customerCompany  String?
+  customerEmail    String?
+  customerPhone    String?
+  billingAddress   Json?
+  
+  items            Json   
+  
+  subtotal         Float
+  tax              Float
+  total            Float
+  validUntil       DateTime
+  quoteNumber      String
+  pdfUrl           String?
+  isOrder          Boolean @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }

@@ -11,6 +11,7 @@ interface QuotationItem {
   description: string;
   quantity: number;
   price: number;
+  hsnCode: string;
 }
 
 interface CreateQuotationModalProps {
@@ -89,6 +90,13 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
       errors.billingPincode = "Pincode should be at least 6 characters";
     }
 
+    if (formData.validUntil) {
+      const today = new Date().toISOString().split("T")[0];
+      if (formData.validUntil < today) {
+        errors.validUntil = "Valid until date cannot be in the past";
+      }
+    }
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -105,7 +113,7 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
       state: "",
       pincode: "",
     },
-    validUntil: "2025-12-31",
+    validUntil: "",
     quoteNumber: "QTN-1001",
   });
 
@@ -115,6 +123,7 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
       description: "Website Design",
       quantity: 1,
       price: 0,
+      hsnCode: "1234",
     },
   ]);
 
@@ -162,11 +171,28 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
+
+    // Prevent past date
+    if (name === "validUntil") {
+      const today = new Date().toISOString().split("T")[0];
+      if (value < today) {
+        setFormErrors((prev) => ({
+          ...prev,
+          validUntil: "You cannot select a past date",
+        }));
+        setFormData((prev) => ({ ...prev, validUntil: today }));
+        return;
+      } else {
+        setFormErrors((prev) => ({ ...prev, validUntil: "" }));
+      }
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    // Clear error when user starts typing
+
+    // Clear error for other fields
     if (formErrors[name]) {
       setFormErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -185,7 +211,8 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
         return item;
       })
     );
-    // Clear items error when user adds description
+
+    // Clear items error when description added
     if (field === "description" && formErrors.items) {
       setFormErrors((prev) => ({ ...prev, items: "" }));
     }
@@ -200,6 +227,7 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
         description: "",
         quantity: 1,
         price: 0,
+        hsnCode: "",
       },
     ]);
   };
@@ -254,7 +282,9 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
       validUntil: "",
       quoteNumber: "",
     });
-    setItems([{ id: "1", description: "", quantity: 1, price: 0 }]);
+    setItems([
+      { id: "1", description: "", quantity: 1, price: 0, hsnCode: "" },
+    ]);
     setTaxRate(18);
   };
 
@@ -534,7 +564,7 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
                   <button
                     type="button"
                     onClick={addItem}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 border border-gray-200 rounded-lg transition-all"
+                    className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 border border-gray-200 rounded-lg transition-all"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Add Item
@@ -603,12 +633,30 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
                               min="0"
                             />
                           </div>
+                          <div>
+                            <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                              HSN Code
+                            </label>
+                            <input
+                              type="text"
+                              value={item.hsnCode}
+                              onChange={(e) =>
+                                handleItemChange(
+                                  item.id,
+                                  "hsnCode",
+                                  e.target.value
+                                )
+                              }
+                              className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-4 focus:ring-gray-900/5 focus:border-gray-900 bg-white transition-all"
+                              placeholder="Enter HSN Code"
+                            />
+                          </div>
                         </div>
                         {items.length > 1 && (
                           <button
                             type="button"
                             onClick={() => removeItem(item.id)}
-                            className="text-xs text-red-600 hover:text-red-700 font-medium transition-colors"
+                            className="text-xs cursor-pointer text-red-600 hover:text-red-700 font-medium transition-colors"
                           >
                             Remove item
                           </button>
@@ -638,6 +686,7 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
                   type="date"
                   name="validUntil"
                   value={formData.validUntil}
+                  min={new Date().toISOString().split("T")[0]}
                   onChange={handleInputChange}
                   className={`w-full px-3 py-2.5 text-sm border ${
                     formErrors.validUntil
@@ -645,6 +694,7 @@ export const CreateQuotationModal: React.FC<CreateQuotationModalProps> = ({
                       : "border-gray-200 focus:border-gray-900 focus:ring-gray-900/5"
                   } rounded-lg focus:outline-none focus:ring-4 transition-all`}
                 />
+
                 {formErrors.validUntil && (
                   <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
                     <span className="inline-block w-1 h-1 bg-red-600 rounded-full"></span>
