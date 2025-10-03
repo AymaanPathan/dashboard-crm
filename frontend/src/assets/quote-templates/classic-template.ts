@@ -1,5 +1,5 @@
-import { IOrderDetails } from "@/models/quotation.model";
-import { CompanyInfo, Config, ICustomerInfo } from "@/models/template.model";
+import { CompanyInfo, Config } from "@/models/template.model";
+import { ICustomerInfo, IOrderDetails } from "../../models/quotation.model";
 
 export function getClassicTemplate(
   companyInfo: CompanyInfo,
@@ -19,12 +19,9 @@ export function getClassicTemplate(
   // Format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
       minimumFractionDigits: 2,
-    })
-      .format(amount)
-      .replace("₹", "₹");
+      maximumFractionDigits: 2,
+    }).format(amount);
   };
 
   // Format date
@@ -37,476 +34,463 @@ export function getClassicTemplate(
     });
   };
 
-  // Split tax for CGST/SGST (assuming equal split)
+  // Calculate CGST/SGST
   const cgst = tax / 2;
   const sgst = tax / 2;
-  const gstRate = (taxRate * 100).toFixed(0);
+  const gstPercentage = (taxRate * 100).toFixed(0);
+
+  // Format billing address
+  const formatBillingAddress = () => {
+    if (!customerInfo.billingAddress) return "";
+    const addr = customerInfo.billingAddress;
+    return `${addr.line || ""}, ${addr.city || ""}, ${addr.state || ""} - ${
+      addr.pincode || ""
+    }`;
+  };
 
   return `
-   <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <style>
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
         @page {
-            size: A4;
-            margin: 0.5in;
+          size: A4;
+          margin: 12mm;
         }
         * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
+          margin: 0; 
+          padding: 0; 
+          box-sizing: border-box; 
         }
         body { 
-            font-family: 'Arial', sans-serif; 
-            line-height: 1.2; 
-            color: #333;
-            background: #fff;
-            font-size: 10px;
-            max-width: 8.27in;
-            margin: 0 auto;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+          font-family: 'Georgia', 'Times New Roman', serif; 
+          line-height: 1.5; 
+          color: #1a1a1a;
+          background: #fff;
+          font-size: 9.5pt;
+          max-width: 210mm;
+          margin: 0 auto;
+          padding: 10mm;
         }
         
-        /* Header Section */
+        /* Refined Header */
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #333;
-            margin-bottom: 12px;
+          border-top: 4px solid #1a1a1a;
+          border-bottom: 1px solid #1a1a1a;
+          padding: 12px 0;
+          margin-bottom: 16px;
+        }
+        .header-grid {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 20px;
+        }
+        .company-section {
+          flex: 1;
+        }
+        .company-name {
+          font-size: 22pt;
+          font-weight: 600;
+          margin-bottom: 4px;
+          color: #000;
+          letter-spacing: 0.5px;
         }
         .company-info {
-            flex: 1;
-            max-width: 65%;
+          font-size: 8.5pt;
+          line-height: 1.6;
+          color: #444;
         }
-        .company-name { 
-            font-size: 20px; 
-            font-weight: bold; 
-            color: #333;
-            margin-bottom: 3px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .quote-section {
+          text-align: right;
+          border-left: 3px solid #1a1a1a;
+          padding-left: 16px;
+          min-width: 160px;
         }
-        .company-details { 
-            font-size: 9px; 
-            color: #555;
-            line-height: 1.3;
+        .doc-type {
+          font-size: 14pt;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 3px;
+          margin-bottom: 6px;
+          color: #1a1a1a;
         }
-        .logo-section {
-            flex: 0 0 120px;
-            text-align: right;
+        .quote-details {
+          font-size: 8.5pt;
+          line-height: 1.6;
+          color: #444;
         }
-        .company-logo { 
-            max-height: 50px; 
-            max-width: 120px;
+        .quote-number {
+          font-size: 11pt;
+          font-weight: 600;
+          color: #000;
+          margin-bottom: 2px;
         }
-        
-        /* Document Title */
-        .doc-title {
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            padding: 8px 12px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+
+        /* Elegant Info Panels */
+        .info-panels {
+          display: flex;
+          gap: 16px;
+          margin-bottom: 16px;
         }
-        .title-text { 
-            font-size: 16px; 
-            font-weight: bold;
-            color: #333;
-            letter-spacing: 0.5px;
+        .panel {
+          flex: 1;
+          border: 1px solid #d0d0d0;
+          padding: 12px;
+          background: linear-gradient(to bottom, #fafafa 0%, #ffffff 100%);
         }
-        .doc-meta { 
-            text-align: right; 
-            font-size: 9px;
-            color: #555;
-            line-height: 1.3;
+        .panel-title {
+          font-size: 8.5pt;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          color: #1a1a1a;
+          margin-bottom: 8px;
+          padding-bottom: 4px;
+          border-bottom: 2px solid #1a1a1a;
         }
-        
-        /* Customer and Quote Details */
-        .info-section {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
+        .panel-body {
+          font-size: 8.5pt;
+          line-height: 1.6;
+          color: #333;
         }
-        .info-box {
-            flex: 1;
-            border: 1px solid #ddd;
-            background: #fafafa;
-            padding: 10px;
+        .panel-body strong {
+          color: #000;
+          font-weight: 600;
         }
-        .box-title { 
-            font-size: 10px; 
-            font-weight: bold; 
-            color: #333; 
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            border-bottom: 1px solid #ccc;
-            padding-bottom: 2px;
-        }
-        .box-content {
-            font-size: 9px;
-            line-height: 1.4;
-            color: #555;
-        }
-        
-        /* Items Table */
+
+        /* Refined Table */
         .table-container {
-            flex: 1;
-            margin-bottom: 8px;
+          margin: 14px 0;
+          border: 1px solid #1a1a1a;
         }
-        .items-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            font-size: 9px;
-            border: 1px solid #333;
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 8.5pt;
         }
-        .items-table th { 
-            background: #f0f0f0;
-            color: #333; 
-            padding: 5px 4px; 
-            text-align: center; 
-            font-weight: bold; 
-            font-size: 8px;
-            text-transform: uppercase;
-            border: 1px solid #333;
-            vertical-align: middle;
+        thead {
+          background: linear-gradient(to bottom, #f0f0f0 0%, #e5e5e5 100%);
         }
-        .items-table td { 
-            padding: 4px; 
-            border: 1px solid #333;
-            vertical-align: top;
-            font-size: 8.5px;
+        th {
+          padding: 8px 6px;
+          text-align: left;
+          font-weight: 600;
+          font-size: 8pt;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          color: #1a1a1a;
+          border: 1px solid #c0c0c0;
         }
-        .items-table tbody tr:nth-child(even) { 
-            background: #f9f9f9; 
+        td {
+          padding: 7px 6px;
+          border: 1px solid #d8d8d8;
+          vertical-align: middle;
+          color: #333;
         }
-        .item-desc {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 1px;
+        tbody tr:nth-child(even) {
+          background: #fafafa;
         }
-        .item-details {
-            color: #666;
-            font-size: 7.5px;
-            font-style: italic;
+        .item-name {
+          font-weight: 500;
+          color: #1a1a1a;
         }
-        .text-right { text-align: right; }
         .text-center { text-align: center; }
-        
-        /* Bottom Section */
-        .bottom-section {
-            display: flex;
-            gap: 12px;
-            margin-top: auto;
+        .text-right { text-align: right; }
+
+        /* Sophisticated Bottom */
+        .bottom-grid {
+          display: flex;
+          gap: 16px;
+          margin-top: 14px;
+        }
+        .info-column {
+          flex: 1;
+        }
+        .info-block {
+          border: 1px solid #d0d0d0;
+          padding: 10px 12px;
+          margin-bottom: 12px;
+          background: #fafafa;
+        }
+        .block-heading {
+          font-size: 8pt;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          color: #1a1a1a;
+          margin-bottom: 6px;
+          padding-bottom: 3px;
+          border-bottom: 1px solid #1a1a1a;
+        }
+        .block-content {
+          font-size: 7.5pt;
+          line-height: 1.6;
+          color: #333;
         }
         
-        /* Totals */
+        /* Premium Totals */
+        .totals-column {
+          width: 220px;
+          flex-shrink: 0;
+        }
         .totals-container {
-            flex: 0 0 200px;
+          border: 2px solid #1a1a1a;
+          background: #fff;
         }
-        .totals-table {
-            width: 100%;
-            border: 1px solid #333;
-            font-size: 9px;
-            border-collapse: collapse;
+        .totals-header {
+          background: #1a1a1a;
+          color: #fff;
+          padding: 8px 12px;
+          text-align: center;
+          font-size: 9pt;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 1.5px;
         }
-        .totals-table th {
-            background: #f0f0f0;
-            color: #333;
-            padding: 5px;
-            font-weight: bold;
-            text-align: center;
-            font-size: 9px;
-            text-transform: uppercase;
-            border: 1px solid #333;
+        .totals-body {
+          padding: 10px 12px;
+          background: linear-gradient(to bottom, #fafafa 0%, #ffffff 100%);
         }
-        .totals-table td {
-            padding: 4px 8px;
-            border: 1px solid #333;
+        .sum-line {
+          display: flex;
+          justify-content: space-between;
+          padding: 5px 0;
+          font-size: 8.5pt;
+          color: #333;
+          border-bottom: 1px solid #e8e8e8;
         }
-        .total-label { 
-            font-weight: 500; 
-            text-align: left;
+        .sum-line:last-child {
+          border-bottom: none;
         }
-        .total-amount { 
-            text-align: right; 
-            font-weight: 600; 
+        .sum-line.grand {
+          margin-top: 8px;
+          padding-top: 10px;
+          border-top: 2px solid #1a1a1a;
+          font-size: 10pt;
+          font-weight: 600;
+          color: #000;
         }
-        .grand-total-row {
-            background: #f5f5f5;
-            font-weight: bold;
-            color: #333;
+        .sum-value {
+          font-weight: 600;
         }
-        
-        /* Terms and Bank Details */
-        .left-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+
+        /* Elegant Signature */
+        .signature-block {
+          margin-top: 16px;
+          padding: 12px;
+          border: 1px solid #d0d0d0;
+          text-align: right;
+          background: linear-gradient(to bottom, #fafafa 0%, #ffffff 100%);
         }
-        .terms-box, .bank-box {
-            border: 1px solid #ddd;
-            background: #fafafa;
-            padding: 6px;
-            font-size: 8px;
+        .sig-text {
+          font-size: 8pt;
+          color: #666;
+          font-style: italic;
+          margin-bottom: 25px;
         }
-        .info-title {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 3px;
-            font-size: 8.5px;
-            text-transform: uppercase;
+        .sig-line {
+          display: inline-block;
+          min-width: 170px;
+          border-bottom: 1.5px solid #1a1a1a;
+          margin-bottom: 3px;
         }
-        .info-content {
-            color: #555;
-            line-height: 1.3;
+        .sig-name {
+          font-size: 9pt;
+          font-weight: 600;
+          color: #1a1a1a;
         }
-        
-        /* Signature */
-        .signature {
-            text-align: right;
-            margin-top: 6px;
-            padding-right: 20px;
+        .sig-role {
+          font-size: 8pt;
+          color: #666;
+          font-style: italic;
         }
-        .signature-img { 
-            max-height: 25px; 
-            margin: 3px 0; 
+
+        /* Refined Footer */
+        .footer {
+          margin-top: 14px;
+          padding: 8px;
+          border-top: 1px solid #d0d0d0;
+          text-align: center;
+          font-size: 7.5pt;
+          color: #666;
+          font-style: italic;
         }
-        .signature-text {
-            font-size: 8px;
-            color: #555;
-            border-top: 1px solid #999;
-            padding-top: 2px;
-            display: inline-block;
-            min-width: 100px;
-        }
-        
-        /* Footer */
-        .footer { 
-            text-align: center; 
-            margin-top: 6px; 
-            padding: 4px; 
-            background: #f5f5f5;
-            color: #555; 
-            font-size: 8px;
-            border: 1px solid #ddd;
-        }
-        
-        /* Print Optimization */
+
         @media print {
-            body { 
-                font-size: 9px; 
-                -webkit-print-color-adjust: exact;
-            }
-            .items-table th, .items-table td { 
-                padding: 3px 2px; 
-                font-size: 8px;
-            }
-            .info-box { padding: 6px; }
-            .totals-table td { padding: 2px 6px; }
-            .terms-box, .bank-box { font-size: 7px; }
-            @page {
-                margin: 0.4in;
-            }
+          body { padding: 8mm; }
+          @page { margin: 10mm; }
         }
-    </style>
-</head>
-<body>
-    <!-- Header -->
-    <div class="header">
-        <div class="company-info">
+      </style>
+    </head>
+    <body>
+      <!-- Header -->
+      <div class="header">
+        <div class="header-grid">
+          <div class="company-section">
             <div class="company-name">${companyInfo.name}</div>
-            <div class="company-details">
-                ${companyInfo.address}<br>
-                Phone: ${companyInfo.phone} • Email: ${companyInfo.email}<br>
+            <div class="company-info">
+              ${companyInfo.address}<br>
+              Tel: ${companyInfo.phone} | Email: ${companyInfo.email}<br>
+              ${companyInfo.website ? `${companyInfo.website} | ` : ""}GSTIN: ${
+    companyInfo.gstin
+  }
             </div>
-        </div>
-    </div>
-
-    <!-- Document Title -->
-    <div class="doc-title">
-        <div class="title-text">QUOTATION</div>
-        <div class="doc-meta">
-            <strong>Quote No:</strong> ${orderDetails.quoteNumber}<br>
-            <strong>Date:</strong> ${formatDate(
-              Date.now().toLocaleString()
-            )}<br>
-            <strong>Valid Until:</strong> ${formatDate(orderDetails.validUntil)}
-        </div>
-    </div>
-
-    <!-- Customer and Quote Info -->
-    <div class="info-section">
-        <div class="info-box">
-            <div class="box-title">Bill To</div>
-            <div class="box-content">
-                <strong>${customerInfo.company}</strong><br>
-                Attn: ${customerInfo.name}<br>
-                Phone: ${customerInfo.phone}<br>
-                Email: ${customerInfo.email}
+          </div>
+          <div class="quote-section">
+            <div class="doc-type">Quotation</div>
+            <div class="quote-number">#${orderDetails.quoteNumber}</div>
+            <div class="quote-details">
+              Date: ${formatDate(new Date().toISOString())}<br>
+              Valid Until: ${formatDate(orderDetails.validUntil)}
             </div>
+          </div>
         </div>
-        <div class="info-box">
-            <div class="box-title">Quote Details</div>
-            <div class="box-content">
-                <strong>Quote Validity:</strong> ${formatDate(
-                  orderDetails.validUntil
-                )}<br>
-                <strong>GST Rate:</strong> ${gstRate}% (As Applicable)
-            </div>
-        </div>
-    </div>
-
-    <!-- Items Table -->
-    <div class="table-container">
-        <table class="items-table">
-            <thead>
-                <tr>
-                    <th style="width: 5%;">S.No</th>
-                    <th style="width: 40%;">Description of Goods/Services</th>
-                    <th style="width: 8%;">HSN/SAC</th>
-                    <th style="width: 6%;">Qty</th>
-                    <th style="width: 5%;">Unit</th>
-                    <th style="width: 12%;">Rate (₹)</th>
-                    <th style="width: 12%;">Amount (₹)</th>
-                    <th style="width: 6%;">GST%</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${items
-                  .map(
-                    (item, index) => `
-                <tr>
-                    <td class="text-center">${index + 1}</td>
-                    <td class="text-center">${item.quantity}</td>
-                    <td class="text-center">Nos</td>
-                    <td class="text-right">${formatCurrency(item.price).replace(
-                      "₹",
-                      ""
-                    )}</td>
-                    <td class="text-right">${formatCurrency(
-                      item.quantity * item.price
-                    ).replace("₹", "")}</td>
-                    <td class="text-center">${gstRate}%</td>
-                </tr>
-                `
-                  )
-                  .join("")}
-                ${
-                  items.length < 5
-                    ? Array(5 - items.length)
-                        .fill(0)
-                        .map(
-                          () => `
-                <tr>
-                    <td class="text-center">-</td>
-                    <td></td>
-                    <td class="text-center">-</td>
-                    <td class="text-center">-</td>
-                    <td class="text-center">-</td>
-                    <td class="text-right">-</td>
-                    <td class="text-right">-</td>
-                    <td class="text-center">-</td>
-                </tr>
-                `
-                        )
-                        .join("")
-                    : ""
-                }
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Bottom Section -->
-  <div class="bottom-wrapper">
-  <div class="left-info">
-    <!-- Terms & Conditions -->
-    <div class="info-section">
-      <div class="section-title">Terms & Conditions</div>
-      <div class="section-content">
-        ${
-          config.termsAndConditions && config.termsAndConditions.length > 0
-            ? config.termsAndConditions
-                .map((line: string, idx: number) => `${idx + 1}. ${line}<br>`)
-                .join("")
-            : `1. Prices are valid for 30 days from quote date.<br>
-               2. Payment terms as mentioned above.<br>
-               3. Delivery as per agreed schedule.<br>
-               4. All disputes subject to local jurisdiction.`
-        }
       </div>
-    </div>
 
-    <!-- Bank Details -->
-    ${
-      config.bankDetails
-        ? `
-      <div class="info-section">
-        <div class="section-title">Bank Details</div>
-        <div class="section-content">
+      <!-- Info Panels -->
+      <div class="info-panels">
+        <div class="panel">
+          <div class="panel-title">Customer Details</div>
+          <div class="panel-body">
+            <strong>${customerInfo.company || customerInfo.name}</strong><br>
+            Attention: ${customerInfo.name}<br>
+            ${customerInfo.email ? `Email: ${customerInfo.email}<br>` : ""}
+            ${customerInfo.phone ? `Phone: ${customerInfo.phone}` : ""}
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Billing Address</div>
+          <div class="panel-body">
+            ${formatBillingAddress() || "As per customer records"}<br><br>
+            <strong>GST Rate:</strong> ${gstPercentage}%
+          </div>
+        </div>
+      </div>
+
+      <!-- Items Table -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 5%;">No.</th>
+              <th style="width: 34%;">Description</th>
+              <th style="width: 10%;">HSN Code</th>
+              <th style="width: 8%;">Qty</th>
+              <th style="width: 8%;">Unit</th>
+              <th style="width: 12%;">Rate (₹)</th>
+              <th style="width: 12%;">Amount (₹)</th>
+              <th style="width: 11%;">Total (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items
+              .map(
+                (item, index) => `
+            <tr>
+              <td class="text-center">${index + 1}</td>
+              <td><span class="item-name">${item.description}</span></td>
+              <td class="text-center">${item.hsnCode || "—"}</td>
+              <td class="text-center">${item.quantity}</td>
+              <td class="text-center">Nos</td>
+              <td class="text-right">${formatCurrency(item.price)}</td>
+              <td class="text-right">${formatCurrency(
+                item.quantity * item.price
+              )}</td>
+              <td class="text-right">${formatCurrency(
+                item.quantity * item.price
+              )}</td>
+            </tr>
+            `
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Bottom Section -->
+      <div class="bottom-grid">
+        <div class="info-column">
+          <!-- Terms -->
+          <div class="info-block">
+            <div class="block-heading">Terms & Conditions</div>
+            <div class="block-content">
+              ${
+                config.termsAndConditions &&
+                config.termsAndConditions.length > 0
+                  ? config.termsAndConditions
+                      .map((line: string, idx: number) => `${idx + 1}. ${line}`)
+                      .join("<br>")
+                  : `1. Quotation valid for 30 days from date of issue<br>2. Payment terms as per mutual agreement<br>3. Delivery schedule as agreed upon<br>4. Subject to local jurisdiction`
+              }
+            </div>
+          </div>
+
+          <!-- Bank Details -->
           ${
-            Array.isArray(config.bankDetails)
-              ? config.bankDetails.map((line: string) => `${line}<br>`).join("")
-              : `<strong>${config.bankDetails.bankName}</strong><br>
-                 A/c No: ${config.bankDetails.accountNumber}<br>
-                 IFSC: ${config.bankDetails.ifsc}<br>`
+            config.bankDetails
+              ? `
+          <div class="info-block">
+            <div class="block-heading">Bank Account Details</div>
+            <div class="block-content">
+              <strong>Bank Name:</strong> ${
+                config.bankDetails.bankName || "N/A"
+              }<br>
+              <strong>Account Name:</strong> ${
+                config.bankDetails.accountName || "N/A"
+              }<br>
+              <strong>Account No:</strong> ${
+                config.bankDetails.accountNumber || "N/A"
+              }<br>
+              <strong>IFSC Code:</strong> ${config.bankDetails.ifsc || "N/A"}
+            </div>
+          </div>
+          `
+              : ""
           }
         </div>
-      </div>
-      `
-        : ""
-    }
-  </div>
 
-  <!-- Totals -->
-  <div class="totals-wrapper">
-    <div class="totals-card">
-      <div class="totals-header">Amount Summary</div>
-      <div class="totals-body">
-        <div class="total-row">
-          <span>Subtotal:</span>
-          <span>₹${formatCurrency(subtotal)}</span>
-        </div>
-        <div class="total-row">
-          <span>CGST @ ${(taxRate * 50).toFixed(1)}%:</span>
-          <span>₹${formatCurrency(cgst)}</span>
-        </div>
-        <div class="total-row">
-          <span>SGST @ ${(taxRate * 50).toFixed(1)}%:</span>
-          <span>₹${formatCurrency(sgst)}</span>
-        </div>
-        <div class="total-row grand-total">
-          <span><strong>Total Amount:</strong></span>
-          <span><strong>₹${formatCurrency(total)}</strong></span>
+        <!-- Totals -->
+        <div class="totals-column">
+          <div class="totals-container">
+            <div class="totals-header">Amount Summary</div>
+            <div class="totals-body">
+              <div class="sum-line">
+                <span>Subtotal</span>
+                <span class="sum-value">₹ ${formatCurrency(subtotal)}</span>
+              </div>
+              <div class="sum-line">
+                <span>CGST @ ${(taxRate * 50).toFixed(1)}%</span>
+                <span class="sum-value">₹ ${formatCurrency(cgst)}</span>
+              </div>
+              <div class="sum-line">
+                <span>SGST @ ${(taxRate * 50).toFixed(1)}%</span>
+                <span class="sum-value">₹ ${formatCurrency(sgst)}</span>
+              </div>
+              <div class="sum-line grand">
+                <span>Grand Total</span>
+                <span class="sum-value">₹ ${formatCurrency(total)}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
 
+      <!-- Signature -->
+      <div class="signature-block">
+        <div class="sig-text">For and on behalf of</div>
+        <div class="sig-line"></div>
+        <div class="sig-name">${companyInfo.name}</div>
+        <div class="sig-role">Authorized Signatory</div>
+      </div>
 
-    <!-- Signature -->
-    <div class="signature">
-        <div class="signature-text">
-            <strong>For ${companyInfo.name}</strong><br>
-            Authorized Signatory
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="footer">
-        This is a computer generated quotation and does not require physical signature. | 
-        For any queries, contact: ${companyInfo.email} | ${companyInfo.phone}
-    </div>
-</body>
-</html>
-    `;
+      <!-- Footer -->
+      <div class="footer">
+        This quotation is valid subject to the terms and conditions mentioned above<br>
+        For inquiries: ${companyInfo.email} | ${companyInfo.phone}
+      </div>
+    </body>
+    </html>
+  `;
 }

@@ -9,14 +9,24 @@ export interface CompanyInfo {
   phone: string;
 }
 
+interface Address {
+  line: string;
+  street: string;
+  city: string;
+  state: string;
+  pincode: string;
+}
+
 export interface ICustomerInfo {
   name: string;
   company?: string | null;
   email?: string | null;
   phone?: string | null;
+  billingAddress?: Address | null;
 }
 
 export interface IQuotationItem {
+  hsnCode: string;
   description: string;
   quantity: number;
   price: number;
