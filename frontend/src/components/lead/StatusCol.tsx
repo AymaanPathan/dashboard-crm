@@ -69,24 +69,24 @@ export const StatusColumn: React.FC<{ stage: any }> = ({ stage }) => {
   return (
     <div
       ref={drop as any}
-      className={`border transition-all duration-200 bg-white shadow-sm rounded-lg flex flex-col h-full ${
-        isOver && canDrop
-          ? "bg-blue-50/50 border-blue-200 shadow-md"
-          : "border-gray-200/60 hover:border-gray-300/80"
+      className={`bg-gray-50 rounded-xl flex flex-col h-full transition-all ${
+        isOver && canDrop ? "bg-gray-50 ring-2 ring-gray-600" : ""
       }`}
     >
-      {/* Header - Fixed height */}
-      <div className="p-5 border-b border-gray-100 flex-shrink-0">
-        <h3 className="font-semibold text-gray-900 text-sm tracking-tight">
-          {stage.stageName}
-        </h3>
-        <span className="text-xs text-gray-500 font-medium">
-          {stage.leads?.length || 0} leads
-        </span>
+      {/* Header */}
+      <div className="px-4 pt-4 pb-3 flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-gray-900">
+            {stage.stageName}
+          </h3>
+          <span className="text-xs text-gray-500 font-medium">
+            {stage.leads?.length || 0}
+          </span>
+        </div>
       </div>
 
-      {/* Content - Flexible height with proper scrolling */}
-      <div className="flex-1 p-4 space-y-3 max-h-[400px] overflow-y-auto">
+      {/* Content */}
+      <div className="flex-1 px-4 pb-4 space-y-2 overflow-y-auto">
         {stage.leads?.map((lead: any, index: number) => {
           return (
             <div key={`${lead.id}-${index}`}>
@@ -102,9 +102,13 @@ export const StatusColumn: React.FC<{ stage: any }> = ({ stage }) => {
         })}
 
         {isOver && canDrop && (
-          <div className="border-2 border-dashed border-blue-300/60 rounded-lg p-4 text-center text-blue-600/80 bg-blue-50/30 text-sm font-medium">
-            Drop lead here
+          <div className="border-2 border-dashed border-gray-300 rounded-lg py-8 text-center text-sm text-gray-400">
+            Drop here
           </div>
+        )}
+
+        {(!stage.leads || stage.leads.length === 0) && !isOver && (
+          <div className="py-8 text-center text-sm text-gray-400">No leads</div>
         )}
       </div>
     </div>
