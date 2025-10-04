@@ -27,8 +27,8 @@ export const PricingSection: React.FC<PricingProps> = ({ pricingPlans }) => {
           viewport={{ once: false, amount: 0.3 }}
           className="max-w-2xl mb-16"
         >
-          <h2 className="text-4xl sm:text-5xl  text-gray-600 tracking-tight">
-            Pricing
+          <h2 className="text-4xl sm:text-5xl text-black tracking-tight">
+            Flexible Pricing Plans
           </h2>
           <p className="mt-3 text-base text-gray-600">
             Choose the perfect plan for your team size and needs

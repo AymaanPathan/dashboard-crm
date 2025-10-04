@@ -24,7 +24,7 @@ export const FeaturesSection: React.FC<Feature> = ({ features }) => {
             viewport={{ once: false, amount: 0.3 }}
             className="max-w-3xl mb-16"
           >
-            <h2 className="text-4xl sm:text-5xl text-gray-600 tracking-tight leading-tight">
+            <h2 className="text-4xl sm:text-5xl text-black tracking-tight leading-tight">
               Everything you need to close more deals
             </h2>
             <p className="mt-4 text-base text-gray-600 leading-relaxed">

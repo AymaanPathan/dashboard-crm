@@ -8,26 +8,10 @@ import {
   Tag,
   FileText,
   Users,
+  X,
+  ChevronDown,
 } from "lucide-react";
 
-// Shadcn UI Components
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { ILead } from "@/models/lead.model";
@@ -68,6 +52,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -94,6 +79,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
+    setOpenDropdown(null);
   };
 
   const validateForm = (): boolean => {
@@ -143,318 +129,454 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
     onClose();
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white border-gray-100">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-gray-900">
-            Create New Lead
-          </DialogTitle>
-        </DialogHeader>
+    <div className="fixed inset-0 z-50 flex items-center justify-center  backdrop-blur-sm">
+      <div className="relative w-full max-w-2xl max-h-[85vh] overflow-hidden bg-white shadow-2xl rounded-2xl">
+        <div className="px-14 pt-12 pb-8">
+          <div className="flex items-start justify-between mb-10">
+            <h2 className="text-3xl font-semibold text-gray-900">New Lead</h2>
+            <button
+              onClick={handleClose}
+              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-all"
+            >
+              <X className="w-5 h-5 text-gray-400" />
+            </button>
+          </div>
 
-        <div className="space-y-8 pt-4">
-          {/* Basic Information */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2">
-              <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                <Building2 className="w-4 h-4 text-blue-600" />
+          <div className="overflow-y-auto max-h-[calc(85vh-180px)] pr-2 -mr-2">
+            <div className="space-y-10">
+              {/* Basic Information */}
+              <div className="space-y-5">
+                <div className="flex items-center gap-2.5 mb-5">
+                  <Building2 className="w-4 h-4 text-gray-400" />
+                  <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Company Information
+                  </h3>
+                </div>
+
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <label className="block text-sm text-gray-700">
+                      Company Name
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      placeholder="Acme Corporation"
+                      className={`w-full px-0 py-2.5 text-[15px] bg-transparent border-0 border-b transition-colors focus:outline-none placeholder:text-gray-400 ${
+                        errors.name
+                          ? "border-red-300 focus:border-red-500"
+                          : "border-gray-200 focus:border-gray-900"
+                      }`}
+                    />
+                    {errors.name && (
+                      <p className="text-xs text-red-500 mt-1">{errors.name}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm text-gray-700">
+                      Contact Person
+                    </label>
+                    <input
+                      type="text"
+                      name="contactPersonName"
+                      value={formData.contactPersonName}
+                      onChange={handleInputChange}
+                      placeholder="John Smith"
+                      className="w-full px-0 py-2.5 text-[15px] bg-transparent border-0 border-b border-gray-200 transition-colors focus:outline-none focus:border-gray-900 placeholder:text-gray-400"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                      <label className="block text-sm text-gray-700">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="john@acme.com"
+                        className={`w-full px-0 py-2.5 text-[15px] bg-transparent border-0 border-b transition-colors focus:outline-none placeholder:text-gray-400 ${
+                          errors.email
+                            ? "border-red-300 focus:border-red-500"
+                            : "border-gray-200 focus:border-gray-900"
+                        }`}
+                      />
+                      {errors.email && (
+                        <p className="text-xs text-red-500 mt-1">
+                          {errors.email}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-sm text-gray-700">
+                        Phone
+                      </label>
+                      <input
+                        type="tel"
+                        name="mobileNumber"
+                        value={formData.mobileNumber}
+                        onChange={handleInputChange}
+                        placeholder="+1 (555) 000-0000"
+                        className={`w-full px-0 py-2.5 text-[15px] bg-transparent border-0 border-b transition-colors focus:outline-none placeholder:text-gray-400 ${
+                          errors.mobileNumber
+                            ? "border-red-300 focus:border-red-500"
+                            : "border-gray-200 focus:border-gray-900"
+                        }`}
+                      />
+                      {errors.mobileNumber && (
+                        <p className="text-xs text-red-500 mt-1">
+                          {errors.mobileNumber}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h3 className="font-medium text-gray-900">Basic Information</h3>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-900">
-                  Company Name *
-                </Label>
-                <Input
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="Enter company name"
-                  className={`border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
-                    errors.name ? "border-red-300 bg-red-50" : ""
-                  }`}
-                />
-                {errors.name && (
-                  <p className="text-red-600 text-xs">{errors.name}</p>
-                )}
+              {/* Classification */}
+              <div className="space-y-5">
+                <div className="flex items-center gap-2.5 mb-5">
+                  <Tag className="w-4 h-4 text-gray-400" />
+                  <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Classification
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                    <label className="block text-sm text-gray-700">
+                      Lead Type
+                    </label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOpenDropdown(
+                            openDropdown === "leadType" ? null : "leadType"
+                          )
+                        }
+                        className="w-full px-0 py-2.5 text-[15px] text-left bg-transparent border-0 border-b border-gray-200 transition-colors focus:outline-none focus:border-gray-900 flex items-center justify-between"
+                      >
+                        <span
+                          className={
+                            formData.leadType
+                              ? "text-gray-900"
+                              : "text-gray-400"
+                          }
+                        >
+                          {formData.leadType || "Select type"}
+                        </span>
+                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                      </button>
+                      {openDropdown === "leadType" && (
+                        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden">
+                          {Object.values(LeadCategory).map((category) => (
+                            <button
+                              key={category}
+                              type="button"
+                              onClick={() =>
+                                handleSelectChange("leadType", category)
+                              }
+                              className="w-full px-4 py-2.5 text-[15px] text-left hover:bg-gray-50 transition-colors"
+                            >
+                              {category}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm text-gray-700">
+                      Source
+                    </label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOpenDropdown(
+                            openDropdown === "source" ? null : "source"
+                          )
+                        }
+                        className={`w-full px-0 py-2.5 text-[15px] text-left bg-transparent border-0 border-b transition-colors focus:outline-none flex items-center justify-between ${
+                          errors.source
+                            ? "border-red-300 focus:border-red-500"
+                            : "border-gray-200 focus:border-gray-900"
+                        }`}
+                      >
+                        <span
+                          className={
+                            formData.source ? "text-gray-900" : "text-gray-400"
+                          }
+                        >
+                          {formData.source || "Select source"}
+                        </span>
+                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                      </button>
+                      {openDropdown === "source" && (
+                        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden">
+                          {Object.values(LeadSource).map((source) => (
+                            <button
+                              key={source}
+                              type="button"
+                              onClick={() =>
+                                handleSelectChange("source", source)
+                              }
+                              className="w-full px-4 py-2.5 text-[15px] text-left hover:bg-gray-50 transition-colors"
+                            >
+                              {source}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {errors.source && (
+                      <p className="text-xs text-red-500 mt-1">
+                        {errors.source}
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-900">
-                  Contact Person
-                </Label>
-                <Input
-                  name="contactPersonName"
-                  value={formData.contactPersonName}
-                  onChange={handleInputChange}
-                  placeholder="Enter contact person name"
-                  className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-            </div>
+              {/* Assignment */}
+              <div className="space-y-5">
+                <div className="flex items-center gap-2.5 mb-5">
+                  <Users className="w-4 h-4 text-gray-400" />
+                  <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Assignment
+                  </h3>
+                </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-900">
-                  Email Address *
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    name="email"
-                    type="email"
-                    value={formData.email}
+                <div className="grid grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                    <label className="block text-sm text-gray-700">
+                      Assigned To
+                    </label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOpenDropdown(
+                            openDropdown === "assignedToId"
+                              ? null
+                              : "assignedToId"
+                          )
+                        }
+                        className="w-full px-0 py-2.5 text-[15px] text-left bg-transparent border-0 border-b border-gray-200 transition-colors focus:outline-none focus:border-gray-900 flex items-center justify-between"
+                      >
+                        <span
+                          className={
+                            formData.assignedToId
+                              ? "text-gray-900"
+                              : "text-gray-400"
+                          }
+                        >
+                          {formData.assignedToId
+                            ? teamMembers.salesReps.find(
+                                (m) => m.id === formData.assignedToId
+                              )?.username
+                            : "Select team member"}
+                        </span>
+                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                      </button>
+                      {openDropdown === "assignedToId" && (
+                        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-auto">
+                          {teamMembers.salesReps.map((member) => (
+                            <button
+                              key={member.id}
+                              type="button"
+                              onClick={() =>
+                                handleSelectChange("assignedToId", member.id!)
+                              }
+                              className="w-full px-4 py-2.5 text-[15px] text-left hover:bg-gray-50 transition-colors"
+                            >
+                              {member.username}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm text-gray-700">Stage</label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOpenDropdown(
+                            openDropdown === "stageId" ? null : "stageId"
+                          )
+                        }
+                        className="w-full px-0 py-2.5 text-[15px] text-left bg-transparent border-0 border-b border-gray-200 transition-colors focus:outline-none focus:border-gray-900 flex items-center justify-between"
+                      >
+                        <span
+                          className={
+                            formData.stageId ? "text-gray-900" : "text-gray-400"
+                          }
+                        >
+                          {formData.stageId
+                            ? stagesList.find((s) => s.id === formData.stageId)
+                                ?.name
+                            : "Select stage"}
+                        </span>
+                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                      </button>
+                      {openDropdown === "stageId" && (
+                        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-auto">
+                          {stagesList.map((stage) => (
+                            <button
+                              key={stage.id}
+                              type="button"
+                              onClick={() =>
+                                handleSelectChange("stageId", stage.id!)
+                              }
+                              className="w-full px-4 py-2.5 text-[15px] text-left hover:bg-gray-50 transition-colors"
+                            >
+                              {stage.name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Address */}
+              <div className="space-y-5">
+                <div className="flex items-center gap-2.5 mb-5">
+                  <MapPin className="w-4 h-4 text-gray-400" />
+                  <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Address
+                  </h3>
+                </div>
+
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <label className="block text-sm text-gray-700">
+                      Street
+                    </label>
+                    <input
+                      type="text"
+                      name="address.street"
+                      value={formData.address.street || ""}
+                      onChange={handleInputChange}
+                      placeholder="123 Main Street"
+                      className="w-full px-0 py-2.5 text-[15px] bg-transparent border-0 border-b border-gray-200 transition-colors focus:outline-none focus:border-gray-900 placeholder:text-gray-400"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <label className="block text-sm text-gray-700">
+                        City
+                      </label>
+                      <input
+                        type="text"
+                        name="address.city"
+                        value={formData.address.city || ""}
+                        onChange={handleInputChange}
+                        placeholder="City"
+                        className="w-full px-0 py-2.5 text-[15px] bg-transparent border-0 border-b border-gray-200 transition-colors focus:outline-none focus:border-gray-900 placeholder:text-gray-400"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm text-gray-700">
+                        State
+                      </label>
+                      <input
+                        type="text"
+                        name="address.state"
+                        value={formData.address.state || ""}
+                        onChange={handleInputChange}
+                        placeholder="State"
+                        className="w-full px-0 py-2.5 text-[15px] bg-transparent border-0 border-b border-gray-200 transition-colors focus:outline-none focus:border-gray-900 placeholder:text-gray-400"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm text-gray-700">ZIP</label>
+                      <input
+                        type="text"
+                        name="address.postalCode"
+                        value={formData.address.postalCode || ""}
+                        onChange={handleInputChange}
+                        placeholder="12345"
+                        className="w-full px-0 py-2.5 text-[15px] bg-transparent border-0 border-b border-gray-200 transition-colors focus:outline-none focus:border-gray-900 placeholder:text-gray-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-sm text-gray-700">
+                      Country
+                    </label>
+                    <input
+                      type="text"
+                      name="address.country"
+                      value={formData.address.country || ""}
+                      onChange={handleInputChange}
+                      placeholder="United States"
+                      className="w-full px-0 py-2.5 text-[15px] bg-transparent border-0 border-b border-gray-200 transition-colors focus:outline-none focus:border-gray-900 placeholder:text-gray-400"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Requirements */}
+              <div className="space-y-5 pb-6">
+                <div className="flex items-center gap-2.5 mb-5">
+                  <FileText className="w-4 h-4 text-gray-400" />
+                  <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Notes
+                  </h3>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm text-gray-700">
+                    Requirements
+                  </label>
+                  <textarea
+                    name="requirements"
+                    value={formData.requirements}
                     onChange={handleInputChange}
-                    placeholder="Enter email address"
-                    className={`pl-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
-                      errors.email ? "border-red-300 bg-red-50" : ""
-                    }`}
+                    placeholder="Add any notes about this lead..."
+                    rows={4}
+                    className="w-full px-0 py-2.5 text-[15px] bg-transparent border-0 border-b border-gray-200 transition-colors focus:outline-none focus:border-gray-900 resize-none placeholder:text-gray-400"
                   />
                 </div>
-                {errors.email && (
-                  <p className="text-red-600 text-xs">{errors.email}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-900">
-                  Phone Number *
-                </Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    name="mobileNumber"
-                    type="tel"
-                    value={formData.mobileNumber}
-                    onChange={handleInputChange}
-                    placeholder="Enter phone number"
-                    className={`pl-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500 ${
-                      errors.mobileNumber ? "border-red-300 bg-red-50" : ""
-                    }`}
-                  />
-                </div>
-                {errors.mobileNumber && (
-                  <p className="text-red-600 text-xs">{errors.mobileNumber}</p>
-                )}
               </div>
             </div>
-          </div>
-
-          {/* Classification */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2">
-              <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
-                <Tag className="w-4 h-4 text-purple-600" />
-              </div>
-              <h3 className="font-medium text-gray-900">Classification</h3>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-900">
-                  Lead Type
-                </Label>
-                <Select
-                  value={formData.leadType}
-                  onValueChange={(value) =>
-                    handleSelectChange("leadType", value)
-                  }
-                >
-                  <SelectTrigger className="border-gray-200 focus:ring-blue-500">
-                    <SelectValue placeholder="Select lead type" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {Object.values(LeadCategory).map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-900">
-                  Source *
-                </Label>
-                <Select
-                  value={formData.source}
-                  onValueChange={(value) => handleSelectChange("source", value)}
-                >
-                  <SelectTrigger
-                    className={`border-gray-200 focus:ring-blue-500 ${
-                      errors.source ? "border-red-300 bg-red-50" : ""
-                    }`}
-                  >
-                    <SelectValue placeholder="Select source" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {Object.values(LeadSource).map((source) => (
-                      <SelectItem key={source} value={source}>
-                        {source}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.source && (
-                  <p className="text-red-600 text-xs">{errors.source}</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Assignment */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2">
-              <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
-                <Users className="w-4 h-4 text-green-600" />
-              </div>
-              <h3 className="font-medium text-gray-900">Assignment</h3>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-900">
-                  Assign to
-                </Label>
-                <Select
-                  value={formData.assignedToId}
-                  onValueChange={(value) =>
-                    handleSelectChange("assignedToId", value)
-                  }
-                >
-                  <SelectTrigger className="border-gray-200 focus:ring-blue-500">
-                    <SelectValue placeholder="Select team member" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {teamMembers.salesReps.map((member) => (
-                      <SelectItem key={member.id} value={member.id!}>
-                        {member.username}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-900">
-                  Stage
-                </Label>
-                <Select
-                  value={formData.stageId}
-                  onValueChange={(value) =>
-                    handleSelectChange("stageId", value)
-                  }
-                >
-                  <SelectTrigger className="border-gray-200 focus:ring-blue-500">
-                    <SelectValue placeholder="Select stage" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    {stagesList.map((stage) => (
-                      <SelectItem key={stage.id} value={stage.id!}>
-                        {stage.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-
-          {/* Address */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2">
-              <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
-                <MapPin className="w-4 h-4 text-orange-600" />
-              </div>
-              <h3 className="font-medium text-gray-900">Address</h3>
-              <span className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-full">
-                Optional
-              </span>
-            </div>
-
-            <div className="space-y-3">
-              <Input
-                name="address.street"
-                value={formData.address.street || ""}
-                onChange={handleInputChange}
-                placeholder="Street address"
-                className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-              />
-
-              <div className="grid grid-cols-3 gap-3">
-                <Input
-                  name="address.city"
-                  value={formData.address.city || ""}
-                  onChange={handleInputChange}
-                  placeholder="City"
-                  className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-                <Input
-                  name="address.state"
-                  value={formData.address.state || ""}
-                  onChange={handleInputChange}
-                  placeholder="State"
-                  className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-                <Input
-                  name="address.postalCode"
-                  value={formData.address.postalCode || ""}
-                  onChange={handleInputChange}
-                  placeholder="ZIP"
-                  className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-
-              <Input
-                name="address.country"
-                value={formData.address.country || ""}
-                onChange={handleInputChange}
-                placeholder="Country"
-                className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          {/* Requirements */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-2">
-              <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">
-                <FileText className="w-4 h-4 text-indigo-600" />
-              </div>
-              <h3 className="font-medium text-gray-900">Requirements</h3>
-            </div>
-
-            <Textarea
-              name="requirements"
-              value={formData.requirements}
-              onChange={handleInputChange}
-              placeholder="Describe lead requirements, pain points, or notes..."
-              rows={3}
-              className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
-            />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-100 mt-6">
-          <Button
-            variant="outline"
+        <div className="sticky bottom-0 bg-white border-t border-gray-100 px-14 py-5 flex items-center justify-end gap-3">
+          <button
             onClick={handleClose}
-            className="border-gray-200 hover:bg-gray-50"
+            className="px-5 py-2 text-[15px] text-gray-600 hover:bg-gray-50 rounded-lg transition-all"
           >
             Cancel
-          </Button>
-          <Button
+          </button>
+          <button
             onClick={handleSubmit}
-            className="bg-gray-900 hover:bg-gray-800 text-white"
+            className="px-5 py-2 text-[15px] bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-all"
           >
             Create Lead
-          </Button>
+          </button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 };
