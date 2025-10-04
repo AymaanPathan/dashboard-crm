@@ -1,7 +1,7 @@
 export const crmPricingPlans = [
   {
     name: "Starter",
-    price: "$29",
+    price: "2,499",
     period: "per user/month",
     description: "Perfect for small teams getting started",
     features: [
@@ -15,7 +15,7 @@ export const crmPricingPlans = [
   },
   {
     name: "Professional",
-    price: "$59",
+    price: "4,999",
     period: "per user/month",
     description: "Everything you need to scale your business",
     features: [
@@ -32,7 +32,7 @@ export const crmPricingPlans = [
   {
     name: "Enterprise",
     price: "Custom",
-    period: "contact us",
+    period: "",
     description: "For large organizations with custom needs",
     features: [
       "Unlimited users",

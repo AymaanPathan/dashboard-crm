@@ -1,12 +1,14 @@
+"use client";
 import { CheckCircle } from "lucide-react";
 import React from "react";
+import { motion } from "framer-motion";
 
 type Plan = {
   name: string;
   price: string;
-  period: string; // ✅ changed to string
+  period: string;
   description: string;
-  features: string[]; // ✅ kept as string[]
+  features: string[];
   popular: boolean;
 };
 
@@ -16,75 +18,81 @@ interface PricingProps {
 
 export const PricingSection: React.FC<PricingProps> = ({ pricingPlans }) => {
   return (
-    <section id="pricing" className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
+    <section id="pricing" className="py-20 px-6 sm:px-8 lg:px-12">
+      <div className="max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: false, amount: 0.3 }}
+          className="max-w-2xl mb-16"
+        >
+          <h2 className="text-4xl sm:text-5xl font-semibold text-black tracking-tight">
             Simple, transparent pricing
           </h2>
-          <p className="mt-4 text-xl text-gray-600">
+          <p className="mt-3 text-base text-gray-600">
             Choose the perfect plan for your team size and needs
           </p>
-        </div>
+        </motion.div>
 
-        {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {pricingPlans.map((plan, index) => (
-            <div
+            <motion.div
               key={index}
-              className={`bg-white rounded-lg border-2 p-8 relative ${
-                plan.popular ? "border-black" : "border-gray-200"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: false, amount: 0.3 }}
+              className={`bg-white rounded-lg border p-8 relative hover:border-gray-300 transition-colors flex flex-col ${
+                plan.popular ? "border-gray-400" : "border-gray-200"
               }`}
             >
-              {/* Popular Badge */}
               {plan.popular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-black text-white px-3 py-1 rounded-full text-sm font-medium">
-                    Most Popular
+                <div className="absolute -top-3 left-6">
+                  <span className="bg-black text-white px-3 py-1 rounded-md text-xs font-medium">
+                    Popular
                   </span>
                 </div>
               )}
 
-              {/* Title / Price */}
-              <div className="text-center">
-                <h3 className="text-xl font-semibold text-gray-900">
+              <div>
+                <h3 className="text-lg font-semibold text-black">
                   {plan.name}
                 </h3>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold text-gray-900">
-                    ${plan.price}
+                <div className="mt-4 flex items-baseline">
+                  <span className="text-4xl font-semibold text-black">
+                    ₹{plan.price}
                   </span>
                   {plan.period && (
-                    <span className="text-gray-600 ml-1">/{plan.period}</span>
+                    <span className="text-gray-600 text-sm ml-1">
+                      /{plan.period}
+                    </span>
                   )}
                 </div>
-                <p className="mt-2 text-gray-600">{plan.description}</p>
+                <p className="mt-2 text-sm text-gray-600">{plan.description}</p>
               </div>
 
-              {/* Features */}
-              <ul className="mt-8 space-y-3">
+              <ul className="mt-8 space-y-3 flex-grow">
                 {plan.features.map((feature, featureIndex) => (
-                  <li key={featureIndex} className="flex items-center">
-                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mr-3" />
-                    <span className="text-gray-700">{feature}</span>
+                  <li key={featureIndex} className="flex items-start gap-3">
+                    <CheckCircle className="w-4 h-4 text-black flex-shrink-0 mt-0.5" />
+                    <span className="text-sm text-gray-600">{feature}</span>
                   </li>
                 ))}
               </ul>
 
-              {/* CTA Button */}
               <button
-                className={`w-full mt-8 py-3 px-4 rounded-md font-medium transition-colors ${
+                className={`w-full cursor-pointer mt-8 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
                   plan.popular
-                    ? "bg-black text-white hover:bg-gray-800"
-                    : "border border-gray-300 text-gray-700 hover:border-gray-400"
+                    ? "bg-black text-white hover:bg-gray-800 hover:shadow-lg"
+                    : "bg-white border border-gray-300 text-black hover:bg-gray-50 hover:border-gray-400 hover:shadow-md"
                 }`}
               >
                 {plan.name === "Enterprise"
                   ? "Contact Sales"
                   : "Start Free Trial"}
               </button>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
