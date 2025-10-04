@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getOrganizationInfo } from "@/store/slices/orgSlice";
 import { fetchLeadForKanban } from "@/store/slices/kanbanSlice";
 import { StatusColumn } from "@/components/lead/StatusCol";
-import { AddLeadForm } from "@/components/Form/AddLeadForm";
+import { AddLeadForm } from "@/components/lead/AddLeadForm";
 
 // Shadcn UI Components (assuming they're available)
 import { Button } from "@/components/ui/button";
