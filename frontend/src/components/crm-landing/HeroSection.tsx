@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 export const HeroSection: React.FC = () => {
   return (
-    <section className="pt-28 pb-28 px-6 sm:px-8 lg:px-12 bg-gray-50">
+    <section className="pt-32 pb-28 px-6 sm:px-8 lg:px-12 bg-gray-50">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-20 items-center">
           <motion.div
@@ -13,14 +13,18 @@ export const HeroSection: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
-            <h1 className="text-5xl font-header font-semibold sm:text-6xl lg:text-7xl text-black leading-tight tracking-tight">
-              The CRM that grows with your business
-            </h1>
-            <p className="mt-6 text-base text-gray-700 leading-relaxed font-sans">
-              Powerful, customizable CRM designed for modern teams. Manage
-              leads, automate workflows, and scale your sales operations with
-              enterprise-grade features.
-            </p>
+            <div>
+              <h1 className="text-5xl  sm:text-6xl lg:text-5xl leading-tight">
+                <span className="text-gray-900">The simplest CRM ever</span>
+                <br />
+                <span className="text-gray-500">No complexity</span>
+              </h1>
+              <p className="mt-6 text-base text-gray-600 leading-relaxed font-sans">
+                Build meaningful relationships at scale. CRMFlow brings
+                AI-powered insights, seamless automation, and crystal-clear
+                pipelines to modern teams who refuse to settle.
+              </p>
+            </div>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <button className="bg-black cursor-pointer text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 hover:shadow-lg hover transition-all inline-flex items-center justify-center">
                 Start free trial

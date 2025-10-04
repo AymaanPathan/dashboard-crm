@@ -5,15 +5,12 @@ import Navbar from "./Navbar";
 import { HeroSection } from "./HeroSection";
 import { FeaturesSection } from "./FeaturesSection";
 import { PricingSection } from "./PricingSection";
-import { TestimonialsSection } from "./TestimonialsSection";
-import { CtaSection } from "./CTASection";
-import { Footer } from "./Footer";
 import { crmFeatures } from "@/assets/landing-page-data/crmFeatures";
 import { crmPricingPlans } from "@/assets/landing-page-data/crmPricing";
-import { crmTestimonials } from "@/assets/landing-page-data/crmTestimonials";
 import { RootDispatch } from "@/store";
 import { useDispatch } from "react-redux";
 import { getOrganizationInfo } from "@/store/slices/orgSlice";
+import { Footer } from "./Footer";
 
 const LandingPage = () => {
   const dispatch: RootDispatch = useDispatch();
@@ -30,9 +27,7 @@ const LandingPage = () => {
       <HeroSection />
       <FeaturesSection features={crmFeatures} />
       <PricingSection pricingPlans={crmPricingPlans} />
-      <TestimonialsSection testimonials={crmTestimonials} />
-      <CtaSection />
-      <Footer />
+      <Footer/>
     </div>
   );
 
