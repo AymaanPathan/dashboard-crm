@@ -38,7 +38,7 @@ export const StatusColumn: React.FC<{ stage: any }> = ({ stage }) => {
         })
       );
 
-      const result = dispatch(
+      dispatch(
         updateLeadStatus({
           leadId: item.id,
           oldStage: item.stageId,

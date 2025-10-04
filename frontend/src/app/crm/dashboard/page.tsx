@@ -22,6 +22,7 @@ import { LeadFilters } from "@/models/lead.model";
 import { DropdownMenuForArrayOfObjects } from "@/components/dropdown/DropdownForArrayOfObj";
 import { IStage } from "@/models/stage.model";
 import { IUser } from "@/models/user.model";
+import { Button } from "@/components/Buttons/Button";
 
 const LeadsDashboard: React.FC = () => {
   const [isAddLeadOptionsOpen, setIsAddLeadOptionsOpen] = useState(false);
@@ -160,14 +161,14 @@ const LeadsDashboard: React.FC = () => {
                 )}
               </div>
 
-              {/* Add Lead Button */}
-              <button
+              <Button
                 onClick={() => setIsAddLeadOptionsOpen(true)}
-                className="ml-auto h-9 px-4 text-sm font-medium bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-all flex items-center gap-2"
+                variant="primary"
+                icon={<Plus className="h-4 w-4" />}
+                className="ml-auto"
               >
-                <Plus className="h-4 w-4" />
                 New Lead
-              </button>
+              </Button>
             </div>
 
             <AddLeadOptionsModal

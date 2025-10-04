@@ -70,29 +70,31 @@ const Navbar: React.FC = () => {
             </nav>
           </div>
 
-          {/* Notifications & Logout */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2 min-w-[180px] justify-end">
             <Link href="/crm/tasks">
               <div className="relative">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-9 w-9 p-0 hover:bg-gray-100"
+                  className="h-8 w-8 p-0 hover:bg-gray-100 rounded-md"
                 >
                   <Bell className="w-4 h-4 text-gray-600" />
                 </Button>
                 {todayTaskCount > 0 && (
-                  <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center min-w-5">
-                    {todayTaskCount > 99 ? "99+" : todayTaskCount}
+                  <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
+                    {todayTaskCount > 99 ? "99" : todayTaskCount}
                   </div>
                 )}
               </div>
             </Link>
+
+            <div className="w-px h-5 bg-gray-200" />
+
             <Button
               onClick={logout}
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="h-9 border-gray-200 hover:border-red-300 hover:bg-red-50 hover:text-red-600 text-gray-700 shadow-sm font-medium transition-all duration-200"
+              className="h-8 cursor-pointer px-3 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Logout
