@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Plus, Search, Filter, UserPlus, Upload, FileText } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,10 +11,6 @@ import { getOrganizationInfo } from "@/store/slices/orgSlice";
 import { fetchLeadForKanban } from "@/store/slices/kanbanSlice";
 import { StatusColumn } from "@/components/lead/StatusCol";
 import { AddLeadForm } from "@/components/lead/AddLeadForm";
-
-// Shadcn UI Components (assuming they're available)
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 import { getUserByRoleSlice } from "@/store/slices/userSlice";
 import { fetchStages } from "@/store/slices/stagesSlice";
@@ -109,10 +105,10 @@ const LeadsDashboard: React.FC = () => {
 
   if (!currentOrg) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-screen items-center justify-center bg-white">
         <div className="flex items-center space-x-3">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted border-t-foreground"></div>
-          <span className="text-sm text-muted-foreground">Loading...</span>
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-200 border-t-gray-900"></div>
+          <span className="text-sm text-gray-600">Loading workspace...</span>
         </div>
       </div>
     );
@@ -121,86 +117,84 @@ const LeadsDashboard: React.FC = () => {
   return (
     <>
       <DndProvider backend={HTML5Backend}>
-        <div className="flex-1 space-y-6 p-6">
-          <div className="flex items-center justify-between space-x-2">
-            <div className="flex items-center space-x-2">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
+        <div className="min-h-screen bg-white">
+          <div className="px-12 py-8">
+            {/* Toolbar */}
+            <div className="flex items-center gap-3 mb-8 pb-6 border-b border-gray-100">
+              {/* Search */}
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
                   onKeyDown={handleSearchChange}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   type="text"
                   placeholder="Search leads..."
-                  className="pl-8 h-9 w-[250px] lg:w-[300px]"
+                  className="w-full h-9 pl-9 pr-3 text-sm bg-gray-50 border-0 rounded-lg focus:outline-none focus:bg-white focus:ring-1 focus:ring-gray-200 transition-all placeholder:text-gray-400"
                 />
               </div>
-              <Button variant="outline" size="sm" className="h-9">
-                <Filter className="mr-2 h-4 w-4" />
-                Filter
-              </Button>
-              <div className="flex items-center justify-between space-y-2">
-                <Button
-                  onClick={() => setIsAddLeadOptionsOpen(true)}
-                  className="h-8"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Lead
-                </Button>
-              </div>
-              <div className="flex items-center justify-between space-y-2">
+
+              {/* Filters */}
+              <div className="flex items-center gap-2">
                 <DropdownMenuForArray
                   selectedType={selectedType ? selectedType : "All"}
                   setSelectedType={setSelectedType}
                   items={leadTypes}
                   dropdownLabel="Lead Type"
                 />
-              </div>
-              <div className="flex items-center justify-between space-y-2">
+
                 <DropdownMenuForArrayOfObjects
                   selectedType={selectedStage ? selectedStage : "All"}
                   setSelectedType={setSelectedStage}
                   items={stages.map((stage) => stage)}
                   dropdownLabel="Stage"
                 />
-              </div>
-              {usersByRole.salesReps && (
-                <div className="flex items-center justify-between space-y-2">
+
+                {usersByRole.salesReps.length > 0 && (
                   <DropdownMenuForArrayOfObjects
                     selectedType={selectedUser ? selectedUser.username : "All"}
                     setSelectedType={setSelectedUser}
                     items={usersByRole.salesReps.map((user) => user)}
                     dropdownLabel="User"
                   />
-                </div>
-              )}
+                )}
+              </div>
+
+              {/* Add Lead Button */}
+              <button
+                onClick={() => setIsAddLeadOptionsOpen(true)}
+                className="ml-auto h-9 px-4 text-sm font-medium bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-all flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                New Lead
+              </button>
             </div>
-          </div>
 
-          <AddLeadOptionsModal
-            isOpen={isAddLeadOptionsOpen}
-            onClose={() => setIsAddLeadOptionsOpen(false)}
-            onSelectForm={handleSelectForm}
-            onSelectExcel={handleSelectExcel}
-          />
-
-          {isAddLeadFormOpen && (
-            <AddLeadForm
-              isOpen={isAddLeadFormOpen}
-              onClose={() => setIsAddLeadFormOpen(false)}
+            <AddLeadOptionsModal
+              isOpen={isAddLeadOptionsOpen}
+              onClose={() => setIsAddLeadOptionsOpen(false)}
+              onSelectForm={handleSelectForm}
+              onSelectExcel={handleSelectExcel}
             />
-          )}
 
-          <ExcelUploadModal
-            isOpen={isExcelUploadOpen}
-            onClose={() => setIsExcelUploadOpen(false)}
-          />
+            {isAddLeadFormOpen && (
+              <AddLeadForm
+                isOpen={isAddLeadFormOpen}
+                onClose={() => setIsAddLeadFormOpen(false)}
+              />
+            )}
 
-          {/* Kanban Board */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-            {kanbanData?.map((stage: any, index: number) => (
-              <StatusColumn key={index} stage={stage} />
-            ))}
+            <ExcelUploadModal
+              isOpen={isExcelUploadOpen}
+              onClose={() => setIsExcelUploadOpen(false)}
+            />
+
+            {/* Kanban Board */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              {kanbanData?.map((stage: any, index: number) => (
+                <StatusColumn key={index} stage={stage} />
+              ))}
+            </div>
           </div>
         </div>
       </DndProvider>

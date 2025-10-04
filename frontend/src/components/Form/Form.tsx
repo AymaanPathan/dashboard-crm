@@ -24,9 +24,9 @@ export const FormModal: React.FC<FormModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center  backdrop-blur-sm">
       <div className="relative w-full max-w-3xl max-h-[85vh] overflow-hidden bg-white shadow-2xl rounded-2xl">
-        <div className="px-8 pt-8 pb-6">
+        <div className="px-6 pt-8 pb-6">
           <div className="flex items-start justify-between mb-8">
-            <h2 className="text-3xl font-semibold text-gray-900">{title}</h2>
+            <h2 className="text-3xl font-semibold text-gray-500">{title}</h2>
             <button
               onClick={onClose}
               className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-all"
@@ -43,13 +43,13 @@ export const FormModal: React.FC<FormModalProps> = ({
         <div className="sticky bottom-0 bg-white border-t border-gray-100 px-8 py-4 flex items-center justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-5 py-2 text-[15px] text-gray-600 hover:bg-gray-50 rounded-lg transition-all"
+            className="px-5 cursor-pointer py-2 text-[15px] text-gray-600 hover:bg-gray-50 rounded-lg transition-all"
           >
             Cancel
           </button>
           <button
             onClick={onSubmit}
-            className="px-5 py-2 text-[15px] bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-all"
+            className="px-5 py-2 cursor-pointer text-[15px] bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-all"
           >
             {submitLabel}
           </button>
