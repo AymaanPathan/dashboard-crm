@@ -7,6 +7,10 @@ import {
   AlertCircle,
   Bell,
   Save,
+  Eye,
+  Maximize2,
+  Sidebar,
+  Layout,
 } from "lucide-react";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -34,6 +38,12 @@ interface AddTaskProps {
   onClose?: () => void;
 }
 
+enum NotificationDisplayType {
+  toaster = "toaster",
+  modal = "modal",
+  sidebar = "sidebar",
+}
+
 interface TaskFormData {
   title: string;
   description: string;
@@ -44,6 +54,7 @@ interface TaskFormData {
   reminderOption: string;
   status: TaskStatus;
   repeatInterval: TaskRepeatInterval;
+  notificationDisplay: NotificationDisplayType;
 }
 
 // Helper function to get available reminder options
@@ -67,22 +78,18 @@ const getAvailableReminderOptions = (
     { value: "1_day", label: "1 day before", icon: "📅" },
   ];
 
-  // Start with no_reminder option
-  const availableOptions = [allReminderOptions[0]]; // no_reminder
+  const availableOptions = [allReminderOptions[0]];
 
-  // Check each time-based reminder option
   const timeBasedOptions = [
-    { option: allReminderOptions[1], minutes: 1 }, // 1_minute
-    { option: allReminderOptions[2], minutes: 5 }, // 5_minutes
-    { option: allReminderOptions[3], minutes: 15 }, // 15_minutes
-    { option: allReminderOptions[4], minutes: 60 }, // 1_hour
-    { option: allReminderOptions[5], minutes: 1440 }, // 1_day
+    { option: allReminderOptions[1], minutes: 1 },
+    { option: allReminderOptions[2], minutes: 5 },
+    { option: allReminderOptions[3], minutes: 15 },
+    { option: allReminderOptions[4], minutes: 60 },
+    { option: allReminderOptions[5], minutes: 1440 },
   ];
 
   timeBasedOptions.forEach(({ option, minutes }) => {
     const reminderTime = dueDateTime.subtract(minutes, "minute");
-
-    // Only add if reminder time is in the future
     if (reminderTime.isAfter(now)) {
       availableOptions.push(option);
     }
@@ -90,6 +97,121 @@ const getAvailableReminderOptions = (
 
   return availableOptions;
 };
+
+// Reminder Preview Components
+const ToasterPreview: React.FC<{ task: TaskFormData }> = ({ task }) => (
+  <div className="bg-white border-l-4 border-blue-500 rounded-lg shadow-lg p-4 max-w-sm">
+    <div className="flex items-start gap-3">
+      <div className="flex-shrink-0">
+        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+          <Bell className="w-5 h-5 text-blue-600" />
+        </div>
+      </div>
+      <div className="flex-1 min-w-0">
+        <h4 className="text-sm font-semibold text-gray-900 mb-1">
+          Task Reminder
+        </h4>
+        <p className="text-sm text-gray-700 font-medium mb-1">
+          {task.title || "Your task title"}
+        </p>
+        {task.description && (
+          <p className="text-xs text-gray-600 line-clamp-2">
+            {task.description}
+          </p>
+        )}
+        <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+          <Clock className="w-3 h-3" />
+          <span>
+            Due: {task.dueDate} {task.dueTime && `at ${task.dueTime}`}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const ModalPreview: React.FC<{ task: TaskFormData }> = ({ task }) => (
+  <div className="bg-white rounded-xl shadow-2xl max-w-md w-full border border-gray-200">
+    <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-t-xl">
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+          <Bell className="w-6 h-6 text-white" />
+        </div>
+        <div className="text-white">
+          <h3 className="text-lg font-semibold">Task Reminder</h3>
+          <p className="text-sm text-blue-100">You have a task due soon</p>
+        </div>
+      </div>
+    </div>
+    <div className="p-6">
+      <h4 className="text-lg font-semibold text-gray-900 mb-2">
+        {task.title || "Your task title"}
+      </h4>
+      {task.description && (
+        <p className="text-sm text-gray-600 mb-4">{task.description}</p>
+      )}
+      <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+        <div className="flex items-center gap-2 text-sm text-gray-700">
+          <Calendar className="w-4 h-4 text-gray-500" />
+          <span className="font-medium">Due Date:</span>
+          <span>
+            {task.dueDate || "Not set"} {task.dueTime && `at ${task.dueTime}`}
+          </span>
+        </div>
+      </div>
+      <div className="flex gap-2 mt-4">
+        <button className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200">
+          Snooze
+        </button>
+        <button className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+          View Task
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+const SidebarPreview: React.FC<{ task: TaskFormData }> = ({ task }) => (
+  <div className="bg-white border-l border-gray-200 shadow-xl w-80 h-full">
+    <div className="bg-gray-50 border-b border-gray-200 p-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-gray-900">Task Reminders</h3>
+        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+          1 Active
+        </span>
+      </div>
+    </div>
+    <div className="p-4">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+        <div className="flex items-start gap-3">
+          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Bell className="w-4 h-4 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="text-sm font-semibold text-gray-900 mb-1">
+              {task.title || "Your task title"}
+            </h4>
+            {task.description && (
+              <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                {task.description}
+              </p>
+            )}
+            <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
+              <Clock className="w-3 h-3" />
+              <span>
+                {task.dueDate || "No date"}{" "}
+                {task.dueTime && `at ${task.dueTime}`}
+              </span>
+            </div>
+            <button className="text-xs text-blue-600 font-medium hover:underline">
+              View Details →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -100,6 +222,8 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
     (state: RootState) => state.leadTasks.loading.addingTask
   );
   const dispatch: RootDispatch = useDispatch();
+  const [showPreview, setShowPreview] = useState(false);
+
   const [task, setTask] = useState<TaskFormData>({
     title: "",
     description: "",
@@ -110,9 +234,9 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
     reminderOption: "no_reminder",
     status: TaskStatus.pending,
     repeatInterval: TaskRepeatInterval.none,
+    notificationDisplay: NotificationDisplayType.toaster,
   });
 
-  // Get available reminder options based on due date/time
   const reminderOptions = useMemo(
     () => getAvailableReminderOptions(task.dueDate, task.dueTime, userTimezone),
     [task.dueDate, task.dueTime, userTimezone]
@@ -130,31 +254,17 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
       }));
     }
   }, [task.dueDate, task.dueTime, task.reminderOption, reminderOptions]);
+
   const getMinTime = () => {
     if (task.dueDate === today) {
-      // Add 1 minute buffer to current time to ensure due date is in future
       const bufferTime = dayjs().add(1, "minute");
       return bufferTime.format("HH:mm");
     }
     return undefined;
   };
 
-  // Check if reminders are possible (more than just "no_reminder" option)
   const canSetReminders = reminderOptions.length > 1;
-
-  // Auto-reset reminder option if it becomes invalid
-  useEffect(() => {
-    const isCurrentOptionAvailable = reminderOptions.some(
-      (option) => option.value === task.reminderOption
-    );
-
-    if (!isCurrentOptionAvailable) {
-      setTask((prev) => ({
-        ...prev,
-        reminderOption: reminderOptions[0]?.value || "no_reminder",
-      }));
-    }
-  }, [task.dueDate, task.dueTime, reminderOptions]);
+  const hasActiveReminder = task.reminderOption !== "no_reminder";
 
   const handleReminderChange = (value: string) => {
     setTask((prev) => ({ ...prev, reminderOption: value }));
@@ -168,10 +278,7 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
       return;
     }
 
-    // User's timezone
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-    // Combine due date and time in user's timezone
     const dueDate = dayjs
       .tz(`${task.dueDate}T${task.dueTime || "00:00"}`, userTimezone)
       .toDate();
@@ -200,7 +307,6 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
         break;
     }
 
-    // Validate reminder is not in the past
     if (reminder && dayjs(reminder).isBefore(dayjs())) {
       alert("Reminder is in the past. Please select a valid time.");
       return;
@@ -208,7 +314,6 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
 
     const now = new Date();
 
-    // Create task object
     const newTask: LeadTask = {
       title: task.title,
       description: task.description,
@@ -222,8 +327,8 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
       leadId: leadId || "",
       createdById: createdById || "",
       timezone: userTimezone,
+      notificationDisplay: task.notificationDisplay,
     };
-
 
     try {
       await dispatch(
@@ -232,7 +337,6 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
       await dispatch(getLeadTasksByLeadIdSlice(leadId || ""));
       await dispatch(getTodayLeadTasksSlice());
 
-      // Reset form
       setTask({
         title: "",
         description: "",
@@ -243,6 +347,7 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
         reminderOption: "no_reminder",
         status: TaskStatus.pending,
         repeatInterval: TaskRepeatInterval.none,
+        notificationDisplay: NotificationDisplayType.toaster,
       });
 
       if (onClose) onClose();
@@ -262,16 +367,37 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
       reminderOption: "no_reminder",
       status: TaskStatus.pending,
       repeatInterval: TaskRepeatInterval.none,
+      notificationDisplay: NotificationDisplayType.toaster,
     });
   };
 
   const isFormValid = task.title.trim() && task.dueDate;
 
+  const notificationOptions = [
+    {
+      value: NotificationDisplayType.toaster,
+      label: "Toast Notification",
+      icon: Layout,
+      description: "Subtle notification in corner",
+    },
+    {
+      value: NotificationDisplayType.modal,
+      label: "Modal Dialog",
+      icon: Maximize2,
+      description: "Full attention popup",
+    },
+    {
+      value: NotificationDisplayType.sidebar,
+      label: "Sidebar Panel",
+      icon: Sidebar,
+      description: "Persistent side panel",
+    },
+  ];
+
   return (
-    <div className="h-full flex flex-col">
-      {/* Form - Remove duplicate header since parent handles it */}
-      <div className="flex-1">
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 h-full">
+    <div className="h-full flex flex-col bg-gray-50">
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-6 space-y-6">
           {/* Task Title */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">
@@ -285,7 +411,7 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
                 setTask((prev) => ({ ...prev, title: e.target.value }))
               }
               placeholder="What needs to be done?"
-              className="w-full px-4 py-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400 transition-colors"
+              className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400 transition-all bg-white"
             />
           </div>
 
@@ -304,7 +430,7 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
                   onChange={(e) =>
                     setTask((prev) => ({ ...prev, dueDate: e.target.value }))
                   }
-                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
+                  className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 bg-white"
                 />
                 <Calendar className="absolute right-4 top-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
               </div>
@@ -316,14 +442,14 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
                   onChange={(e) =>
                     setTask((prev) => ({ ...prev, dueTime: e.target.value }))
                   }
-                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
+                  className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 bg-white"
                 />
                 <Clock className="absolute right-4 top-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
               </div>
             </div>
           </div>
 
-          {/* Reminder - Only show if reminders are possible */}
+          {/* Reminder */}
           {canSetReminders && (
             <div className="space-y-3">
               <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
@@ -334,7 +460,7 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
                 <select
                   value={task.reminderOption}
                   onChange={(e) => handleReminderChange(e.target.value)}
-                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer pr-12"
+                  className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer pr-12 bg-white"
                 >
                   {reminderOptions.map((reminder) => (
                     <option key={reminder.value} value={reminder.value}>
@@ -343,6 +469,107 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
                   ))}
                 </select>
                 <ChevronDown className="absolute right-4 top-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
+              </div>
+            </div>
+          )}
+
+          {/* Notification Display Type */}
+          {hasActiveReminder && (
+            <div className="space-y-3 bg-white rounded-xl p-4 border border-gray-200">
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Eye className="h-4 w-4" />
+                Notification Style
+              </label>
+              <div className="grid grid-cols-1 gap-2">
+                {notificationOptions.map((option) => {
+                  const Icon = option.icon;
+                  return (
+                    <label
+                      key={option.value}
+                      className={`relative flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                        task.notificationDisplay === option.value
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 bg-white hover:border-gray-300"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="notificationDisplay"
+                        value={option.value}
+                        checked={task.notificationDisplay === option.value}
+                        onChange={(e) =>
+                          setTask((prev) => ({
+                            ...prev,
+                            notificationDisplay: e.target
+                              .value as NotificationDisplayType,
+                          }))
+                        }
+                        className="sr-only"
+                      />
+                      <div
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                          task.notificationDisplay === option.value
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-gray-900">
+                          {option.label}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {option.description}
+                        </div>
+                      </div>
+                      {task.notificationDisplay === option.value && (
+                        <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-white rounded-full" />
+                        </div>
+                      )}
+                    </label>
+                  );
+                })}
+              </div>
+
+              {/* Preview Button */}
+              <button
+                type="button"
+                onClick={() => setShowPreview(!showPreview)}
+                className="w-full px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 text-sm font-medium rounded-lg hover:from-blue-100 hover:to-indigo-100 transition-all flex items-center justify-center gap-2 border border-blue-200"
+              >
+                <Eye className="w-4 h-4" />
+                {showPreview ? "Hide Preview" : "Preview Notification"}
+              </button>
+            </div>
+          )}
+
+          {/* Preview Display */}
+          {showPreview && hasActiveReminder && (
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+              <div className="text-center mb-4">
+                <h3 className="text-sm font-semibold text-white mb-1">
+                  Preview
+                </h3>
+                <p className="text-xs text-gray-400">
+                  How your reminder will appear
+                </p>
+              </div>
+              <div className="flex items-center justify-center min-h-[200px]">
+                {task.notificationDisplay ===
+                  NotificationDisplayType.toaster && (
+                  <ToasterPreview task={task} />
+                )}
+                {task.notificationDisplay === NotificationDisplayType.modal && (
+                  <ModalPreview task={task} />
+                )}
+                {task.notificationDisplay ===
+                  NotificationDisplayType.sidebar && (
+                  <div className="scale-75 origin-center">
+                    <SidebarPreview task={task} />
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -370,7 +597,7 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
               }
               placeholder="Add any additional details..."
               rows={4}
-              className="w-full px-4 py-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none placeholder:text-gray-400"
+              className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none placeholder:text-gray-400 bg-white"
             />
           </div>
 
@@ -385,18 +612,19 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-6 border-t border-gray-200 sticky bottom-0 bg-white">
+          <div className="flex gap-3 pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={resetForm}
-              className="flex-1 px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-colors"
+              className="flex-1 px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-colors"
             >
               Reset
             </button>
             <button
-              type="submit"
+              type="button"
+              onClick={handleSubmit}
               disabled={isAdding || !isFormValid}
-              className="flex-1 px-4 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30"
             >
               {isAdding ? (
                 <>
@@ -411,7 +639,7 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
               )}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,13 @@
 "use client";
+import { Inter, Poppins } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const poppins = Poppins({
+  weight: ["400", "600"],
+  subsets: ["latin"],
+  variable: "--font-header",
+});
+
 import { Provider } from "react-redux";
 import "./globals.css";
 
@@ -11,7 +20,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning={true}>
+    <html
+      lang="en"
+      suppressHydrationWarning={true}
+      className={`${inter.variable} ${poppins.variable}`}
+    >
       <body suppressHydrationWarning={true}>
         <Provider store={store}>{children}</Provider>
         <Toaster

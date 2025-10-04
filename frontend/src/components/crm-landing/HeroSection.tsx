@@ -1,32 +1,68 @@
+"use client";
 import { ArrowRight } from "lucide-react";
 import React from "react";
+import { motion } from "framer-motion";
 
 export const HeroSection: React.FC = () => {
   return (
-    <section className="pt-20 pb-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto text-center">
-        <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-            The CRM that grows
-            <span className="block">with your business</span>
-          </h1>
-          <p className="mt-6 text-xl text-gray-600 leading-relaxed">
-            Powerful, customizable CRM designed for modern teams. Manage leads,
-            automate workflows, and scale your sales operations with
-            enterprise-grade features.
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-black text-white px-8 py-3 rounded-md text-lg font-medium hover:bg-gray-800 transition-colors inline-flex items-center justify-center">
-              Start free trial
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </button>
-            <button className="border border-gray-300 text-gray-700 px-8 py-3 rounded-md text-lg font-medium hover:border-gray-400 transition-colors">
-              View demo
-            </button>
-          </div>
-          <p className="mt-4 text-sm text-gray-500">
-            14-day free trial • No credit card required
-          </p>
+    <section className="pt-28 pb-28 sm:px-8 lg:px-12 bg-gray-50">
+      <div className=" mx-auto">
+        <div className="grid lg:grid-cols-2 gap-20 items-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <h1 className="text-5xl font-header font-semibold sm:text-6xl lg:text-7xl text-black leading-tight tracking-tight">
+              The CRM that grows with your business
+            </h1>
+            <p className="mt-6 text-base text-gray-700 leading-relaxed font-sans">
+              Powerful, customizable CRM designed for modern teams. Manage
+              leads, automate workflows, and scale your sales operations with
+              enterprise-grade features.
+            </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-3">
+              <button className="bg-black cursor-pointer text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 hover:shadow-lg  transition-all inline-flex items-center justify-center">
+                Start free trial
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </button>
+              <button className="bg-white cursor-pointer text-black px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 hover:border-gray-400 hover:shadow-md transition-all border border-gray-300">
+                View demo
+              </button>
+            </div>
+            <p className="mt-5 text-xs text-gray-600 font-normal">
+              14-day free trial • No credit card required
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+            className="relative"
+          >
+            <div className="relative bg-white rounded-xl shadow-sm border border-gray-300 p-8 overflow-hidden">
+              <div className="space-y-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gray-200"></div>
+                  <div className="flex-1">
+                    <div className="h-3 bg-gray-300 rounded w-32 mb-2"></div>
+                    <div className="h-2 bg-gray-200 rounded w-24"></div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4 pt-4">
+                  <div className="h-24 bg-gray-100 rounded-lg border border-gray-300"></div>
+                  <div className="h-24 bg-gray-100 rounded-lg border border-gray-300"></div>
+                  <div className="h-24 bg-gray-100 rounded-lg border border-gray-300"></div>
+                </div>
+                <div className="space-y-3 pt-3">
+                  <div className="h-2 bg-gray-200 rounded w-full"></div>
+                  <div className="h-2 bg-gray-200 rounded w-5/6"></div>
+                  <div className="h-2 bg-gray-200 rounded w-4/6"></div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>
