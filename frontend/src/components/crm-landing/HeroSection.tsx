@@ -5,8 +5,8 @@ import { motion } from "framer-motion";
 
 export const HeroSection: React.FC = () => {
   return (
-    <section className="pt-28 pb-28 sm:px-8 lg:px-12 bg-gray-50">
-      <div className=" mx-auto">
+    <section className="pt-28 pb-28 px-6 sm:px-8 lg:px-12 bg-gray-50">
+      <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-20 items-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -22,7 +22,7 @@ export const HeroSection: React.FC = () => {
               enterprise-grade features.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
-              <button className="bg-black cursor-pointer text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 hover:shadow-lg  transition-all inline-flex items-center justify-center">
+              <button className="bg-black cursor-pointer text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 hover:shadow-lg hover transition-all inline-flex items-center justify-center">
                 Start free trial
                 <ArrowRight className="ml-2 w-4 h-4" />
               </button>
