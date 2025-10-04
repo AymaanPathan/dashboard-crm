@@ -25,7 +25,7 @@ const LandingPage = () => {
   }, [dispatch]);
 
   const renderLanding = () => (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
       <HeroSection />
       <FeaturesSection features={crmFeatures} />
