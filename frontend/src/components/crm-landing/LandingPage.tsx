@@ -10,7 +10,6 @@ import { crmPricingPlans } from "@/assets/landing-page-data/crmPricing";
 import { RootDispatch } from "@/store";
 import { useDispatch } from "react-redux";
 import { getOrganizationInfo } from "@/store/slices/orgSlice";
-import { Footer } from "./Footer";
 
 const LandingPage = () => {
   const dispatch: RootDispatch = useDispatch();
@@ -27,7 +26,6 @@ const LandingPage = () => {
       <HeroSection />
       <FeaturesSection features={crmFeatures} />
       <PricingSection pricingPlans={crmPricingPlans} />
-      <Footer/>
     </div>
   );
 
