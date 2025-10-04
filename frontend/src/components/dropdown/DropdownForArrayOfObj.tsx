@@ -61,7 +61,7 @@ export const DropdownMenuForArrayOfObjects: React.FC<
                 key={item.id}
                 type="button"
                 onClick={() => handleSelect(item)}
-                className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 transition-colors"
+                className="w-full cursor-pointer px-3 py-2 text-sm text-left hover:bg-gray-50 transition-colors"
               >
                 {item.name || item.username}
               </button>

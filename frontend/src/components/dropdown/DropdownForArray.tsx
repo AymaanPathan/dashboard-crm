@@ -27,7 +27,7 @@ export const DropdownMenuForArray: React.FC<DropdownMenuForArrayProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="h-9 px-3 text-sm text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all flex items-center gap-2 focus:outline-none focus:ring-1 focus:ring-gray-200"
+        className="h-9 cursor-pointer px-3 text-sm text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all flex items-center gap-2 focus:outline-none focus:ring-1 focus:ring-gray-200"
       >
         <span className="text-xs text-gray-500 font-medium">
           {dropdownLabel}:
