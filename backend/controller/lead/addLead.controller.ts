@@ -115,10 +115,10 @@ const createLead = async (req: Request, res: Response) => {
       data: {
         name: name.trim(),
         email: email?.trim().toLowerCase() || "",
-        phone: mobileNumber?.trim() || null,
-        source: source?.trim() || null,
-        contactPersonName: contactPersonName?.trim() || null,
-        leadType: leadType?.trim().toLowerCase() || null,
+        phone: mobileNumber?.trim() || "",
+        source: source?.trim() || "",
+        contactPersonName: contactPersonName?.trim() || "",
+        leadType: leadType?.trim().toLowerCase() || "",
         requirements: requirements?.trim(),
         address:
           address && Object.keys(address).length > 0 ? { ...address } : {},

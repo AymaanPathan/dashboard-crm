@@ -3,13 +3,23 @@ import { ILead } from "@/models/lead.model";
 import axiosSetup from "@/utils/axiosSetup";
 
 export const getLeadForKanbanApi = async () => {
-  const response = await axiosSetup.get("/lead/getAll");
-  return response.data;
+  try {
+    const response = await axiosSetup.get("/lead/getAll");
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching leads:", error);
+    throw error;
+  }
 };
 
 export const addLeadApi = async (leadData: ILead) => {
-  const response = await axiosSetup.post("/lead/add", leadData);
-  return response.data;
+  try {
+    const response = await axiosSetup.post("/lead/add", leadData);
+    return response.data;
+  } catch (error: any) {
+    console.error("Error adding lead:", error);
+    throw error;
+  }
 };
 
 export const addLeadViaExcel = async (
@@ -22,8 +32,13 @@ export const addLeadViaExcel = async (
   formData.append("file", file);
   formData.append("assigneeId", assigneeId);
 
-  const res = await axiosSetup.post("lead/import", formData);
-  return res.data;
+  try {
+    const res = await axiosSetup.post("lead/import", formData);
+    return res.data;
+  } catch (error: any) {
+    console.error("Error importing leads:", error);
+    throw error;
+  }
 };
 
 export const updateLeadDragDropApi = async (
@@ -33,26 +48,36 @@ export const updateLeadDragDropApi = async (
   oldPosition: number,
   newPosition: number
 ): Promise<any> => {
-  const response = await axiosSetup.patch("/lead/updateStatus", {
-    leadId,
-    oldStage,
-    newStage,
-    oldPosition,
-    newPosition,
-  });
+  try {
+    const response = await axiosSetup.patch("/lead/updateStatus", {
+      leadId,
+      oldStage,
+      newStage,
+      oldPosition,
+      newPosition,
+    });
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    console.error("Error updating lead position:", error);
+    throw error;
+  }
 };
 
 export const updateAssigneeApi = async (
   leadId: string,
   newAssigneeId: string
 ) => {
-  const response = await axiosSetup.patch("/lead/updateAssignee", {
-    leadId,
-    newAssigneeId,
-  });
-  return response.data;
+  try {
+    const response = await axiosSetup.patch("/lead/updateAssignee", {
+      leadId,
+      newAssigneeId,
+    });
+    return response.data;
+  } catch (error: any) {
+    console.error("Error updating lead assignee:", error);
+    throw error;
+  }
 };
 
 export const getOneLeadApi = async (leadId: string) => {

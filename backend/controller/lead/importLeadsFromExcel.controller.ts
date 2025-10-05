@@ -73,7 +73,6 @@ const importLeadsFromExcel = async (req: Request, res: Response) => {
           source: lead["Source"]?.trim() || null,
           company: lead["Company"]?.trim() || null,
           contactPersonName: lead["Contact Person"]?.trim() || null,
-          budget: lead["Budget"]?.toString() || null,
           notes: lead["Notes"]?.trim() || null,
           address: lead["Address"] ? JSON.parse(lead["Address"]) : {},
           assignedToId: assigneeId ,

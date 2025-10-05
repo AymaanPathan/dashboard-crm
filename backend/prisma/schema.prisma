@@ -102,11 +102,11 @@ model Lead {
   @@index([organizationId, stageId, position])
   id                String   @id @default(uuid())
   name              String
-  email             String
+  email             String @unique
   phone             String
-  company           String
+  company           String @default("Unknown")
   source            String
-  leadType          String
+  leadType          String @default("Hot") 
   contactPersonName String
   address           Json?
   requirements     String?
