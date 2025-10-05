@@ -17,12 +17,7 @@ export const MobileMenu: React.FC = () => {
         >
           Pricing
         </a>
-        <a
-          href="#testimonials"
-          className="block px-3 py-2 text-gray-600 hover:text-gray-900 text-sm font-medium"
-        >
-          Testimonials
-        </a>
+
         <button className="block w-full text-left px-3 py-2 text-gray-600 hover:text-gray-900 text-sm font-medium">
           Login
         </button>

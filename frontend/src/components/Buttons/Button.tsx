@@ -8,7 +8,7 @@ interface NotionButtonProps
   className?: string;
 }
 
-export const Button: React.FC<NotionButtonProps> = ({
+export const CustomButton: React.FC<NotionButtonProps> = ({
   children,
   variant = "primary",
   icon,

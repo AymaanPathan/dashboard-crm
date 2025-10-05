@@ -1,12 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import Link from "next/link";
 import { BarChart3, Menu, X } from "lucide-react";
-import { MobileMenu } from "./MobileMenu";
 import { getToken } from "@/utils/auth.utils";
-import { logoutUser } from "@/store/slices/authSlice";
-import { RootDispatch, RootState } from "@/store";
-import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { useSelector } from "react-redux";
 
 export default function Navbar() {
   const currentOrganization = useSelector(
@@ -14,108 +11,71 @@ export default function Navbar() {
   );
   const token = getToken();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const dispatch: RootDispatch = useDispatch();
-
-  const handleLogout = () => {
-    dispatch(logoutUser());
-  };
 
   return (
-    <nav className="border-b border-gray-200/60 bg-white/95 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
-      <div className=" mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo Section */}
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 bg-gradient-to-br from-gray-900 to-black rounded-lg flex items-center justify-center shadow-md">
-              <BarChart3 className="w-5 h-5 text-white" />
+    <nav className="border-b border-black/8 bg-white/80 backdrop-blur-md sticky top-0 z-50">
+      <div className="mx-auto px-6 lg:px-8">
+        <div className="flex justify-between items-center h-[60px]">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-black rounded-md flex items-center justify-center">
+              <BarChart3 className="w-4 h-4 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900 tracking-tight">
+            <span className="text-[15px] font-semibold text-black">
               CRMFlow
             </span>
           </div>
 
-          {/* Center Navigation */}
-          <div className="hidden md:flex items-center space-x-1 absolute left-1/2 transform -translate-x-1/2">
+          <div className="hidden md:flex items-center gap-1">
             <a
               href="#features"
-              className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              className="text-black/70 hover:text-black hover:bg-black/5 px-3 py-1.5 rounded-md text-[14px] font-normal transition-all"
             >
               Features
             </a>
             <a
               href="#pricing"
-              className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              className="text-black/70 hover:text-black hover:bg-black/5 px-3 py-1.5 rounded-md text-[14px] font-normal transition-all"
             >
               Pricing
             </a>
-            <a
-              href="#testimonials"
-              className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
-            >
-              Testimonials
-            </a>
           </div>
 
-          {/* Right Side Buttons */}
-          <div className="hidden md:flex items-center space-x-2">
+          <div className="hidden md:flex items-center gap-2">
             {!token ? (
               <>
-                <Link
-                  href="/login"
-                  className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
-                >
+                <button className="text-black/70 hover:text-black hover:bg-black/5 px-3 py-1.5 rounded-md text-[14px] font-normal transition-all">
                   Login
-                </Link>
-                <Link
-                  href="/signup"
-                  className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
-                >
+                </button>
+                <button className="bg-black hover:bg-black/90 text-white px-3 py-1.5 rounded-md text-[14px] font-medium transition-all">
                   Get Started
-                </Link>
+                </button>
               </>
             ) : (
               <>
-                {currentOrganization?.id ? (
-                  <Link
-                    href="/crm/dashboard"
-                    className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-gray-200 hover:border-gray-300"
-                  >
-                    Go To Organization
-                  </Link>
-                ) : (
-                  <Link
-                    href="/organizationsetup"
-                    className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-gray-200 hover:border-gray-300"
-                  >
-                    Setup Organization
-                  </Link>
-                )}
-                <Link
-                  onClick={handleLogout}
-                  href="/"
-                  className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
-                >
+                <button className="text-black/70 hover:text-black hover:bg-black/5 px-3 py-1.5 rounded-md text-[14px] font-normal transition-all border border-black/10">
+                  {currentOrganization?.id
+                    ? "Go To Organization"
+                    : "Setup Organization"}
+                </button>
+                <button className="bg-black hover:bg-black/90 text-white px-3 py-1.5 rounded-md text-[14px] font-medium transition-all">
                   Logout
-                </Link>
+                </button>
               </>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+            className="md:hidden p-1.5 rounded-md hover:bg-black/5 transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
-              <X className="w-6 h-6 text-gray-600" />
+              <X className="w-5 h-5 text-black/70" />
             ) : (
-              <Menu className="w-6 h-6 text-gray-600" />
+              <Menu className="w-5 h-5 text-black/70" />
             )}
           </button>
         </div>
       </div>
-
-      {mobileMenuOpen && <MobileMenu />}
     </nav>
   );
 }

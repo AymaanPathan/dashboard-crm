@@ -21,7 +21,23 @@ const LandingPage = () => {
   }, [dispatch]);
 
   const renderLanding = () => (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
+      <style>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(32px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        html {
+          scroll-behavior: smooth;
+        }
+      `}</style>
       <Navbar />
       <HeroSection />
       <FeaturesSection features={crmFeatures} />
