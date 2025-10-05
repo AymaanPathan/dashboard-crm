@@ -1,16 +1,23 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BarChart3, Menu, X } from "lucide-react";
 import { getToken } from "@/utils/auth.utils";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
+import Link from "next/link";
 
 export default function Navbar() {
   const currentOrganization = useSelector(
     (state: RootState) => state.org.currentOrganization
   );
-  const token = getToken();
+  const [token, setToken] = useState<string | null>(null);
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const t = getToken();
+    setToken(t!);
+  }, []);
 
   return (
     <nav className="border-b border-black/8 bg-white/80 backdrop-blur-md sticky top-0 z-50">
@@ -52,14 +59,14 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <button className="text-black/70 hover:text-black hover:bg-black/5 px-3 py-1.5 rounded-md text-[14px] font-normal transition-all border border-black/10">
+                <Link
+                  href="/crm/dashboard"
+                  className="text-black cursor-pointer hover:text-black hover:bg-black/5 px-3 py-1.5 rounded-md text-[14px] font-normal transition-all border border-black/10"
+                >
                   {currentOrganization?.id
                     ? "Go To Organization"
                     : "Setup Organization"}
-                </button>
-                <button className="bg-black hover:bg-black/90 text-white px-3 py-1.5 rounded-md text-[14px] font-medium transition-all">
-                  Logout
-                </button>
+                </Link>
               </>
             )}
           </div>
