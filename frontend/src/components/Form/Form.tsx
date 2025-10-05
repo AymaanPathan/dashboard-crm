@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { X, ChevronDown } from "lucide-react";
 
 interface FormModalProps {
@@ -170,6 +170,8 @@ interface FormSelectProps {
   placeholder?: string;
   options: { value: string; label: string }[];
   error?: string;
+  isOpen: boolean;
+  onToggle: () => void;
 }
 
 export const FormSelect: React.FC<FormSelectProps> = ({
@@ -179,47 +181,47 @@ export const FormSelect: React.FC<FormSelectProps> = ({
   placeholder = "Select option",
   options,
   error,
+  isOpen,
+  onToggle,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 relative">
       <label className="block text-sm text-gray-700">{label}</label>
-      <div className="relative">
-        <button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className={`w-full px-0 py-2.5 text-[15px] text-left bg-transparent border-0 border-b transition-colors focus:outline-none flex items-center justify-between ${
-            error
-              ? "border-red-300 focus:border-red-500"
-              : "border-gray-200 focus:border-gray-900"
-          }`}
-        >
-          <span className={value ? "text-gray-900" : "text-gray-400"}>
-            {value
-              ? options.find((opt) => opt.value === value)?.label
-              : placeholder}
-          </span>
-          <ChevronDown className="w-4 h-4 text-gray-400" />
-        </button>
-        {isOpen && (
-          <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-auto">
-            {options.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => {
-                  onChange(option.value);
-                  setIsOpen(false);
-                }}
-                className="w-full px-4 py-2.5 text-[15px] text-left hover:bg-gray-50 transition-colors"
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      <button
+        type="button"
+        onClick={onToggle}
+        className={`w-full px-0 py-2.5 text-[15px] text-left bg-transparent border-0 border-b transition-colors focus:outline-none flex items-center justify-between ${
+          error
+            ? "border-red-300 focus:border-red-500"
+            : "border-gray-200 focus:border-gray-900"
+        }`}
+      >
+        <span className={value ? "text-gray-900" : "text-gray-400"}>
+          {value
+            ? options.find((opt) => opt.value === value)?.label
+            : placeholder}
+        </span>
+        <ChevronDown className="w-4 h-4 text-gray-400" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-auto">
+          {options.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => {
+                onChange(option.value);
+                onToggle(); // close after selecting
+              }}
+              className="w-full px-4 py-2.5 text-[15px] text-left hover:bg-gray-50 transition-colors"
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
   );

@@ -27,28 +27,48 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
 }) => {
   const teamMembers = useSelector((state: RootState) => state.user.teamMembers);
   const stagesList = useSelector((state: RootState) => state.stages.stages);
+  const [selectedOptions, setSelectedOptions] = useState<string | null>(null);
 
   const dispatch: RootDispatch = useDispatch();
   const [formData, setFormData] = useState<ILead>({
-    name: "John Doe2",
-    email: "john2@example.com",
-    mobileNumber: "9876543210",
-    source: "Website",
-    requirements: "Looking for a solar solution",
+    name: "",
+    email: "",
+    mobileNumber: "",
+    source: "",
+    requirements: "",
     stageId: "",
     assignedToId: "",
     leadType: "Hot",
-    contactPersonName: "Jane Doe",
+    contactPersonName: "",
     address: {
-      street: "123 Main Street",
-      city: "Vadodara",
-      state: "Gujarat",
-      postalCode: "390001",
-      country: "India",
+      street: "",
+      city: "",
+      state: "",
+      postalCode: "",
+      country: "",
     },
   });
+  // const [formData, setFormData] = useState<ILead>({
+  //   name: "John Doe2",
+  //   email: "john2@example.com",
+  //   mobileNumber: "9876543210",
+  //   source: "Website",
+  //   requirements: "Looking for a solar solution",
+  //   stageId: "",
+  //   assignedToId: "",
+  //   leadType: "Hot",
+  //   contactPersonName: "Jane Doe",
+  //   address: {
+  //     street: "123 Main Street",
+  //     city: "Vadodara",
+  //     state: "Gujarat",
+  //     postalCode: "390001",
+  //     country: "India",
+  //   },
+  // });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -72,6 +92,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setTouched((prev) => ({ ...prev, [name]: true }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -79,14 +100,21 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    if (!formData.name.trim()) newErrors.name = "Required";
-    if (!formData.email.trim()) newErrors.email = "Required";
+    if (!formData.name.trim()) newErrors.name = "Company name is required";
+    if (!formData.email.trim()) newErrors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(formData.email))
-      newErrors.email = "Invalid email";
-    if (!formData.mobileNumber.trim()) newErrors.mobileNumber = "Required";
-    if (!formData.source) newErrors.source = "Required";
+      newErrors.email = "Please enter a valid email address";
+    if (!formData.mobileNumber.trim())
+      newErrors.mobileNumber = "Phone number is required";
+    if (!formData.source) newErrors.source = "Please select a source";
 
     setErrors(newErrors);
+    setTouched({
+      name: true,
+      email: true,
+      mobileNumber: true,
+      source: true,
+    });
     return Object.keys(newErrors).length === 0;
   };
 
@@ -121,6 +149,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
       stageId: "",
     });
     setErrors({});
+    setTouched({});
     onClose();
   };
 
@@ -134,19 +163,20 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
       onSubmit={handleSubmit}
       submitLabel="Create Lead"
     >
-      <div className="space-y-8">
+      <div className="space-y-6">
+        {/* Company Information */}
         <FormSection
-          icon={<Building2 className="w-4 h-4 text-gray-400" />}
+          icon={<Building2 className="w-3.5 h-3.5 text-gray-500" />}
           title="Company Information"
         >
-          <div className="space-y-4">
+          <div className="space-y-3">
             <FormField
               label="Company Name"
               name="name"
               value={formData.name}
               onChange={handleInputChange}
               placeholder="Acme Corporation"
-              error={errors.name}
+              error={touched.name ? errors.name : undefined}
             />
 
             <FormField
@@ -157,7 +187,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
               placeholder="John Smith"
             />
 
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-2 gap-3">
               <FormField
                 label="Email"
                 name="email"
@@ -165,7 +195,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="john@acme.com"
-                error={errors.email}
+                error={touched.email ? errors.email : undefined}
               />
 
               <FormField
@@ -175,7 +205,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                 value={formData.mobileNumber}
                 onChange={handleInputChange}
                 placeholder="+1 (555) 000-0000"
-                error={errors.mobileNumber}
+                error={touched.mobileNumber ? errors.mobileNumber : undefined}
               />
             </div>
           </div>
@@ -183,10 +213,10 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
 
         {/* Classification */}
         <FormSection
-          icon={<Tag className="w-4 h-4 text-gray-400" />}
+          icon={<Tag className="w-3.5 h-3.5 text-gray-500" />}
           title="Classification"
         >
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-2 gap-3">
             <FormSelect
               label="Lead Type"
               value={formData.leadType}
@@ -196,6 +226,13 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                 value: cat,
                 label: cat,
               }))}
+              isOpen={selectedOptions === "leadType"}
+              onToggle={() =>
+                setSelectedOptions(
+                  selectedOptions === "leadType" ? null : "leadType"
+                )
+              }
+              error={touched.leadType ? errors.leadType : undefined}
             />
 
             <FormSelect
@@ -207,17 +244,23 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                 value: src,
                 label: src,
               }))}
-              error={errors.source}
+              error={touched.source ? errors.source : undefined}
+              isOpen={selectedOptions === "source"}
+              onToggle={() =>
+                setSelectedOptions(
+                  selectedOptions === "source" ? null : "source"
+                )
+              }
             />
           </div>
         </FormSection>
 
         {/* Assignment */}
         <FormSection
-          icon={<Users className="w-4 h-4 text-gray-400" />}
+          icon={<Users className="w-3.5 h-3.5 text-gray-500" />}
           title="Assignment"
         >
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-2 gap-3">
             <FormSelect
               label="Assigned To"
               value={formData.assignedToId}
@@ -227,6 +270,12 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                 value: member.id!,
                 label: member.username,
               }))}
+              isOpen={selectedOptions === "assignedToId"}
+              onToggle={() =>
+                setSelectedOptions(
+                  selectedOptions === "assignedToId" ? null : "assignedToId"
+                )
+              }
             />
 
             <FormSelect
@@ -238,16 +287,22 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                 value: stage.id!,
                 label: stage.name!,
               }))}
+              isOpen={selectedOptions === "stageId"}
+              onToggle={() =>
+                setSelectedOptions(
+                  selectedOptions === "stageId" ? null : "stageId"
+                )
+              }
             />
           </div>
         </FormSection>
 
         {/* Address */}
         <FormSection
-          icon={<MapPin className="w-4 h-4 text-gray-400" />}
+          icon={<MapPin className="w-3.5 h-3.5 text-gray-500" />}
           title="Address"
         >
-          <div className="space-y-4">
+          <div className="space-y-3">
             <FormField
               label="Street"
               name="address.street"
@@ -256,7 +311,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
               placeholder="123 Main Street"
             />
 
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-3 gap-3">
               <FormField
                 label="City"
                 name="address.city"
@@ -292,7 +347,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
 
         {/* Requirements */}
         <FormSection
-          icon={<FileText className="w-4 h-4 text-gray-400" />}
+          icon={<FileText className="w-3.5 h-3.5 text-gray-500" />}
           title="Notes"
         >
           <FormTextarea
@@ -301,7 +356,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
             value={formData.requirements!}
             onChange={handleInputChange}
             placeholder="Add any notes about this lead..."
-            rows={4}
+            rows={3}
           />
         </FormSection>
       </div>
