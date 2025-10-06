@@ -15,10 +15,9 @@ export interface ILead {
   position?: number;
 }
 interface IAddress {
-  line1?: string;
+  street?: string;
   city?: string;
   state?: string;
-  district?: string;
   pincode?: string;
 }
 

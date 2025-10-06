@@ -1,17 +1,18 @@
 import { IKanbanLoadingState } from "./loadings.model";
 
+export interface IAddress {
+  street: string;
+  city: string;
+  state: string;
+  pincode: string;
+}
+
 export interface ILead {
   name: string;
   email: string;
   mobileNumber: string;
   source: string;
-  address: {
-    street?: string;
-    city?: string;
-    state?: string;
-    postalCode?: string;
-    country?: string;
-  };
+  address: IAddress;
   leadType: string;
   contactPersonName: string;
   requirements?: string;
@@ -59,13 +60,6 @@ export interface KanbanState {
   kanbanData: [];
   loading: IKanbanLoadingState;
   error: string | null;
-}
-
-export interface Address {
-  street: string;
-  city: string;
-  state: string;
-  pincode: string;
 }
 
 export interface LeadFilters {

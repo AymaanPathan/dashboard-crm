@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import React, { useState, useEffect, useRef } from "react";
@@ -5,7 +6,7 @@ import { Building2, MapPin, Tag, FileText, Users } from "lucide-react";
 
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
-import { ILead } from "@/models/lead.model";
+import { IAddress, ILead } from "@/models/lead.model";
 import { addLead } from "@/store/slices/kanbanSlice";
 import { LeadSource } from "@/enums/leadSource..enum";
 import { LeadCategory } from "@/enums/leadCategory.enum";
@@ -22,14 +23,6 @@ interface AddLeadFormProps {
   onClose: () => void;
 }
 
-interface AddressErrors {
-  street?: string;
-  city?: string;
-  state?: string;
-  postalCode?: string;
-  country?: string;
-}
-
 interface FormErrors {
   name?: string;
   email?: string;
@@ -40,8 +33,8 @@ interface FormErrors {
   stageId?: string;
   contactPersonName?: string;
   requirements?: string;
-  address?: AddressErrors;
-  [key: string]: string | AddressErrors | undefined;
+  address?: IAddress;
+  [key: string]: string | IAddress | undefined;
 }
 
 export const AddLeadForm: React.FC<AddLeadFormProps> = ({
@@ -68,8 +61,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
       street: "",
       city: "",
       state: "",
-      postalCode: "",
-      country: "",
+      pincode: "",
     },
   });
 
@@ -104,8 +96,8 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
   };
 
   const validateForm = (): boolean => {
-    const newErrors: Record<string, string | AddressErrors> = {};
-    newErrors.address = {};
+    const newErrors: Record<string, string> = {};
+    const addressErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) newErrors.name = "Company name is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
@@ -120,19 +112,18 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
     if (!formData.stageId) newErrors.stageId = "Please select a stage";
 
     // ✅ Address validation
-    if (!formData?.address.street!.trim())
-      newErrors.address.street = "Street is required";
-    if (!formData?.address.city!.trim())
-      newErrors.address.city = "City is required";
-    if (!formData?.address.state!.trim())
-      newErrors.address.state = "State is required";
-    if (!formData?.address.postalCode!.trim())
-      newErrors.address.postalCode = "Postal code is required";
-    if (!formData?.address.country!.trim())
-      newErrors.address.country = "Country is required";
+    if (!formData?.address.street?.trim())
+      addressErrors.street = "Street is required";
+    if (!formData?.address.city?.trim())
+      addressErrors.city = "City is required";
+    if (!formData?.address.state?.trim())
+      addressErrors.state = "State is required";
+    if (!formData?.address.pincode?.trim())
+      addressErrors.pincode = "ZIP is required";
 
-    // ✅ Remove empty address object if no address errors
-    if (Object.keys(newErrors.address).length === 0) delete newErrors.address;
+    if (Object.keys(addressErrors).length > 0) {
+      (newErrors.address as any) = addressErrors;
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -160,8 +151,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
         street: "",
         city: "",
         state: "",
-        postalCode: "",
-        country: "",
+        pincode: "",
       },
       contactPersonName: "",
       requirements: "",
@@ -392,21 +382,13 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
               />
               <FormField
                 label="ZIP"
-                name="address.postalCode"
-                value={formData.address.postalCode || ""}
+                name="address.pincode"
+                value={formData.address.pincode || ""}
                 onChange={handleInputChange}
                 placeholder="12345"
-                error={errors.address?.postalCode}
+                error={errors.address?.pincode}
               />
             </div>
-
-            <FormField
-              label="Country"
-              name="address.country"
-              value={formData.address.country || ""}
-              onChange={handleInputChange}
-              placeholder="United States"
-            />
           </div>
         </FormSection>
 

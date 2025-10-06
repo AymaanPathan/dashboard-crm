@@ -27,11 +27,60 @@ const createLead = async (req: Request, res: Response) => {
       organizationId = req?.user?.currentOrganizationId,
     }: ILead & { stageId: string } = req.body || {};
 
+    // ========== 🧩 BASIC VALIDATION ==========
     if (!name.trim()) {
       return sendResponse(res, {
         ...response,
         statusCode: 400,
-        message: "Lead name is required",
+        message: "Company name is required",
+      });
+    }
+
+    if (!email.trim()) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Email is required",
+      });
+    }
+
+    if (!mobileNumber.trim()) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Mobile number is required",
+      });
+    }
+
+    if (!source.trim()) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Lead source is required",
+      });
+    }
+
+    if (!leadType.trim()) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Lead type is required",
+      });
+    }
+
+    if (!assignedToId.trim()) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Assigned user is required",
+      });
+    }
+
+    if (!stageId.trim()) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Stage ID is required",
       });
     }
 
@@ -43,24 +92,66 @@ const createLead = async (req: Request, res: Response) => {
       });
     }
 
-    // Optional email format validation
-    if (email?.trim()) {
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(email)) {
-        return sendResponse(res, {
-          ...response,
-          statusCode: 400,
-          message: "Invalid email format",
-        });
-      }
+    // ========== 📧 EMAIL FORMAT VALIDATION ==========
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email.trim())) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Invalid email format",
+      });
     }
 
-    // 🧠 Validate stage
+    // ========== 📞 PHONE NUMBER VALIDATION ==========
+    const phonePattern = /^[0-9+\-\s()]{7,15}$/;
+    if (!phonePattern.test(mobileNumber.trim())) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message:
+          "Invalid mobile number format (only digits, spaces, +, - allowed)",
+      });
+    }
+
+    // ========== 📍 ADDRESS VALIDATION ==========
+    const { street = "", city = "", state = "", pincode = "" } = address || {};
+    console.log("sdds", req.body);
+
+    if (!street.trim()) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Street is required",
+      });
+    }
+
+    if (!city.trim()) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "City is required",
+      });
+    }
+
+    if (!state.trim()) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "State is required",
+      });
+    }
+
+    if (!pincode.trim()) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Pincode code is required",
+      });
+    }
+
+    // ========== 📊 STAGE VALIDATION ==========
     const stage = await prisma.stage.findFirst({
-      where: {
-        id: stageId,
-        organizationId: organizationId,
-      },
+      where: { id: stageId, organizationId },
     });
 
     if (!stage) {
@@ -71,38 +162,36 @@ const createLead = async (req: Request, res: Response) => {
       });
     }
 
-    if (assignedToId?.trim()) {
-      const assignedUser = await prisma.user.findUnique({
-        where: { id: assignedToId },
-      });
+    // ========== 👤 ASSIGNED USER VALIDATION ==========
+    const assignedUser = await prisma.user.findUnique({
+      where: { id: assignedToId },
+    });
 
-      if (!assignedUser) {
-        return sendResponse(res, {
-          ...response,
-          statusCode: 400,
-          message: "Assigned user not found",
-        });
-      }
+    if (!assignedUser) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "Assigned user not found",
+      });
     }
 
-    // Check duplicate lead by email
-    if (email?.trim()) {
-      const existingLead = await prisma.lead.findFirst({
-        where: {
-          email: email.trim().toLowerCase(),
-          organizationId: organizationId,
-        },
-      });
+    // ========== 🚫 DUPLICATE EMAIL CHECK ==========
+    const existingLead = await prisma.lead.findFirst({
+      where: {
+        email: email.trim().toLowerCase(),
+        organizationId,
+      },
+    });
 
-      if (existingLead) {
-        return sendResponse(res, {
-          ...response,
-          statusCode: 400,
-          message: "Lead with this email already exists in your organization",
-        });
-      }
+    if (existingLead) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "A lead with this email already exists in your organization",
+      });
     }
 
+    // ========== 📈 NEXT POSITION ==========
     const maxPosition = await prisma.lead.findFirst({
       where: { organizationId, stageId },
       orderBy: { position: "desc" },
@@ -111,39 +200,40 @@ const createLead = async (req: Request, res: Response) => {
 
     const nextPosition = maxPosition ? maxPosition.position + 1 : 0;
 
+    const ExistingLead = await prisma.lead.findFirst({
+      where: {
+        email: email.trim().toLowerCase(),
+        organizationId,
+      },
+    });
+    if (ExistingLead) {
+      return sendResponse(res, {
+        ...response,
+        statusCode: 400,
+        message: "A lead with this email already exists in your organization",
+      });
+    }
+
+    // ========== ✅ CREATE LEAD ==========
     const newLead = await prisma.lead.create({
       data: {
         name: name.trim(),
-        email: email?.trim().toLowerCase() || "",
-        phone: mobileNumber?.trim() || "",
-        source: source?.trim() || "",
+        email: email.trim().toLowerCase(),
+        phone: mobileNumber.trim(),
+        source: source.trim(),
         contactPersonName: contactPersonName?.trim() || "",
-        leadType: leadType?.trim().toLowerCase() || "",
-        requirements: requirements?.trim(),
-        address:
-          address && Object.keys(address).length > 0 ? { ...address } : {},
-        assignedToId: assignedToId?.trim() || null,
+        leadType: leadType.trim(),
+        requirements: requirements?.trim() || "",
+        address: { street, city, state, pincode },
+        assignedToId,
         createdBy,
         organizationId,
         stageId,
         position: nextPosition,
       },
       include: {
-        organization: {
-          select: {
-            id: true,
-            organization_name: true,
-          },
-        },
-        assignedTo: assignedToId
-          ? {
-              select: {
-                id: true,
-                username: true,
-                email: true,
-              },
-            }
-          : false,
+        organization: { select: { id: true, organization_name: true } },
+        assignedTo: { select: { id: true, username: true, email: true } },
       },
     });
 
