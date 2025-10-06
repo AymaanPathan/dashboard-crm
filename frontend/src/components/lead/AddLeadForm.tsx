@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Building2, MapPin, Tag, FileText, Users } from "lucide-react";
 
 import { RootDispatch, RootState } from "@/store";
@@ -21,6 +22,28 @@ interface AddLeadFormProps {
   onClose: () => void;
 }
 
+interface AddressErrors {
+  street?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+}
+
+interface FormErrors {
+  name?: string;
+  email?: string;
+  mobileNumber?: string;
+  source?: string;
+  leadType?: string;
+  assignedToId?: string;
+  stageId?: string;
+  contactPersonName?: string;
+  requirements?: string;
+  address?: AddressErrors;
+  [key: string]: string | AddressErrors | undefined;
+}
+
 export const AddLeadForm: React.FC<AddLeadFormProps> = ({
   isOpen,
   onClose,
@@ -28,6 +51,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
   const teamMembers = useSelector((state: RootState) => state.user.teamMembers);
   const stagesList = useSelector((state: RootState) => state.stages.stages);
   const [selectedOptions, setSelectedOptions] = useState<string | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const dispatch: RootDispatch = useDispatch();
   const [formData, setFormData] = useState<ILead>({
@@ -48,27 +72,8 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
       country: "",
     },
   });
-  // const [formData, setFormData] = useState<ILead>({
-  //   name: "John Doe2",
-  //   email: "john2@example.com",
-  //   mobileNumber: "9876543210",
-  //   source: "Website",
-  //   requirements: "Looking for a solar solution",
-  //   stageId: "",
-  //   assignedToId: "",
-  //   leadType: "Hot",
-  //   contactPersonName: "Jane Doe",
-  //   address: {
-  //     street: "123 Main Street",
-  //     city: "Vadodara",
-  //     state: "Gujarat",
-  //     postalCode: "390001",
-  //     country: "India",
-  //   },
-  // });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -92,14 +97,16 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setTouched((prev) => ({ ...prev, [name]: true }));
     if (errors[name]) {
+      // Clear error message on change
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
+    const newErrors: Record<string, string | AddressErrors> = {};
+    newErrors.address = {};
+
     if (!formData.name.trim()) newErrors.name = "Company name is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(formData.email))
@@ -107,14 +114,27 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
     if (!formData.mobileNumber.trim())
       newErrors.mobileNumber = "Phone number is required";
     if (!formData.source) newErrors.source = "Please select a source";
+    if (!formData.leadType) newErrors.leadType = "Please select a lead type";
+    if (!formData.assignedToId)
+      newErrors.assignedToId = "Please select a team member";
+    if (!formData.stageId) newErrors.stageId = "Please select a stage";
+
+    // ✅ Address validation
+    if (!formData?.address.street!.trim())
+      newErrors.address.street = "Street is required";
+    if (!formData?.address.city!.trim())
+      newErrors.address.city = "City is required";
+    if (!formData?.address.state!.trim())
+      newErrors.address.state = "State is required";
+    if (!formData?.address.postalCode!.trim())
+      newErrors.address.postalCode = "Postal code is required";
+    if (!formData?.address.country!.trim())
+      newErrors.address.country = "Country is required";
+
+    // ✅ Remove empty address object if no address errors
+    if (Object.keys(newErrors.address).length === 0) delete newErrors.address;
 
     setErrors(newErrors);
-    setTouched({
-      name: true,
-      email: true,
-      mobileNumber: true,
-      source: true,
-    });
     return Object.keys(newErrors).length === 0;
   };
 
@@ -149,9 +169,45 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
       stageId: "",
     });
     setErrors({});
-    setTouched({});
     onClose();
   };
+
+  // Handle escape key press
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isOpen) {
+        handleClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isOpen]);
+
+  // Handle outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        handleClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -176,7 +232,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
               value={formData.name}
               onChange={handleInputChange}
               placeholder="Acme Corporation"
-              error={touched.name ? errors.name : undefined}
+              error={errors.name}
             />
 
             <FormField
@@ -185,6 +241,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
               value={formData.contactPersonName}
               onChange={handleInputChange}
               placeholder="John Smith"
+              error={errors.contactPersonName}
             />
 
             <div className="grid grid-cols-2 gap-3">
@@ -195,7 +252,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="john@acme.com"
-                error={touched.email ? errors.email : undefined}
+                error={errors.email}
               />
 
               <FormField
@@ -205,7 +262,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                 value={formData.mobileNumber}
                 onChange={handleInputChange}
                 placeholder="+1 (555) 000-0000"
-                error={touched.mobileNumber ? errors.mobileNumber : undefined}
+                error={errors.mobileNumber}
               />
             </div>
           </div>
@@ -232,7 +289,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                   selectedOptions === "leadType" ? null : "leadType"
                 )
               }
-              error={touched.leadType ? errors.leadType : undefined}
+              error={errors.leadType}
             />
 
             <FormSelect
@@ -244,7 +301,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                 value: src,
                 label: src,
               }))}
-              error={touched.source ? errors.source : undefined}
+              error={errors.source}
               isOpen={selectedOptions === "source"}
               onToggle={() =>
                 setSelectedOptions(
@@ -256,28 +313,31 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
         </FormSection>
 
         {/* Assignment */}
+
         <FormSection
           icon={<Users className="w-3.5 h-3.5 text-gray-500" />}
           title="Assignment"
         >
           <div className="grid grid-cols-2 gap-3">
-            <FormSelect
-              label="Assigned To"
-              value={formData.assignedToId}
-              onChange={(value) => handleSelectChange("assignedToId", value)}
-              placeholder="Select team member"
-              options={teamMembers.salesReps.map((member) => ({
-                value: member.id!,
-                label: member.username,
-              }))}
-              isOpen={selectedOptions === "assignedToId"}
-              onToggle={() =>
-                setSelectedOptions(
-                  selectedOptions === "assignedToId" ? null : "assignedToId"
-                )
-              }
-            />
-
+            {
+              <FormSelect
+                label="Assigned To"
+                value={formData.assignedToId}
+                onChange={(value) => handleSelectChange("assignedToId", value)}
+                placeholder="Select team member"
+                options={teamMembers.salesReps.map((member) => ({
+                  value: member.id!,
+                  label: member.username,
+                }))}
+                isOpen={selectedOptions === "assignedToId"}
+                onToggle={() =>
+                  setSelectedOptions(
+                    selectedOptions === "assignedToId" ? null : "assignedToId"
+                  )
+                }
+                error={errors.assignedToId}
+              />
+            }
             <FormSelect
               label="Stage"
               value={formData.stageId ?? ""}
@@ -293,6 +353,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                   selectedOptions === "stageId" ? null : "stageId"
                 )
               }
+              error={errors.stageId}
             />
           </div>
         </FormSection>
@@ -309,6 +370,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
               value={formData.address.street || ""}
               onChange={handleInputChange}
               placeholder="123 Main Street"
+              error={errors.address?.street}
             />
 
             <div className="grid grid-cols-3 gap-3">
@@ -318,6 +380,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                 value={formData.address.city || ""}
                 onChange={handleInputChange}
                 placeholder="City"
+                error={errors.address?.city}
               />
               <FormField
                 label="State"
@@ -325,6 +388,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                 value={formData.address.state || ""}
                 onChange={handleInputChange}
                 placeholder="State"
+                error={errors.address?.state}
               />
               <FormField
                 label="ZIP"
@@ -332,6 +396,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
                 value={formData.address.postalCode || ""}
                 onChange={handleInputChange}
                 placeholder="12345"
+                error={errors.address?.postalCode}
               />
             </div>
 

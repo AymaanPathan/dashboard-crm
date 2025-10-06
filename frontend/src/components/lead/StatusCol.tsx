@@ -69,7 +69,7 @@ export const StatusColumn: React.FC<{ stage: any }> = ({ stage }) => {
   return (
     <div
       ref={drop as any}
-      className={`bg-gray-50 rounded-xl flex flex-col h-full transition-all ${
+      className={`bg-gray-50 h-screen rounded-xl flex flex-col  transition-all ${
         isOver && canDrop ? "bg-gray-50 ring-2 ring-gray-600" : ""
       }`}
     >

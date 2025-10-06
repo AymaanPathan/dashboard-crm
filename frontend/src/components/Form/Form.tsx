@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { X, ChevronDown } from "lucide-react";
 
 interface FormModalProps {
@@ -19,19 +19,60 @@ export const FormModal: React.FC<FormModalProps> = ({
   onSubmit,
   submitLabel = "Submit",
 }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Handle escape key press
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isOpen, onClose]);
+
+  // Handle outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center  backdrop-blur-sm">
-      <div className="relative w-full max-w-3xl max-h-[85vh] overflow-hidden bg-white shadow-2xl rounded-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+      <div
+        ref={modalRef}
+        className="relative w-full max-w-3xl max-h-[85vh] overflow-hidden bg-white shadow-2xl rounded-2xl"
+      >
         <div className="px-6 pt-8 pb-6">
           <div className="flex items-start justify-between mb-8">
             <h2 className="text-3xl font-semibold text-gray-500">{title}</h2>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-all"
-            >
-              <X className="w-5 h-5 text-gray-400" />
+            <button onClick={onClose} className="flex items-center gap-2 group">
+              <span className="text-xs text-gray-400 border border-gray-300 rounded px-1.5 py-0.5 font-mono group-hover:border-gray-400 transition-colors">
+                ESC
+              </span>
             </button>
           </div>
 
@@ -212,7 +253,7 @@ export const FormSelect: React.FC<FormSelectProps> = ({
               type="button"
               onClick={() => {
                 onChange(option.value);
-                onToggle(); // close after selecting
+                onToggle();
               }}
               className="w-full px-4 py-2.5 text-[15px] text-left hover:bg-gray-50 transition-colors"
             >
