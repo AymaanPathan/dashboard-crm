@@ -17,6 +17,8 @@ import {
   FormSelect,
   FormTextarea,
 } from "../Form/Form";
+import ErrorToast from "@/assets/toast/ErrorToast";
+import SuccessToast from "@/assets/toast/SuccessToast";
 
 interface AddLeadFormProps {
   isOpen: boolean;
@@ -130,13 +132,27 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
   };
 
   const onSubmit = async () => {
-    await dispatch(addLead(formData));
+    try {
+      await dispatch(addLead(formData)).unwrap();
+      // Show success toast
+      SuccessToast({
+        title: "Lead added",
+        description: "The lead has been added successfully.",
+        duration: 5000,
+      });
+      handleClose();
+    } catch (error: any) {
+      ErrorToast({
+        title: "Failed to add lead",
+        description: error,
+        duration: 5000,
+      });
+    }
   };
 
   const handleSubmit = () => {
     if (validateForm()) {
       onSubmit();
-      handleClose();
     }
   };
 

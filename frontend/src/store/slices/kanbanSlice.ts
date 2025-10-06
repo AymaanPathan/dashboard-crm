@@ -57,10 +57,14 @@ export const updateLeadStatus = createAsyncThunk(
 );
 
 export const addLead = createAsyncThunk(
-  "leads/addLead",
-  async (lead: ILead) => {
-    const response = await addLeadApi(lead);
-    return response.data;
+  "lead/addLead",
+  async (leadData: ILead, { rejectWithValue }) => {
+    try {
+      const data = await addLeadApi(leadData);
+      return data;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
 );
 
@@ -199,9 +203,8 @@ const kanbanSlice = createSlice({
         state.loading.addingLead = false;
       })
       .addCase(addLead.rejected, (state, action) => {
-        console.log("Newly added lead:", action.payload);
-        console.error("Failed to add lead:", action.error);
         state.loading.addingLead = false;
+        state.error = action.payload as string;
       })
       .addCase(updateLeadAssignee.fulfilled, (state, action) => {
         state.loading.updatingAssignee = false;
