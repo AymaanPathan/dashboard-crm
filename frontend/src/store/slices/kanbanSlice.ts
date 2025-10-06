@@ -10,7 +10,7 @@ import { ILead, KanbanState, LeadFilters } from "@/models/lead.model";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: KanbanState = {
-  leads: [],
+  leads: [] as ILead[],
   statuses: [],
   kanbanData: [],
   loading: {
@@ -109,8 +109,12 @@ const kanbanSlice = createSlice({
     ) => {
       const { leadId, oldStageId, newStageId, newPosition } = action.payload;
 
-      const oldColumn = state.kanbanData.find((c) => c.stageId === oldStageId);
-      const newColumn = state.kanbanData.find((c) => c.stageId === newStageId);
+      const oldColumn: any = state.kanbanData.find(
+        (c: any) => c.stageId === oldStageId
+      );
+      const newColumn: any = state.kanbanData.find(
+        (c: any) => c.stageId === newStageId
+      );
 
       if (!oldColumn || !newColumn) return;
 
@@ -182,12 +186,10 @@ const kanbanSlice = createSlice({
       .addCase(addLead.fulfilled, (state, action) => {
         const newLead = action?.payload?.lead;
 
-        // Add to the main leads array
         state.leads.push(newLead);
 
-        // Find the appropriate stage in kanbanData and add the lead there
-        const targetStage = state.kanbanData.find(
-          (stage) => stage.stageId === newLead.stageId
+        const targetStage: any = state.kanbanData.find(
+          (stage: any) => stage.stageId === newLead.stageId
         );
 
         if (targetStage) {
@@ -197,6 +199,7 @@ const kanbanSlice = createSlice({
         state.loading.addingLead = false;
       })
       .addCase(addLead.rejected, (state, action) => {
+        console.log("Newly added lead:", action.payload);
         console.error("Failed to add lead:", action.error);
         state.loading.addingLead = false;
       })
