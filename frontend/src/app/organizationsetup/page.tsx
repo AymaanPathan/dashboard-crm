@@ -36,13 +36,14 @@ const COMPANY_SIZES = ["1-10", "11-50", "51-200", "201-1000", "1000+"];
 const OrganizationSetupPage: React.FC = () => {
   const router = useRouter();
   const dispatch: RootDispatch = useDispatch();
-  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const isUserVerified = useSelector((state: RootState) => state.auth.user.isVerified);
+  console.log("Is User Verified:", isUserVerified);
 
-  useEffect(() => {
-    if (!currentUser.isVerified) {
-      router.replace("/signup");
-    }
-  }, [currentUser.isVerified, router]);
+  // useEffect(() => {
+  //   if (!currentUser.isVerified) {
+  //     router.replace("/signup");
+  //   }
+  // }, [currentUser.isVerified, router]);
 
   const [formData, setFormData] = useState<IOrganization>({
     id: "",

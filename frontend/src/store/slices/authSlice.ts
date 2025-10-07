@@ -113,9 +113,13 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         const token = action.payload.data.data.token;
+        console.log("Login Action Payload:", action.payload);
         const username = action.payload.data.data.user.username;
         state.loadingState.login = false;
         state.token = token;
+        if (token) {
+          state.user.isVerified = true;
+        }
         state.userName = username;
         state.user = action.payload.data.data.user;
       })

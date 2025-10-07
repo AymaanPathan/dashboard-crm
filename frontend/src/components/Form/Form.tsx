@@ -215,6 +215,17 @@ interface FormSelectProps {
   onToggle: () => void;
 }
 
+interface FormSelectProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  options: { value: string; label: string }[];
+  error?: string;
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
 export const FormSelect: React.FC<FormSelectProps> = ({
   label,
   value,
@@ -225,45 +236,72 @@ export const FormSelect: React.FC<FormSelectProps> = ({
   isOpen,
   onToggle,
 }) => {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        if (isOpen) onToggle();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen, onToggle]);
+
   return (
-    <div className="space-y-2 relative">
-      <label className="block text-sm text-gray-700">{label}</label>
-      <button
-        type="button"
-        onClick={onToggle}
-        className={`w-full px-0 py-2.5 text-[15px] text-left bg-transparent border-0 border-b transition-colors focus:outline-none flex items-center justify-between ${
-          error
-            ? "border-red-300 focus:border-red-500"
-            : "border-gray-200 focus:border-gray-900"
-        }`}
-      >
-        <span className={value ? "text-gray-900" : "text-gray-400"}>
-          {value
-            ? options.find((opt) => opt.value === value)?.label
-            : placeholder}
-        </span>
-        <ChevronDown className="w-4 h-4 text-gray-400" />
-      </button>
+    <div className="space-y-2" ref={dropdownRef}>
+      <label className="block text-sm font-medium text-gray-900 mb-2">
+        {label}
+      </label>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={onToggle}
+          className={`w-full h-11 px-4 text-sm text-left bg-white border rounded-lg transition-colors focus:outline-none flex items-center justify-between ${
+            error
+              ? "border-red-300 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+              : "border-gray-200 focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+          }`}
+        >
+          <span className={value ? "text-gray-900" : "text-gray-400"}>
+            {value
+              ? options.find((opt) => opt.value === value)?.label
+              : placeholder}
+          </span>
+          <ChevronDown
+            className={`w-4 h-4 text-gray-400 transition-transform ${
+              isOpen ? "rotate-180" : ""
+            }`}
+          />
+        </button>
 
-      {isOpen && (
-        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-60 overflow-auto">
-          {options.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => {
-                onChange(option.value);
-                onToggle();
-              }}
-              className="w-full px-4 py-2.5 text-[15px] text-left hover:bg-gray-50 transition-colors"
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      )}
+        {isOpen && (
+          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+            {options.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  onChange(option.value);
+                  onToggle();
+                }}
+                className={`w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                  value === option.value ? "bg-gray-50 font-medium" : ""
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        )}
 
-      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+        {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+      </div>
     </div>
   );
 };
