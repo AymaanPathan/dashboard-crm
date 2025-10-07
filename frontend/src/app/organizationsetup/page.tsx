@@ -36,7 +36,9 @@ const COMPANY_SIZES = ["1-10", "11-50", "51-200", "201-1000", "1000+"];
 const OrganizationSetupPage: React.FC = () => {
   const router = useRouter();
   const dispatch: RootDispatch = useDispatch();
-  const isUserVerified = useSelector((state: RootState) => state.auth.user.isVerified);
+  const isUserVerified = useSelector(
+    (state: RootState) => state.auth.user.isVerified
+  );
   console.log("Is User Verified:", isUserVerified);
 
   // useEffect(() => {
@@ -139,25 +141,25 @@ const OrganizationSetupPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white flex">
-      <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
-        <Link href={"/"} className="w-full mb-8">
+      <div className="flex-1 flex flex-col justify-center py-8 px-4 sm:px-6 lg:flex-none lg:px-16 xl:px-20">
+        <Link href={"/"} className="w-full mb-6">
           ← Back to homepage
         </Link>
 
         <div className="mx-auto w-full max-w-sm lg:w-96">
           <div>
-            <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">
+            <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">
               Set up your organization
             </h2>
-            <p className="mt-3 text-gray-600">
+            <p className="mt-2 text-sm text-gray-600">
               Tell us about your company to personalize your experience
             </p>
           </div>
 
-          <div className="mt-10 space-y-6">
+          <div className="mt-6 space-y-4">
             {/* Organization Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-1.5">
                 Organization Name *
               </label>
               <div className="relative">
@@ -168,15 +170,15 @@ const OrganizationSetupPage: React.FC = () => {
                   }
                   type="text"
                   placeholder="Enter your organization name"
-                  className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-4 pr-12 py-2 text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+                  className="flex h-10 w-full rounded-lg border border-gray-200 bg-white px-3 pr-10 py-2 text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
                 />
-                <Building2 className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Building2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               </div>
             </div>
 
             {/* Company Website */}
             <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-1.5">
                 Company Website{" "}
                 <span className="text-gray-500">(Optional)</span>
               </label>
@@ -188,9 +190,9 @@ const OrganizationSetupPage: React.FC = () => {
                   }
                   type="url"
                   placeholder="https://your-company.com"
-                  className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-4 pr-12 py-2 text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+                  className="flex h-10 w-full rounded-lg border border-gray-200 bg-white px-3 pr-10 py-2 text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
                 />
-                <Globe className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Globe className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               </div>
             </div>
 
@@ -215,14 +217,14 @@ const OrganizationSetupPage: React.FC = () => {
             />
 
             {/* Submit Button */}
-            <div>
+            <div className="pt-2">
               {isSubmitting ? (
                 <ButtonLoading content="Setting up your organization..." />
               ) : (
                 <Button
                   onClick={handleSubmit}
                   type="button"
-                  className="group relative w-full flex justify-center items-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-900 transition-colors shadow-sm"
+                  className="group relative w-full flex justify-center items-center py-2.5 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-900 transition-colors shadow-sm"
                 >
                   <Building2 className="w-4 h-4 mr-2" />
                   Complete Setup
@@ -237,20 +239,20 @@ const OrganizationSetupPage: React.FC = () => {
       <div className="hidden lg:block relative w-0 flex-1">
         <div className="absolute inset-0 h-full w-full bg-gray-50 border-l border-gray-100 flex items-center justify-center">
           <div className="text-center max-w-md px-8">
-            <div className="flex justify-center mb-8">
-              <div className="w-16 h-16 bg-gray-900 rounded-2xl flex items-center justify-center shadow-sm">
-                <BarChart3 className="w-8 h-8 text-white" />
+            <div className="flex justify-center mb-6">
+              <div className="w-14 h-14 bg-gray-900 rounded-2xl flex items-center justify-center shadow-sm">
+                <BarChart3 className="w-7 h-7 text-white" />
               </div>
             </div>
-            <h3 className="text-2xl font-semibold text-gray-900 mb-4 tracking-tight">
+            <h3 className="text-xl font-semibold text-gray-900 mb-3 tracking-tight">
               Customize your CRM experience
             </h3>
-            <p className="text-gray-600 leading-relaxed">
+            <p className="text-sm text-gray-600 leading-relaxed">
               Help us understand your business better so we can tailor our
               platform to meet your specific needs and goals.
             </p>
 
-            <div className="mt-8 grid gap-4 text-left">
+            <div className="mt-6 grid gap-3 text-left">
               <div className="flex items-center space-x-3">
                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 flex-shrink-0">
                   <Users className="h-3 w-3 text-white" />

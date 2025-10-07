@@ -66,7 +66,11 @@ export default function Navbar() {
             ) : (
               <>
                 <Link
-                  href="/crm/dashboard"
+                  href={`${
+                    currentOrganization?.id
+                      ? `/crm/dashboard`
+                      : `/organizationsetup`
+                  }`}
                   className="text-black cursor-pointer hover:text-black hover:bg-black/5 px-3 py-1.5 rounded-md text-[14px] font-normal transition-all border border-black/10"
                 >
                   {currentOrganization?.id
