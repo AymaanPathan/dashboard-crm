@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { isValidEmail } from "@/utils/validation.utils";
 import { useRegisterLoading } from "@/assets/loadingStates/auth.loading.state";
 import Link from "next/link";
+import ErrorToast from "@/assets/toast/ErrorToast";
 
 const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -34,38 +35,20 @@ const Signup: React.FC = () => {
   const [password, setPassword] = useState("");
 
   const handleSignup = async () => {
-    const newError = { username: "", email: "", password: "" };
-    let hasError = false;
-
-    if (!username) {
-      newError.username = "Username is required";
-      hasError = true;
-    }
-    if (!email) {
-      newError.email = "Email is required";
-      hasError = true;
-    } else if (!isValidEmail(email)) {
-      newError.email = "Invalid email format";
-      hasError = true;
-    }
-    if (!password) {
-      newError.password = "Password is required";
-      hasError = true;
-    } else if (password.length < 6) {
-      newError.password = "Password must be at least 6 characters";
-      hasError = true;
-    }
-    setErrors(newError);
-
-    if (hasError) return;
-
     try {
-      const res = await dispatch(registerUser({ username, email, password }));
-      if (res.meta.requestStatus === "fulfilled") {
+      const res = await dispatch(
+        registerUser({ username, email, password })
+      ).unwrap();
+      console.log("Registration response:", res.statusCode);
+      if (res.statusCode === 200) {
         setShowOtpVerification(true);
       }
     } catch (err) {
-      console.error("Signup failed:", err);
+      console.error("Signup error:", err);
+      ErrorToast({
+        title: "Registration failed",
+        description: err as string,
+      });
     }
   };
 

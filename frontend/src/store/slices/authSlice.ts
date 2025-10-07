@@ -66,18 +66,25 @@ export const loginUser = createAsyncThunk(
 
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
-  async ({
-    username,
-    email,
-    password,
-  }: {
-    username: string;
-    email: string;
-    password: string;
-  }) => {
-    const response = await handleRegisterApi(username, email, password);
-
-    return response;
+  async (
+    {
+      username,
+      email,
+      password,
+    }: {
+      username: string;
+      email: string;
+      password: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await handleRegisterApi(username, email, password);
+      return response;
+    } catch (error) {
+      console.log("Register User Error:", error);
+      return rejectWithValue(error);
+    }
   }
 );
 export const handleVerifyOtp = createAsyncThunk(
