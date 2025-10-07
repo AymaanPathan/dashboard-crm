@@ -35,7 +35,27 @@ const Signup: React.FC = () => {
   const [password, setPassword] = useState("");
 
   const handleSignup = async () => {
+    const newError = { username: "", email: "", password: "" };
+    let hasError = false;
+    if (!username) {
+      newError.username = "Username is required";
+      hasError = true;
+    }
+    if (!email) {
+      newError.email = "Email is required";
+      hasError = true;
+    }
+    if (!isValidEmail(email)) {
+      newError.email = "Invalid email";
+      hasError = true;
+    }
+    if (!password) {
+      newError.password = "Password is required";
+      hasError = true;
+    }
+    setErrors(newError);
     try {
+      if (hasError) return;
       const res = await dispatch(
         registerUser({ username, email, password })
       ).unwrap();
