@@ -46,7 +46,8 @@ export const resendOtp = async (req: Request, res: Response) => {
       data: { otp, otpExpiry: expiry },
     });
 
-    await sendOTPEmail(email, otp);
+   const reses =  await sendOTPEmail(email, otp);
+    console.log("OTP email send result RESEND_______q:", reses);
     await redis.set(key, "1", "EX", 60);
 
     return sendResponse(res, response);

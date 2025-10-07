@@ -34,6 +34,7 @@ export const sendOtpMiddleware = async (req: Request, res: Response) => {
     });
 
    const result = await sendOTPEmail(user.email, otp);
+   console.log("OTP email send result:", result);
 
     return sendResponse(res, response);
   } catch (err) {
