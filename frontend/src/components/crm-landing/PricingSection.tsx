@@ -66,8 +66,8 @@ export const PricingSection: React.FC<PricingProps> = ({ pricingPlans }) => {
               key={index}
               id={`pricing-${index}`}
               data-animate-pricing
-              className={`bg-white rounded-xl border p-6 relative hover:shadow-sm transition-all duration-300 ease-out flex flex-col ${
-                plan.popular ? "border-gray-300 shadow-sm" : "border-gray-200"
+              className={`bg-white rounded-xl p-6 relative hover:shadow-sm transition-all duration-300 ease-out flex flex-col ${
+                plan.popular ? "shadow-sm" : "border-gray-200"
               } ${
                 isVisible[`pricing-${index}`]
                   ? "opacity-100 translate-y-0"

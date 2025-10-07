@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { RootDispatch, RootState } from "@/store";
+import { RootDispatch } from "@/store";
 import { loginUser } from "@/store/slices/authSlice";
 import { BarChart3, Mail, Lock, EyeOff, Eye } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { isValidEmail } from "@/utils/validation.utils";
 import ErrorToast from "@/assets/toast/ErrorToast";
 import { useLoginLoading } from "@/assets/loadingStates/auth.loading.state";
@@ -18,6 +18,10 @@ import { useRouter } from "next/navigation";
 const LoginPage: React.FC = () => {
   const router = useRouter();
   const dispatch: RootDispatch = useDispatch();
+  const [error, setError] = useState({
+    email: "",
+    password: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,9 +30,23 @@ const LoginPage: React.FC = () => {
   const isLoginLoading = useLoginLoading();
 
   const handleLogin = async () => {
-    if (!email) return ErrorToast({ title: "Email is required" });
-    if (!isValidEmail(email)) return ErrorToast({ title: "Invalid email" });
-    if (!password) return ErrorToast({ title: "Password is required" });
+    const newError = { email: "", password: "" };
+    let hasError = false;
+    if (!email) {
+      newError.email = "Email is required";
+      hasError = true;
+    }
+    if (!isValidEmail(email)) {
+      newError.email = "Invalid email";
+      hasError = true;
+    }
+    if (!password) {
+      newError.password = "Password is required";
+      hasError = true;
+    }
+    setError(newError);
+
+    if (hasError) return;
 
     const result = await dispatch(loginUser({ email, password })).unwrap();
     const token = result?.data?.data?.token;
@@ -40,6 +58,8 @@ const LoginPage: React.FC = () => {
       router.replace("/crm/dashboard");
     }
   };
+
+  console.log("Error State:", error);
 
   return (
     <div className="min-h-screen bg-white flex">
@@ -66,19 +86,24 @@ const LoginPage: React.FC = () => {
                 >
                   Email address
                 </Label>
-                <div className="relative">
-                  <Input
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-4 pr-12 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="Enter your email"
-                  />
-                  <Mail className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <div>
+                  <div className="relative">
+                    <Input
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-4 pr-12 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
+                      placeholder="Enter your email"
+                    />
+                    <Mail className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  </div>
+                  {error.email && (
+                    <p className="text-sm text-red-500 mt-1">{error.email}</p>
+                  )}
                 </div>
               </div>
 
@@ -89,29 +114,36 @@ const LoginPage: React.FC = () => {
                 >
                   Password
                 </Label>
-                <div className="relative">
-                  <Input
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    required
-                    className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-4 pr-12 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="Enter your password"
-                  />
+                <div>
+                  <div className="relative">
+                    <Input
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="current-password"
+                      required
+                      className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-4 pr-12 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
+                      placeholder="Enter your password"
+                    />
 
-                  {!showPassword ? (
-                    <EyeOff
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 "
-                      onClick={() => setShowPassword(!showPassword)}
-                    />
-                  ) : (
-                    <Eye
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 "
-                      onClick={() => setShowPassword(!showPassword)}
-                    />
+                    {!showPassword ? (
+                      <EyeOff
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
+                        onClick={() => setShowPassword(!showPassword)}
+                      />
+                    ) : (
+                      <Eye
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
+                        onClick={() => setShowPassword(!showPassword)}
+                      />
+                    )}
+                  </div>
+                  {error.password && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {error.password}
+                    </p>
                   )}
                 </div>
               </div>

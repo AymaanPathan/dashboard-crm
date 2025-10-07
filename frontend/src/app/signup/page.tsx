@@ -110,16 +110,18 @@ const Signup: React.FC = () => {
                     >
                       Username
                     </Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                      <Input
-                        id="username"
-                        className="flex h-11 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-4 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
-                        placeholder="Enter your username"
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                      />
+                    <div>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                        <Input
+                          id="username"
+                          className="flex h-11 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-4 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
+                          placeholder="Enter your username"
+                          type="text"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                        />
+                      </div>
                       {errors.username && (
                         <p className="text-sm text-red-500 mt-1">
                           {errors.username}
@@ -135,16 +137,18 @@ const Signup: React.FC = () => {
                     >
                       Email
                     </Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                      <Input
-                        id="email"
-                        className="flex h-11 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-4 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
-                        placeholder="name@example.com"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
+                    <div>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                        <Input
+                          id="email"
+                          className="flex h-11 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-4 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
+                          placeholder="name@example.com"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                        />
+                      </div>
                       {errors.email && (
                         <p className="text-sm text-red-500 mt-1">
                           {errors.email}
@@ -160,27 +164,29 @@ const Signup: React.FC = () => {
                     >
                       Password
                     </Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                      <Input
-                        id="password"
-                        className="flex h-11 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-12 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Create a password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                      {!showPassword ? (
-                        <EyeOff
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 "
-                          onClick={() => setShowPassword(!showPassword)}
+                    <div>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                        <Input
+                          id="password"
+                          className="flex h-11 w-full rounded-lg border border-gray-200 bg-white pl-10 pr-12 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Create a password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
                         />
-                      ) : (
-                        <Eye
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 "
-                          onClick={() => setShowPassword(!showPassword)}
-                        />
-                      )}
+                        {!showPassword ? (
+                          <EyeOff
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
+                            onClick={() => setShowPassword(!showPassword)}
+                          />
+                        ) : (
+                          <Eye
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
+                            onClick={() => setShowPassword(!showPassword)}
+                          />
+                        )}
+                      </div>
                       {errors.password && (
                         <p className="text-sm text-red-500 mt-1">
                           {errors.password}
@@ -190,7 +196,7 @@ const Signup: React.FC = () => {
                   </div>
 
                   <Button
-                    className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-900 disabled:pointer-events-none disabled:opacity-50 bg-gray-900 text-white hover:bg-gray-800 h-11 px-6 py-2 shadow-sm w-full"
+                    className="inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-900 disabled:pointer-events-none disabled:opacity-50 bg-gray-900 text-white hover:bg-gray-800 h-11 px-6 py-2 shadow-sm w-full"
                     type="submit"
                     onClick={handleSignup}
                     disabled={isRegisterLoading}
