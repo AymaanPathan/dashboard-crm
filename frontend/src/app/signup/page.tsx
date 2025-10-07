@@ -9,15 +9,13 @@ import { registerUser } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-import ErrorToast from "@/assets/toast/ErrorToast";
 import { isValidEmail } from "@/utils/validation.utils";
 import { useRegisterLoading } from "@/assets/loadingStates/auth.loading.state";
 import Link from "next/link";
 
 const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [showOtpVerification, setShowOtpVerification] = useState(false);
+  const [showOtpVerification, setShowOtpVerification] = useState(true);
   const [otpDigits, setOtpDigits] = useState("");
   const dispatch: RootDispatch = useDispatch();
   const step = useSelector((state: RootState) => state.auth.step);

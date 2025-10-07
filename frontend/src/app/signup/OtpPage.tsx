@@ -68,7 +68,6 @@ const OtpPage: React.FC<OtpPageProps> = ({
   const handleResendOtpToEmail = async () => {
     await dispatch(handleResendOtp({ email: user.email! }));
 
-    // Start the 1-minute (60 seconds) timer
     setResendTimer(60);
     setIsResendDisabled(true);
   };
@@ -80,30 +79,33 @@ const OtpPage: React.FC<OtpPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="w-full max-w-sm space-y-6">
+    <div className="min-h-screen bg-white flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md space-y-8">
         {/* Logo */}
         <div className="flex justify-center">
-          <div className="flex items-center justify-center w-12 h-12 bg-muted rounded-xl">
-            <Mail className="w-6 h-6 text-muted-foreground" />
+          <div className="flex items-center justify-center w-14 h-14 bg-gray-50 rounded-lg border border-gray-100">
+            <Mail className="w-7 h-7 text-gray-700" />
           </div>
         </div>
 
         {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight">
+        <div className="text-center space-y-3">
+          <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
             Verify your email
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-base text-gray-600 leading-relaxed">
             We&apos;ve sent a 6-digit code to{" "}
-            <span className="font-medium text-foreground">{user.email}</span>
+            <span className="font-medium text-gray-900">{user.email}</span>
           </p>
         </div>
 
         {/* OTP Form */}
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="otp" className="text-center block">
+        <div className="space-y-6 pt-2">
+          <div className="space-y-4">
+            <Label
+              htmlFor="otp"
+              className="text-center block text-sm font-medium text-gray-700"
+            >
               Enter verification code
             </Label>
             <div className="flex justify-center">
@@ -122,8 +124,8 @@ const OtpPage: React.FC<OtpPageProps> = ({
                 </InputOTPGroup>
               </InputOTP>
             </div>
-            <p className="text-xs text-muted-foreground text-center">
-              {otp.length}/6 digits
+            <p className="text-xs text-gray-500 text-center font-normal">
+              {otp.length}/6 digits entered
             </p>
           </div>
 
@@ -134,7 +136,7 @@ const OtpPage: React.FC<OtpPageProps> = ({
               type="button"
               onClick={handleOtpVerification}
               disabled={otp.length !== 6}
-              className="w-full cursor-pointer"
+              className="w-full cursor-pointer h-11 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg shadow-sm transition-all duration-200"
               size="default"
             >
               Verify & Continue
@@ -144,28 +146,28 @@ const OtpPage: React.FC<OtpPageProps> = ({
         </div>
 
         {/* Resend */}
-        <div className="text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="text-center pt-2">
+          <p className="text-sm text-gray-600">
             Didn&apos;t receive the code?{" "}
             <Button
               onClick={handleResendOtpToEmail}
               variant="link"
-              className="p-0 h-auto font-medium"
+              className="p-0 h-auto font-medium text-gray-900 hover:text-gray-700 underline-offset-4"
               disabled={isResendDisabled}
             >
               {isResendDisabled
                 ? `Resend in ${formatTimer(resendTimer)}`
-                : "Resend"}
+                : "Resend code"}
             </Button>
           </p>
         </div>
 
-        <div className="text-center">
+        <div className="text-center pt-4">
           <Link href={"/"}>
             <Button
               variant="ghost"
               onClick={() => setShowOtpVerification(false)}
-              className="text-sm"
+              className="text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-normal"
             >
               ← Back to Home
             </Button>

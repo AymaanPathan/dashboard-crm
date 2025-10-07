@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { RootDispatch } from "@/store";
+import { RootDispatch, RootState } from "@/store";
 import { Building2, Globe, BarChart3, Users, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import ErrorToast from "@/assets/toast/ErrorToast";
 import SuccessToast from "@/assets/toast/SuccessToast";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,13 @@ const COMPANY_SIZES = ["1-10", "11-50", "51-200", "201-1000", "1000+"];
 const OrganizationSetupPage: React.FC = () => {
   const router = useRouter();
   const dispatch: RootDispatch = useDispatch();
+  const currentUser = useSelector((state: RootState) => state.auth.user);
+
+  useEffect(() => {
+    if (!currentUser.isVerified) {
+      router.replace("/signup");
+    }
+  }, [currentUser.isVerified, router]);
 
   const [formData, setFormData] = useState<IOrganization>({
     id: "",
