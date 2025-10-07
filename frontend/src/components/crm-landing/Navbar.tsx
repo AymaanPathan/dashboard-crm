@@ -50,12 +50,18 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-2">
             {!token ? (
               <>
-                <button className="text-black/70 hover:text-black hover:bg-black/5 px-3 py-1.5 rounded-md text-[14px] font-normal transition-all">
+                <Link
+                  href="/login"
+                  className="text-black/70 hover:text-black hover:bg-black/5 px-3 py-1.5 rounded-md text-[14px] font-normal transition-all"
+                >
                   Login
-                </button>
-                <button className="bg-black hover:bg-black/90 text-white px-3 py-1.5 rounded-md text-[14px] font-medium transition-all">
+                </Link>
+                <Link
+                  href="/signup"
+                  className="bg-black hover:bg-black/90 text-white px-3 py-1.5 rounded-md text-[14px] font-medium transition-all"
+                >
                   Get Started
-                </button>
+                </Link>
               </>
             ) : (
               <>

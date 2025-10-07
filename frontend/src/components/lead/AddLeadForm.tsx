@@ -140,7 +140,6 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
         description: "The lead has been added successfully.",
         duration: 5000,
       });
-      handleClose();
     } catch (error: any) {
       ErrorToast({
         title: "Failed to add lead",

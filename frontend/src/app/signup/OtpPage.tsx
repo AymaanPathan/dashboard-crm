@@ -66,7 +66,7 @@ const OtpPage: React.FC<OtpPageProps> = ({
   }, [resendTimer]);
 
   const handleResendOtpToEmail = async () => {
-    await dispatch(handleResendOtp({ email: user.email }));
+    await dispatch(handleResendOtp({ email: user.email! }));
 
     // Start the 1-minute (60 seconds) timer
     setResendTimer(60);

@@ -1,28 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { RootDispatch, RootState } from "@/store";
-import { Building2, Globe, Users, TrendingUp, BarChart3 } from "lucide-react";
+import { RootDispatch } from "@/store";
+import { Building2, Globe, BarChart3, Users, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import ErrorToast from "@/assets/toast/ErrorToast";
 import SuccessToast from "@/assets/toast/SuccessToast";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ButtonLoading } from "@/components/ui/ButtonLoading";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 import { createOrganization } from "@/store/slices/orgSlice";
 import { IOrganization } from "@/models/org.model";
+import { FormSelect } from "@/components/Form/Form";
 
-// Industry options
+// Industry and company size options
 const INDUSTRIES = [
   "Technology",
   "Healthcare",
@@ -38,14 +31,11 @@ const INDUSTRIES = [
   "Government",
   "Other",
 ];
-
-// Company size options
 const COMPANY_SIZES = ["1-10", "11-50", "51-200", "201-1000", "1000+"];
 
 const OrganizationSetupPage: React.FC = () => {
   const router = useRouter();
   const dispatch: RootDispatch = useDispatch();
-  const user = useSelector((state: RootState) => state.auth.user);
 
   const [formData, setFormData] = useState<IOrganization>({
     id: "",
@@ -57,6 +47,10 @@ const OrganizationSetupPage: React.FC = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Dropdown open states
+  const [isIndustryOpen, setIsIndustryOpen] = useState(false);
+  const [isCompanySizeOpen, setIsCompanySizeOpen] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -106,8 +100,8 @@ const OrganizationSetupPage: React.FC = () => {
     try {
       const submitData = {
         ...formData,
-        organization_name: formData?.organization_name?.trim(),
-        company_website: formData?.company_website?.trim() || null,
+        organization_name: formData.organization_name.trim(),
+        company_website: formData.company_website?.trim() || null,
       };
 
       const res = await dispatch(createOrganization(submitData)).unwrap();
@@ -124,6 +118,16 @@ const OrganizationSetupPage: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  // Convert options to {value, label} format
+  const INDUSTRY_OPTIONS = INDUSTRIES.map((industry) => ({
+    value: industry,
+    label: industry,
+  }));
+  const COMPANY_SIZE_OPTIONS = COMPANY_SIZES.map((size) => ({
+    value: size,
+    label: `${size} employees`,
+  }));
 
   return (
     <div className="min-h-screen bg-white flex">
@@ -142,127 +146,80 @@ const OrganizationSetupPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="mt-10">
-            <div className="space-y-6">
-              {/* Organization Name */}
-              <div>
-                <Label
-                  htmlFor="organization_name"
-                  className="block text-sm font-medium text-gray-900 mb-2"
-                >
-                  Organization Name *
-                </Label>
-                <div className="relative">
-                  <Input
-                    value={formData.organization_name}
-                    onChange={(e) =>
-                      handleInputChange("organization_name", e.target.value)
-                    }
-                    id="organization_name"
-                    name="organization_name"
-                    type="text"
-                    required
-                    className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-4 pr-12 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="Enter your organization name"
-                  />
-                  <Building2 className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                </div>
-              </div>
-
-              {/* Company Website */}
-              <div>
-                <Label
-                  htmlFor="company_website"
-                  className="block text-sm font-medium text-gray-900 mb-2"
-                >
-                  Company Website{" "}
-                  <span className="text-gray-500">(Optional)</span>
-                </Label>
-                <div className="relative">
-                  <Input
-                    value={formData?.company_website?.trim() || ""}
-                    onChange={(e) =>
-                      handleInputChange("company_website", e.target.value)
-                    }
-                    id="company_website"
-                    name="company_website"
-                    type="url"
-                    className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-4 pr-12 py-2 text-sm transition-colors placeholder:text-gray-500 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="https://your-company.com"
-                  />
-                  <Globe className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                </div>
-              </div>
-
-              {/* Industry */}
-              <div>
-                <Label
-                  htmlFor="industry"
-                  className="block text-sm font-medium text-gray-900 mb-2"
-                >
-                  Industry *
-                </Label>
-                <Select
-                  value={formData.industry}
-                  onValueChange={(value) =>
-                    handleInputChange("industry", value)
+          <div className="mt-10 space-y-6">
+            {/* Organization Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-2">
+                Organization Name *
+              </label>
+              <div className="relative">
+                <Input
+                  value={formData.organization_name}
+                  onChange={(e) =>
+                    handleInputChange("organization_name", e.target.value)
                   }
-                >
-                  <SelectTrigger className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm transition-colors focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900">
-                    <SelectValue placeholder="Select your industry" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {INDUSTRIES.map((industry) => (
-                      <SelectItem key={industry} value={industry}>
-                        {industry}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  type="text"
+                  placeholder="Enter your organization name"
+                  className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-4 pr-12 py-2 text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+                />
+                <Building2 className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               </div>
+            </div>
 
-              {/* Company Size */}
-              <div>
-                <Label
-                  htmlFor="company_size"
-                  className="block text-sm font-medium text-gray-900 mb-2"
-                >
-                  Company Size *
-                </Label>
-                <Select
-                  value={formData.company_size}
-                  onValueChange={(value) =>
-                    handleInputChange("company_size", value)
+            {/* Company Website */}
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-2">
+                Company Website{" "}
+                <span className="text-gray-500">(Optional)</span>
+              </label>
+              <div className="relative">
+                <Input
+                  value={formData.company_website || ""}
+                  onChange={(e) =>
+                    handleInputChange("company_website", e.target.value)
                   }
-                >
-                  <SelectTrigger className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm transition-colors focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900">
-                    <SelectValue placeholder="Select company size" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {COMPANY_SIZES.map((size) => (
-                      <SelectItem key={size} value={size}>
-                        {size} employees
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  type="url"
+                  placeholder="https://your-company.com"
+                  className="flex h-11 w-full rounded-lg border border-gray-200 bg-white px-4 pr-12 py-2 text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+                />
+                <Globe className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               </div>
+            </div>
 
-              {/* Submit Button */}
-              <div>
-                {isSubmitting ? (
-                  <ButtonLoading content="Setting up your organization..." />
-                ) : (
-                  <Button
-                    onClick={handleSubmit}
-                    type="button"
-                    className="group relative w-full flex justify-center items-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-900 transition-colors shadow-sm"
-                  >
-                    <Building2 className="w-4 h-4 mr-2" />
-                    Complete Setup
-                  </Button>
-                )}
-              </div>
+            {/* Industry */}
+            <FormSelect
+              label="Industry *"
+              value={formData.industry}
+              onChange={(value) => handleInputChange("industry", value)}
+              options={INDUSTRY_OPTIONS}
+              isOpen={isIndustryOpen}
+              onToggle={() => setIsIndustryOpen((prev) => !prev)}
+            />
+
+            {/* Company Size */}
+            <FormSelect
+              label="Company Size *"
+              value={formData.company_size}
+              onChange={(value) => handleInputChange("company_size", value)}
+              options={COMPANY_SIZE_OPTIONS}
+              isOpen={isCompanySizeOpen}
+              onToggle={() => setIsCompanySizeOpen((prev) => !prev)}
+            />
+
+            {/* Submit Button */}
+            <div>
+              {isSubmitting ? (
+                <ButtonLoading content="Setting up your organization..." />
+              ) : (
+                <Button
+                  onClick={handleSubmit}
+                  type="button"
+                  className="group relative w-full flex justify-center items-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-gray-900 transition-colors shadow-sm"
+                >
+                  <Building2 className="w-4 h-4 mr-2" />
+                  Complete Setup
+                </Button>
+              )}
             </div>
           </div>
         </div>

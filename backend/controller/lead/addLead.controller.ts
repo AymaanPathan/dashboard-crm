@@ -40,7 +40,7 @@ const createLead = async (req: Request, res: Response) => {
       return sendResponse(res, {
         ...response,
         statusCode: 400,
-        message: "Email is required",
+        message: "Lead Email is required",
       });
     }
 
@@ -48,7 +48,7 @@ const createLead = async (req: Request, res: Response) => {
       return sendResponse(res, {
         ...response,
         statusCode: 400,
-        message: "Mobile number is required",
+        message: "Lead Mobile number is required",
       });
     }
 
@@ -72,7 +72,7 @@ const createLead = async (req: Request, res: Response) => {
       return sendResponse(res, {
         ...response,
         statusCode: 400,
-        message: "Assigned user is required",
+        message: "Lead Assigned user is required",
       });
     }
 
@@ -80,7 +80,7 @@ const createLead = async (req: Request, res: Response) => {
       return sendResponse(res, {
         ...response,
         statusCode: 400,
-        message: "Stage ID is required",
+        message: "Lead Stage ID is required",
       });
     }
 
@@ -98,7 +98,7 @@ const createLead = async (req: Request, res: Response) => {
       return sendResponse(res, {
         ...response,
         statusCode: 400,
-        message: "Invalid email format",
+        message: "Please enter a valid email address.",
       });
     }
 
@@ -121,7 +121,7 @@ const createLead = async (req: Request, res: Response) => {
       return sendResponse(res, {
         ...response,
         statusCode: 400,
-        message: "Street is required",
+        message: "Street is required to create a lead",
       });
     }
 
@@ -129,7 +129,7 @@ const createLead = async (req: Request, res: Response) => {
       return sendResponse(res, {
         ...response,
         statusCode: 400,
-        message: "City is required",
+        message: "City is required to create a lead",
       });
     }
 
@@ -137,7 +137,7 @@ const createLead = async (req: Request, res: Response) => {
       return sendResponse(res, {
         ...response,
         statusCode: 400,
-        message: "State is required",
+        message: "State is required to create a lead",
       });
     }
 
@@ -145,7 +145,7 @@ const createLead = async (req: Request, res: Response) => {
       return sendResponse(res, {
         ...response,
         statusCode: 400,
-        message: "Pincode code is required",
+        message: "Pincode is required to create a lead",
       });
     }
 

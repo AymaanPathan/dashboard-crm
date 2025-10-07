@@ -17,7 +17,6 @@ export const addLeadApi = async (leadData: ILead) => {
     const response = await axiosSetup.post("/lead/add", leadData);
     return response.data;
   } catch (error: any) {
-    console.log("Error adding leadsasasa:", error.response?.data.message);
     throw error.response?.data.message;
   }
 };
