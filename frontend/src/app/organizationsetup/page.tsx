@@ -41,12 +41,6 @@ const OrganizationSetupPage: React.FC = () => {
   );
   console.log("Is User Verified:", isUserVerified);
 
-  // useEffect(() => {
-  //   if (!currentUser.isVerified) {
-  //     router.replace("/signup");
-  //   }
-  // }, [currentUser.isVerified, router]);
-
   const [formData, setFormData] = useState<IOrganization>({
     id: "",
     organization_name: "",
@@ -54,6 +48,13 @@ const OrganizationSetupPage: React.FC = () => {
     industry: "",
     company_size: "",
     employees: [],
+  });
+
+  const [errors, setErrors] = useState({
+    organization_name: "",
+    company_website: "",
+    industry: "",
+    company_size: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,30 +68,46 @@ const OrganizationSetupPage: React.FC = () => {
       ...prev,
       [field]: value,
     }));
+    // Clear error when user starts typing
+    if (errors[field as keyof typeof errors]) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: "",
+      }));
+    }
   };
 
   const validateForm = (): boolean => {
+    const newErrors = {
+      organization_name: "",
+      company_website: "",
+      industry: "",
+      company_size: "",
+    };
+    let hasError = false;
+
     if (!formData.organization_name.trim()) {
-      ErrorToast({ title: "Organization name is required" });
-      return false;
+      newErrors.organization_name = "Organization name is required";
+      hasError = true;
     }
 
     if (formData.company_website && !isValidUrl(formData.company_website)) {
-      ErrorToast({ title: "Please enter a valid website URL" });
-      return false;
+      newErrors.company_website = "Please enter a valid website URL";
+      hasError = true;
     }
 
     if (!formData.industry) {
-      ErrorToast({ title: "Please select an industry" });
-      return false;
+      newErrors.industry = "Please select an industry";
+      hasError = true;
     }
 
     if (!formData.company_size) {
-      ErrorToast({ title: "Please select company size" });
-      return false;
+      newErrors.company_size = "Please select company size";
+      hasError = true;
     }
 
-    return true;
+    setErrors(newErrors);
+    return !hasError;
   };
 
   const isValidUrl = (url: string): boolean => {
@@ -141,83 +158,100 @@ const OrganizationSetupPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white flex">
-      <div className="flex-1 flex flex-col justify-center py-8 px-4 sm:px-6 lg:flex-none lg:px-16 xl:px-20">
-        <Link href={"/"} className="w-full mb-6">
+      <div className="flex-1 flex flex-col justify-center py-6 px-4 sm:px-6 lg:flex-none lg:px-12 xl:px-16">
+        <Link href={"/"} className="w-full mb-4">
           ← Back to homepage
         </Link>
 
         <div className="mx-auto w-full max-w-sm lg:w-96">
-          <div>
-            <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">
-              Set up your organization
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Tell us about your company to personalize your experience
-            </p>
-          </div>
-
-          <div className="mt-6 space-y-4">
+          <div className="mt-5 space-y-3.5">
             {/* Organization Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-900 mb-1.5">
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 Organization Name *
               </label>
-              <div className="relative">
-                <Input
-                  value={formData.organization_name}
-                  onChange={(e) =>
-                    handleInputChange("organization_name", e.target.value)
-                  }
-                  type="text"
-                  placeholder="Enter your organization name"
-                  className="flex h-10 w-full rounded-lg border border-gray-200 bg-white px-3 pr-10 py-2 text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
-                />
-                <Building2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <div>
+                <div className="relative">
+                  <Input
+                    value={formData.organization_name}
+                    onChange={(e) =>
+                      handleInputChange("organization_name", e.target.value)
+                    }
+                    type="text"
+                    placeholder="Enter your organization name"
+                    className="flex h-10 w-full rounded-lg border border-gray-200 bg-white px-3 pr-10 py-2 text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+                  />
+                  <Building2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                </div>
+                {errors.organization_name && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.organization_name}
+                  </p>
+                )}
               </div>
             </div>
 
             {/* Company Website */}
             <div>
-              <label className="block text-sm font-medium text-gray-900 mb-1.5">
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 Company Website{" "}
                 <span className="text-gray-500">(Optional)</span>
               </label>
-              <div className="relative">
-                <Input
-                  value={formData.company_website || ""}
-                  onChange={(e) =>
-                    handleInputChange("company_website", e.target.value)
-                  }
-                  type="url"
-                  placeholder="https://your-company.com"
-                  className="flex h-10 w-full rounded-lg border border-gray-200 bg-white px-3 pr-10 py-2 text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
-                />
-                <Globe className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <div>
+                <div className="relative">
+                  <Input
+                    value={formData.company_website || ""}
+                    onChange={(e) =>
+                      handleInputChange("company_website", e.target.value)
+                    }
+                    type="url"
+                    placeholder="https://your-company.com"
+                    className="flex h-10 w-full rounded-lg border border-gray-200 bg-white px-3 pr-10 py-2 text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+                  />
+                  <Globe className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                </div>
+                {errors.company_website && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.company_website}
+                  </p>
+                )}
               </div>
             </div>
 
             {/* Industry */}
-            <FormSelect
-              label="Industry *"
-              value={formData.industry}
-              onChange={(value) => handleInputChange("industry", value)}
-              options={INDUSTRY_OPTIONS}
-              isOpen={isIndustryOpen}
-              onToggle={() => setIsIndustryOpen((prev) => !prev)}
-            />
+            <div>
+              <FormSelect
+                label="Industry *"
+                value={formData.industry}
+                onChange={(value) => handleInputChange("industry", value)}
+                options={INDUSTRY_OPTIONS}
+                isOpen={isIndustryOpen}
+                onToggle={() => setIsIndustryOpen((prev) => !prev)}
+              />
+              {errors.industry && (
+                <p className="text-sm text-red-500 mt-1">{errors.industry}</p>
+              )}
+            </div>
 
             {/* Company Size */}
-            <FormSelect
-              label="Company Size *"
-              value={formData.company_size}
-              onChange={(value) => handleInputChange("company_size", value)}
-              options={COMPANY_SIZE_OPTIONS}
-              isOpen={isCompanySizeOpen}
-              onToggle={() => setIsCompanySizeOpen((prev) => !prev)}
-            />
+            <div>
+              <FormSelect
+                label="Company Size *"
+                value={formData.company_size}
+                onChange={(value) => handleInputChange("company_size", value)}
+                options={COMPANY_SIZE_OPTIONS}
+                isOpen={isCompanySizeOpen}
+                onToggle={() => setIsCompanySizeOpen((prev) => !prev)}
+              />
+              {errors.company_size && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.company_size}
+                </p>
+              )}
+            </div>
 
             {/* Submit Button */}
-            <div className="pt-2">
+            <div className="pt-1.5">
               {isSubmitting ? (
                 <ButtonLoading content="Setting up your organization..." />
               ) : (
@@ -238,13 +272,13 @@ const OrganizationSetupPage: React.FC = () => {
       {/* Right Side Panel */}
       <div className="hidden lg:block relative w-0 flex-1">
         <div className="absolute inset-0 h-full w-full bg-gray-50 border-l border-gray-100 flex items-center justify-center">
-          <div className="text-center max-w-md px-8">
-            <div className="flex justify-center mb-6">
-              <div className="w-14 h-14 bg-gray-900 rounded-2xl flex items-center justify-center shadow-sm">
-                <BarChart3 className="w-7 h-7 text-white" />
+          <div className="text-center max-w-md px-6">
+            <div className="flex justify-center mb-4">
+              <div className="w-12 h-12 bg-gray-900 rounded-2xl flex items-center justify-center shadow-sm">
+                <BarChart3 className="w-6 h-6 text-white" />
               </div>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3 tracking-tight">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2 tracking-tight">
               Customize your CRM experience
             </h3>
             <p className="text-sm text-gray-600 leading-relaxed">
@@ -252,7 +286,7 @@ const OrganizationSetupPage: React.FC = () => {
               platform to meet your specific needs and goals.
             </p>
 
-            <div className="mt-6 grid gap-3 text-left">
+            <div className="mt-5 grid gap-2.5 text-left">
               <div className="flex items-center space-x-3">
                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 flex-shrink-0">
                   <Users className="h-3 w-3 text-white" />
