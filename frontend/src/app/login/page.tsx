@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ButtonLoading } from "@/components/ui/ButtonLoading";
 import { useRouter } from "next/navigation";
+import SuccessToast from "@/assets/toast/SuccessToast";
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
@@ -45,17 +46,27 @@ const LoginPage: React.FC = () => {
       hasError = true;
     }
     setError(newError);
+    try {
+      if (hasError) return;
 
-    if (hasError) return;
+      const result = await dispatch(loginUser({ email, password })).unwrap();
+      const token = result?.data?.data?.token;
+      const user = result?.data?.data?.user;
 
-    const result = await dispatch(loginUser({ email, password })).unwrap();
-    const token = result?.data?.data?.token;
-    const user = result?.data?.data?.user;
-
-    if (token && user.org === false) {
-      router.replace("/organizationsetup");
-    } else if (token && user.org === true) {
-      router.replace("/crm/dashboard");
+      if (token && user.org === false) {
+        router.replace("/organizationsetup");
+      } else if (token && user.org === true) {
+        router.replace("/crm/dashboard");
+      }
+      SuccessToast({
+        title: "Login Successful",
+        description: "You have successfully logged in.",
+      });
+    } catch (err) {
+      ErrorToast({
+        title: "Login Failed",
+        description: err as string,
+      });
     }
   };
 
