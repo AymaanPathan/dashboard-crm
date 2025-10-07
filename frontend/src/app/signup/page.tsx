@@ -21,6 +21,12 @@ const Signup: React.FC = () => {
   const [otpDigits, setOtpDigits] = useState("");
   const dispatch: RootDispatch = useDispatch();
   const step = useSelector((state: RootState) => state.auth.step);
+  const [errors, setErrors] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+
   // Loading
   const isRegisterLoading = useRegisterLoading();
 
@@ -28,12 +34,32 @@ const Signup: React.FC = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const handleSignup = async () => {
-    if (!username) return ErrorToast({ title: "Username is required" });
-    if (!isValidEmail(email)) return ErrorToast({ title: "Invalid email" });
-    if (!password) return ErrorToast({ title: "Password is required" });
+    const newError = { username: "", email: "", password: "" };
+    let hasError = false;
+
+    if (!username) {
+      newError.username = "Username is required";
+      hasError = true;
+    }
+    if (!email) {
+      newError.email = "Email is required";
+      hasError = true;
+    } else if (!isValidEmail(email)) {
+      newError.email = "Invalid email format";
+      hasError = true;
+    }
+    if (!password) {
+      newError.password = "Password is required";
+      hasError = true;
+    } else if (password.length < 6) {
+      newError.password = "Password must be at least 6 characters";
+      hasError = true;
+    }
+    setErrors(newError);
+
+    if (hasError) return;
 
     try {
       const res = await dispatch(registerUser({ username, email, password }));
@@ -94,6 +120,11 @@ const Signup: React.FC = () => {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                       />
+                      {errors.username && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {errors.username}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -114,6 +145,11 @@ const Signup: React.FC = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                       />
+                      {errors.email && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {errors.email}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -145,43 +181,19 @@ const Signup: React.FC = () => {
                           onClick={() => setShowPassword(!showPassword)}
                         />
                       )}
+                      {errors.password && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {errors.password}
+                        </p>
+                      )}
                     </div>
-                  </div>
-
-                  <div className="flex items-start space-x-3 pt-1">
-                    <Input
-                      type="checkbox"
-                      id="terms"
-                      className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900 focus:ring-1"
-                      checked={termsAccepted}
-                      onChange={(e) => setTermsAccepted(e.target.checked)}
-                    />
-                    <Label
-                      htmlFor="terms"
-                      className="text-sm text-gray-600 leading-relaxed"
-                    >
-                      I agree to the{" "}
-                      <a
-                        href="#"
-                        className="font-medium text-gray-900 underline underline-offset-4 hover:text-gray-700 transition-colors"
-                      >
-                        terms of service
-                      </a>{" "}
-                      and{" "}
-                      <a
-                        href="#"
-                        className="font-medium text-gray-900 underline underline-offset-4 hover:text-gray-700 transition-colors"
-                      >
-                        privacy policy
-                      </a>
-                    </Label>
                   </div>
 
                   <Button
                     className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-900 disabled:pointer-events-none disabled:opacity-50 bg-gray-900 text-white hover:bg-gray-800 h-11 px-6 py-2 shadow-sm w-full"
                     type="submit"
                     onClick={handleSignup}
-                    disabled={isRegisterLoading || !termsAccepted}
+                    disabled={isRegisterLoading}
                   >
                     {isRegisterLoading ? (
                       <>
