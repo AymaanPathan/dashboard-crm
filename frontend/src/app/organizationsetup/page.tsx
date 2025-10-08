@@ -132,14 +132,16 @@ const OrganizationSetupPage: React.FC = () => {
       };
 
       const res = await dispatch(createOrganization(submitData)).unwrap();
+      console.log("Create Organization Response:", res);
       if (res.status === "created") {
         SuccessToast({ title: "Organization created successfully" });
         router.push(`/crm/dashboard`);
       }
     } catch (error: any) {
+      console.log("Organization Creation Error:", error);
       ErrorToast({
         title: "Setup failed",
-        description: error?.message || "Please try again",
+        description: error,
       });
     } finally {
       setIsSubmitting(false);

@@ -19,12 +19,12 @@ const initialState: OrganizationState = {
 
 export const createOrganization = createAsyncThunk(
   "org/create",
-  async (orgData: IOrganization) => {
+  async (orgData: IOrganization, { rejectWithValue }) => {
     try {
       const response = await createNewOrgApi(orgData);
       return response.data;
     } catch (error: any) {
-      return error.response?.data?.message || "Failed to create organization";
+      return rejectWithValue(error);
     }
   }
 );
@@ -87,6 +87,5 @@ const organizationSlice = createSlice({
   },
 });
 
-export const { clearError } =
-  organizationSlice.actions;
+export const { clearError } = organizationSlice.actions;
 export default organizationSlice.reducer;
