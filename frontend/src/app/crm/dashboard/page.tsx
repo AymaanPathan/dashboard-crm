@@ -23,6 +23,7 @@ import { DropdownMenuForArrayOfObjects } from "@/components/dropdown/DropdownFor
 import { IStage } from "@/models/stage.model";
 import { IUser } from "@/models/user.model";
 import { CustomButton } from "@/components/Buttons/Button";
+import ErrorToast from "@/assets/toast/ErrorToast";
 
 const LeadsDashboard: React.FC = () => {
   const [isAddLeadOptionsOpen, setIsAddLeadOptionsOpen] = useState(false);
@@ -60,6 +61,17 @@ const LeadsDashboard: React.FC = () => {
     dispatch(getUserByRoleSlice());
   }, [dispatch]);
 
+  const fetchKanbanData = async (filters: LeadFilters) => {
+    try {
+      await dispatch(fetchLeadForKanban({ filters })).unwrap();
+    } catch (error) {
+      ErrorToast({
+        title: "Error",
+        description: error as string,
+      });
+    }
+  };
+
   useEffect(() => {
     const filters: LeadFilters = {
       leadType:
@@ -78,7 +90,7 @@ const LeadsDashboard: React.FC = () => {
       await dispatch(getOrganizationInfo());
     };
 
-    dispatch(fetchLeadForKanban(filters));
+    fetchKanbanData(filters);
     dispatch(getUserByRoleSlice());
     dispatch(fetchStages());
     dispatch(getTodayLeadTasksSlice());
@@ -100,7 +112,7 @@ const LeadsDashboard: React.FC = () => {
         search: searchTerm.trim() === "" ? undefined : searchTerm.trim(),
       };
 
-      dispatch(fetchLeadForKanban(filters));
+      dispatch(fetchLeadForKanban({ filters }));
     }
   };
 

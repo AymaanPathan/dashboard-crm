@@ -68,7 +68,7 @@ export const LeadCard: React.FC<{
   };
 
   const handleAssigneeChange = async (assignee: any) => {
-    const res = dispatch(
+    dispatch(
       updateLeadAssigneeLocally({
         leadId: leadData.id,
         newAssigneeId: assignee.id,
@@ -78,7 +78,7 @@ export const LeadCard: React.FC<{
     await dispatch(
       updateLeadAssignee({ leadId: leadData.id, newAssigneeId: assignee.id })
     );
-    await dispatch(fetchLeadForKanban());
+    await dispatch(fetchLeadForKanban({}));
 
     setIsDropdownOpen(false);
   };

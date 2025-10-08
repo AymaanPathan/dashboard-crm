@@ -24,9 +24,13 @@ const initialState: KanbanState = {
 
 export const fetchLeadForKanban = createAsyncThunk(
   "leads/fetchByKanban",
-  async (filters?: LeadFilters) => {
-    const response = await getKanbanData(filters);
-    return response.data;
+  async ({ filters }: { filters?: LeadFilters }, { rejectWithValue }) => {
+    try {
+      const response = await getKanbanData(filters);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message);
+    }
   }
 );
 
