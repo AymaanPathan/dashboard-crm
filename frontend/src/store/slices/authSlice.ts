@@ -89,17 +89,28 @@ export const registerUser = createAsyncThunk(
 );
 export const handleVerifyOtp = createAsyncThunk(
   "auth/handleVerifyOtp",
-  async ({ email, otp }: { email: string; otp: string }) => {
-    const response = await handleVerifyOtpApi(email, otp);
-    return response;
+  async (
+    { email, otp }: { email: string; otp: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await handleVerifyOtpApi(email, otp);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
   }
 );
 
 export const handleResendOtp = createAsyncThunk(
   "auth/handleResendOtp",
-  async ({ email }: { email: string }) => {
-    const response = await handleResendOtpApi(email);
-    return response;
+  async ({ email }: { email: string }, { rejectWithValue }) => {
+    try {
+      const response = await handleResendOtpApi(email);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
   }
 );
 

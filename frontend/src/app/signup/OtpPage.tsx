@@ -14,6 +14,7 @@ import { useVerifyLoading } from "@/assets/loadingStates/auth.loading.state";
 import { ButtonLoading } from "@/components/ui/ButtonLoading";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import ErrorToast from "@/assets/toast/ErrorToast";
 
 interface OtpPageProps {
   otp: string;
@@ -35,11 +36,19 @@ const OtpPage: React.FC<OtpPageProps> = ({
   const user = useSelector((state: RootState) => state.auth.user);
 
   const handleOtpVerification = async () => {
-    const res = await dispatch(
-      handleVerifyOtp({ email: user.email!, otp: otp })
-    ).unwrap();
-    if (res.statusCode === 200) {
-      router.push("/organizationsetup");
+    try {
+      const res = await dispatch(
+        handleVerifyOtp({ email: user.email!, otp: otp })
+      ).unwrap();
+      console.log("OTP Verification Response:", res);
+      if (res.data.token) {
+        router.push("/organizationsetup");
+      }
+    } catch (error) {
+      ErrorToast({
+        title: "Verification failed",
+        description: error as string,
+      });
     }
   };
 

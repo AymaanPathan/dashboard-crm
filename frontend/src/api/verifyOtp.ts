@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import ErrorToast from "@/assets/toast/ErrorToast";
 import axiosSetup from "../utils/axiosSetup";
-import SuccessToast from "@/assets/toast/SuccessToast";
 
 export const handleVerifyOtpApi = async (email: string, otp: string) => {
   try {
@@ -9,16 +7,8 @@ export const handleVerifyOtpApi = async (email: string, otp: string) => {
       email,
       otp,
     });
-    SuccessToast({
-      title: "Registration successful",
-      description: "Your email has been verified successfully.",
-    });
     return res.data;
   } catch (error: any) {
-    ErrorToast({
-      title: "Verification failed",
-      description: error?.response.data.message,
-    });
-    throw error;
+    throw error?.response.data.message;
   }
 };
