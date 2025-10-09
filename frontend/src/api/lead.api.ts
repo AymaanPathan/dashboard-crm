@@ -8,7 +8,7 @@ export const getLeadForKanbanApi = async () => {
     return response.data;
   } catch (error: any) {
     console.error("Error fetching leads:", error);
-    throw error;
+    throw error.response?.data?.message;
   }
 };
 
@@ -36,7 +36,7 @@ export const addLeadViaExcel = async (
     return res.data;
   } catch (error: any) {
     console.error("Error importing leads:", error);
-    throw error;
+    throw error.response?.data?.message;
   }
 };
 
@@ -57,9 +57,9 @@ export const updateLeadDragDropApi = async (
     });
 
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error updating lead position:", error);
-    throw error;
+    throw error.response?.data?.message;
   }
 };
 
@@ -75,7 +75,7 @@ export const updateAssigneeApi = async (
     return response.data;
   } catch (error: any) {
     console.error("Error updating lead assignee:", error);
-    throw error;
+    throw error.response?.data?.message;
   }
 };
 
@@ -85,7 +85,7 @@ export const getOneLeadApi = async (leadId: string) => {
     return response.data.data;
   } catch (error: any) {
     console.error("Error fetching lead:", error);
-    throw error;
+   throw error.response?.data?.message;
   }
 };
 
@@ -95,7 +95,7 @@ export const getLeadLogsApi = async (leadId: string) => {
     return response.data.data;
   } catch (error: any) {
     console.error("Error fetching lead logs:", error);
-    throw error;
+   throw error.response?.data?.message;
   }
 };
 
@@ -105,7 +105,7 @@ export const addLeadNoteApi = async (leadId: string, note: string) => {
     return response.data.data;
   } catch (error: any) {
     console.error("Error adding lead note:", error);
-    throw error;
+    throw error.response?.data?.message;
   }
 };
 
@@ -115,6 +115,6 @@ export const getLeadNotesApi = async (leadId: string) => {
     return response.data.data;
   } catch (error: any) {
     console.error("Error fetching lead notes:", error);
-    throw error;
+    throw error.response?.data?.message;
   }
 };
