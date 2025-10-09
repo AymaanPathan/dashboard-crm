@@ -29,14 +29,17 @@ export const createOrganization = createAsyncThunk(
   }
 );
 
-export const getOrganizationInfo = createAsyncThunk("org/get", async () => {
-  try {
-    const response = await getOrgDataApi();
-    return response.data;
-  } catch (error: any) {
-    return error.response?.data?.message || "Failed to retrieve organization";
+export const getOrganizationInfo = createAsyncThunk(
+  "org/get",
+  async ({}, { rejectWithValue }) => {
+    try {
+      const response = await getOrgDataApi();
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
-});
+);
 
 const organizationSlice = createSlice({
   name: "organizations",

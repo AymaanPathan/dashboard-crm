@@ -21,17 +21,25 @@ const initialState: QuotationState = {
 
 export const createQuotation = createAsyncThunk(
   "quotations/create",
-  async (data: ICreateQuotationPayload) => {
-    const response = await createQuotationApi(data);
-    return response;
+  async (data: ICreateQuotationPayload, { rejectWithValue }) => {
+    try {
+      const response = await createQuotationApi(data);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
 );
 
 export const getQuotationsByLead = createAsyncThunk(
   "quotations/getByLead",
-  async (leadId: string) => {
-    const response = await getQuotationsByLeadApi(leadId);
-    return response;
+  async (leadId: string, { rejectWithValue }) => {
+    try {
+      const response = await getQuotationsByLeadApi(leadId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
 );
 
