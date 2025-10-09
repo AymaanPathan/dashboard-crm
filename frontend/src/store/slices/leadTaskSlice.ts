@@ -33,43 +33,66 @@ const initialState = {
 
 export const addLeadTaskSlice = createAsyncThunk(
   "leadTasks/add",
-  async (payload: { leadId: string; leadTask: LeadTask }) => {
-    const { leadId, leadTask } = payload;
-    const response = await addLeadTaskApi(leadId, leadTask);
-    return response;
+  async (
+    payload: { leadId: string; leadTask: LeadTask },
+    { rejectWithValue }
+  ) => {
+    try {
+      const { leadId, leadTask } = payload;
+      const response = await addLeadTaskApi(leadId, leadTask);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
 );
 
 export const getLeadTasksByLeadIdSlice = createAsyncThunk(
   "leadTasks/getByLeadId",
-  async (leadId: string) => {
-    const response = await getLeadTasksByLeadIdApi(leadId);
-    return response;
+  async (leadId: string, { rejectWithValue }) => {
+    try {
+      const response = await getLeadTasksByLeadIdApi(leadId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
 );
 
 export const getTodayLeadTasksSlice = createAsyncThunk(
   "leadTasks/getToday",
-  async () => {
-    const response = await getTodayLeadTasksApi();
-    return response;
+  async ({}, { rejectWithValue }) => {
+    try {
+      const response = await getTodayLeadTasksApi();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
 );
 
 export const updateTaskReminderStatusSlice = createAsyncThunk(
   "leadTasks/updateReminderStatus",
-  async (payload: { taskId: string; status: string }) => {
-    const { taskId, status } = payload;
-    const response = await updateTaskReminderStatusApi(taskId, status);
-    return response;
+  async (payload: { taskId: string; status: string }, { rejectWithValue }) => {
+    try {
+      const { taskId, status } = payload;
+      const response = await updateTaskReminderStatusApi(taskId, status);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
 );
 
 export const getMissedTaskRemindersSlice = createAsyncThunk(
   "leadTasks/getMissedReminders",
-  async () => {
-    const response = await getMissedTaskRemindersApi();
-    return response;
+  async ({}, { rejectWithValue }) => {
+    try {
+      const response = await getMissedTaskRemindersApi();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
 );
 
@@ -94,16 +117,24 @@ export const completeTaskSlice = createAsyncThunk(
 
 export const getAllMyTasksSlice = createAsyncThunk(
   "leadTasks/getAllMyTasks",
-  async () => {
-    const response = await getAllMyTasksApi();
-    return response;
+  async ({}, { rejectWithValue }) => {
+    try {
+      const response = await getAllMyTasksApi();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
 );
 export const getIncompleteTasksSlice = createAsyncThunk(
   "leadTasks/getIncompleteTasks",
-  async () => {
-    const response = await getIncompleteTasksApi();
-    return response;
+  async ({}, { rejectWithValue }) => {
+    try {
+      const response = await getIncompleteTasksApi();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
 );
 

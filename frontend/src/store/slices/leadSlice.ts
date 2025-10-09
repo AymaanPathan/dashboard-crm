@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
   addLeadNoteApi,
@@ -22,33 +23,49 @@ const initialState = {
 
 export const getOneLeadbyId = createAsyncThunk(
   "lead/getOne",
-  async (leadId: string) => {
-    const response = await getOneLeadApi(leadId);
-    return response;
+  async (leadId: string, { rejectWithValue }) => {
+    try {
+      const response = await getOneLeadApi(leadId);
+      return response;
+    } catch (error: any) {
+      throw rejectWithValue(error);
+    }
   }
 );
 
 export const getLeadLogs = createAsyncThunk(
   "lead/getLogs",
-  async (leadId: string) => {
-    const response = await getLeadLogsApi(leadId);
-    return response;
+  async (leadId: string, { rejectWithValue }) => {
+    try {
+      const response = await getLeadLogsApi(leadId);
+      return response;
+    } catch (error: any) {
+      throw rejectWithValue(error);
+    }
   }
 );
 
 export const addLeadNote = createAsyncThunk(
   "lead/addNote",
-  async (noteData: { leadId: string; note: string }) => {
-    const response = await addLeadNoteApi(noteData.leadId, noteData.note);
-    return response;
+  async (noteData: { leadId: string; note: string }, { rejectWithValue }) => {
+    try {
+      const response = await addLeadNoteApi(noteData.leadId, noteData.note);
+      return response;
+    } catch (error: any) {
+      throw rejectWithValue(error);
+    }
   }
 );
 
 export const getLeadNotes = createAsyncThunk(
   "lead/getNotes",
-  async (leadId: string) => {
-    const response = await getLeadNotesApi(leadId);
-    return response;
+  async (leadId: string, { rejectWithValue }) => {
+    try {
+      const response = await getLeadNotesApi(leadId);
+      return response;
+    } catch (error) {
+      throw rejectWithValue(error);
+    }
   }
 );
 
