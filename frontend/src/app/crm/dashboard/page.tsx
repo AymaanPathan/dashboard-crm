@@ -35,7 +35,6 @@ const LeadsDashboard: React.FC = () => {
   const [isAddLeadFormOpen, setIsAddLeadFormOpen] = useState(false);
   const [isExcelUploadOpen, setIsExcelUploadOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
-  console.log("Selected User:", selectedUser);
   const usersByRole = useSelector((state: RootState) => state.user.teamMembers);
 
   const leadTypes = ["All", "Hot", "Cold", "Warm"];
@@ -59,6 +58,7 @@ const LeadsDashboard: React.FC = () => {
 
   useEffect(() => {
     dispatch(getUserByRoleSlice());
+    dispatch(getOrganizationInfo());
   }, [dispatch]);
 
   const fetchKanbanData = async (filters: LeadFilters) => {
@@ -86,15 +86,10 @@ const LeadsDashboard: React.FC = () => {
       search: undefined,
     };
 
-    const getOrganizationData = async (): Promise<void> => {
-      await dispatch(getOrganizationInfo());
-    };
-
     fetchKanbanData(filters);
     dispatch(getUserByRoleSlice());
     dispatch(fetchStages());
     dispatch(getTodayLeadTasksSlice());
-    getOrganizationData();
   }, [dispatch, selectedStage, selectedType, selectedUser, searchTerm]);
 
   const handleSearchChange = (e: React.KeyboardEvent<HTMLInputElement>) => {

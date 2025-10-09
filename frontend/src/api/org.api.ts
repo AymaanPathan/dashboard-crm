@@ -15,7 +15,7 @@ export const createNewOrgApi = async (orgData: IOrganization) => {
 export const getOrgDataApi = async () => {
   try {
     const response = await axiosSetup.get(`org/info`);
-
+    console.log("Get Org Response:", response);
     return response.data;
   } catch (error: any) {
     throw error?.response?.data?.message;

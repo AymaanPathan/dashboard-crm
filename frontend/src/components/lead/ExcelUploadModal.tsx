@@ -50,7 +50,7 @@ export const ExcelUploadModal = ({
   const addExcel = async () => {
     await dispatch(addExcelLead({ file: file!, assigneeId: selectedAssignee }));
     onClose();
-    await dispatch(fetchLeadForKanban());
+    await dispatch(fetchLeadForKanban({}));
   };
 
   if (!isOpen) return null;

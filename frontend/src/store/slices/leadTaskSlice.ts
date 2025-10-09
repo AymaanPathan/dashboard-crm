@@ -66,7 +66,7 @@ export const getLeadTasksByLeadIdSlice = createAsyncThunk(
 
 export const getTodayLeadTasksSlice = createAsyncThunk(
   "leadTasks/getToday",
-  async ({}, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await getTodayLeadTasksApi();
       return response;
@@ -91,7 +91,7 @@ export const updateTaskReminderStatusSlice = createAsyncThunk(
 
 export const getMissedTaskRemindersSlice = createAsyncThunk(
   "leadTasks/getMissedReminders",
-  async ({}, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await getMissedTaskRemindersApi();
       return response;
@@ -122,7 +122,7 @@ export const completeTaskSlice = createAsyncThunk(
 
 export const getAllMyTasksSlice = createAsyncThunk(
   "leadTasks/getAllMyTasks",
-  async ({}, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await getAllMyTasksApi();
       return response;
@@ -133,7 +133,7 @@ export const getAllMyTasksSlice = createAsyncThunk(
 );
 export const getIncompleteTasksSlice = createAsyncThunk(
   "leadTasks/getIncompleteTasks",
-  async ({}, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await getIncompleteTasksApi();
       return response;

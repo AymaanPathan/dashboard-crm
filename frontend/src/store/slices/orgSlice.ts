@@ -37,9 +37,10 @@ export const createOrganization = createAsyncThunk(
 
 export const getOrganizationInfo = createAsyncThunk(
   "org/get",
-  async ({}, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await getOrgDataApi();
+      console.log("Get Org Response in Thunk:", response);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error);
@@ -78,6 +79,7 @@ const organizationSlice = createSlice({
       .addCase(
         getOrganizationInfo.fulfilled,
         (state, action: PayloadAction<any>) => {
+          console.log("Get Org Action Payload:", action.payload);
           state.loading.fetching = false;
           state.currentOrganization = action.payload;
         }

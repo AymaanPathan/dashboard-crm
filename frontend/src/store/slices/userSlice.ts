@@ -50,7 +50,7 @@ export const addUserSlice = createAsyncThunk(
 
 export const getUserSlice = createAsyncThunk(
   "user/getuser",
-  async ({}, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await getUsersApi();
       return response;
@@ -62,7 +62,7 @@ export const getUserSlice = createAsyncThunk(
 
 export const getUserByRoleSlice = createAsyncThunk(
   "user/getUserByRole",
-  async ({}, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await getUserByRoleApi();
       return response;

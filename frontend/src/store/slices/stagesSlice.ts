@@ -13,7 +13,7 @@ const initialState = {
 
 export const fetchStages = createAsyncThunk(
   "stages/fetchAll",
-  async ({}, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await getAllStagesOfOrgApi();
       return response;
