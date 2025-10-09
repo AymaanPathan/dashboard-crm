@@ -28,8 +28,10 @@ const initialState = {
   myManagers: { myManagers: [] as IUser[], myRole: "" } as UserManagers,
   users: [] as IUser[],
   loading: {
-    isAdding: false,
-    isFetching: false,
+    addingUser: false,
+    fetchingUsers: false,
+    fetchingByRole: false,
+    fetchingManagers: false,
   },
   error: "",
 };
@@ -89,44 +91,44 @@ export const UserSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(addUserSlice.pending, (state) => {
-        state.loading.isAdding = true;
+        state.loading.addingUser = true;
       })
       .addCase(addUserSlice.fulfilled, (state, action) => {
-        state.loading.isAdding = false;
+        state.loading.addingUser = false;
         state.users.push(action.payload);
       })
       .addCase(addUserSlice.rejected, (state) => {
-        state.loading.isAdding = false;
+        state.loading.addingUser = false;
       })
       .addCase(getUserSlice.pending, (state) => {
-        state.loading.isFetching = true;
+        state.loading.fetchingUsers = true;
       })
       .addCase(getUserSlice.fulfilled, (state, action) => {
-        state.loading.isFetching = false;
+        state.loading.fetchingUsers = false;
         state.users = action.payload.data;
       })
       .addCase(getUserSlice.rejected, (state) => {
-        state.loading.isFetching = false;
+        state.loading.fetchingUsers = false;
       })
       .addCase(getUserByRoleSlice.pending, (state) => {
-        state.loading.isFetching = true;
+        state.loading.fetchingByRole = true;
       })
       .addCase(getUserByRoleSlice.fulfilled, (state, action) => {
-        state.loading.isFetching = false;
+        state.loading.fetchingByRole = false;
         state.teamMembers = action.payload.data;
       })
       .addCase(getUserByRoleSlice.rejected, (state) => {
-        state.loading.isFetching = false;
+        state.loading.fetchingByRole = false;
       })
       .addCase(getUserManagerSlice.pending, (state) => {
-        state.loading.isFetching = true;
+        state.loading.fetchingManagers = true;
       })
       .addCase(getUserManagerSlice.fulfilled, (state, action) => {
-        state.loading.isFetching = false;
+        state.loading.fetchingManagers = false;
         state.myManagers = action.payload;
       })
       .addCase(getUserManagerSlice.rejected, (state) => {
-        state.loading.isFetching = false;
+        state.loading.fetchingManagers = false;
       });
   },
 });

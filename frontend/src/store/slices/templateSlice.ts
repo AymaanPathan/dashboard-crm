@@ -5,7 +5,6 @@ import { createTemplateApi } from "@/api/template.api";
 
 const initialState = {
   myTemplates: [] as ICreateTemplatePayload[],
-
   loading: {
     gettingTemplates: false,
     creatingTemplate: false,
@@ -41,8 +40,6 @@ const templateSlice = createSlice({
       })
       .addCase(createTemplate.fulfilled, (state, action) => {
         state.loading.creatingTemplate = false;
-
-        console.log("Fetched templates:", action.payload);
         state.myTemplates.push(action.payload);
       });
   },

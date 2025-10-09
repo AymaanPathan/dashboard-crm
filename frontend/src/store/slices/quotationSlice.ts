@@ -7,6 +7,7 @@ interface QuotationState {
   quotations: ICreateQuotationPayload[];
   loading: {
     creatingQuotation: boolean;
+    fetchingQuotations: boolean;
   };
   error: string;
 }
@@ -15,6 +16,7 @@ const initialState: QuotationState = {
   quotations: [],
   loading: {
     creatingQuotation: false,
+    fetchingQuotations: false,
   },
   error: "",
 };
@@ -63,12 +65,15 @@ const quotationSlice = createSlice({
         state.error = action.error.message || "Failed to create quotation";
       })
       .addCase(getQuotationsByLead.pending, (state) => {
+        state.loading.fetchingQuotations = true;
         state.error = "";
       })
       .addCase(getQuotationsByLead.fulfilled, (state, action) => {
+        state.loading.fetchingQuotations = false;
         state.quotations = action.payload;
       })
       .addCase(getQuotationsByLead.rejected, (state, action) => {
+        state.loading.fetchingQuotations = false;
         state.error = action.error.message || "Failed to fetch quotations";
       });
   },

@@ -5,7 +5,9 @@ import { IStage } from "@/models/stage.model";
 
 const initialState = {
   stages: [] as IStage[],
-  loading: false,
+  loading: {
+    fetchingStages: false,
+  },
   error: "",
 };
 
@@ -27,15 +29,15 @@ const stagesSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(fetchStages.pending, (state) => {
-      state.loading = true;
+      state.loading.fetchingStages = true;
       state.error = "";
     });
     builder.addCase(fetchStages.fulfilled, (state, action) => {
-      state.loading = false;
+      state.loading.fetchingStages = false;
       state.stages = action.payload;
     });
     builder.addCase(fetchStages.rejected, (state, action) => {
-      state.loading = false;
+      state.loading.fetchingStages = false;
       state.error = action.payload as string;
     });
   },
