@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   addUserApi,
   getUserByRoleApi,
@@ -35,30 +36,49 @@ const initialState = {
 
 export const addUserSlice = createAsyncThunk(
   "user/adduser",
-  async (userData: IUser) => {
-    const response = await addUserApi(userData);
-    return response;
+  async (userData: IUser, { rejectWithValue }) => {
+    try {
+      const response = await addUserApi(userData);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
 );
 
-export const getUserSlice = createAsyncThunk("user/getuser", async () => {
-  const response = await getUsersApi();
-  return response;
-});
+export const getUserSlice = createAsyncThunk(
+  "user/getuser",
+  async ({}, { rejectWithValue }) => {
+    try {
+      const response = await getUsersApi();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
+  }
+);
 
 export const getUserByRoleSlice = createAsyncThunk(
   "user/getUserByRole",
-  async () => {
-    const response = await getUserByRoleApi();
-    return response;
+  async ({}, { rejectWithValue }) => {
+    try {
+      const response = await getUserByRoleApi();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
 );
 
 export const getUserManagerSlice = createAsyncThunk(
   "user/getUserManager",
-  async (role: string) => {
-    const response = await getUserManagerApi(role);
-    return response;
+  async (role: string, { rejectWithValue }) => {
+    try {
+      const response = await getUserManagerApi(role);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
 );
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getAllStagesOfOrgApi } from "@/api/stage.api";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { IStage } from "@/models/stage.model";
@@ -8,10 +9,17 @@ const initialState = {
   error: "",
 };
 
-export const fetchStages = createAsyncThunk("stages/fetchAll", async () => {
-  const response = await getAllStagesOfOrgApi();
-  return response;
-});
+export const fetchStages = createAsyncThunk(
+  "stages/fetchAll",
+  async ({}, { rejectWithValue }) => {
+    try {
+      const response = await getAllStagesOfOrgApi();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
+  }
+);
 
 const stagesSlice = createSlice({
   name: "stages",

@@ -15,9 +15,13 @@ const initialState = {
 
 export const createTemplate = createAsyncThunk(
   "templates/create",
-  async (data: ICreateTemplatePayload) => {
-    const response = await createTemplateApi(data);
-    return response;
+  async (data: ICreateTemplatePayload, { rejectWithValue }) => {
+    try {
+      const response = await createTemplateApi(data);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
 );
 
