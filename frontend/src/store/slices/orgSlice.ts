@@ -6,14 +6,20 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface OrganizationState {
   currentOrganization: IOrganization | null;
   organizations: IOrganization[];
-  loading: boolean;
+  loading: {
+    creating: boolean;
+    fetching: boolean;
+  };
   error: string | null;
 }
 
 const initialState: OrganizationState = {
   organizations: [],
   currentOrganization: null,
-  loading: false,
+  loading: {
+    creating: false,
+    fetching: false,
+  },
   error: null,
 };
 
@@ -51,13 +57,13 @@ const organizationSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(createOrganization.pending, (state) => {
-      state.loading = true;
+      state.loading.creating = true;
       state.error = null;
     });
     builder.addCase(
       createOrganization.fulfilled,
       (state, action: PayloadAction<any>) => {
-        state.loading = false;
+        state.loading.creating = false;
         state.organizations.push(action.payload);
       }
     );
@@ -65,26 +71,26 @@ const organizationSlice = createSlice({
       .addCase(
         createOrganization.rejected,
         (state, action: PayloadAction<any>) => {
-          state.loading = false;
+          state.loading.creating = false;
           state.error = action.payload;
         }
       )
       .addCase(
         getOrganizationInfo.fulfilled,
         (state, action: PayloadAction<any>) => {
-          state.loading = false;
+          state.loading.fetching = false;
           state.currentOrganization = action.payload;
         }
       )
       .addCase(
         getOrganizationInfo.rejected,
         (state, action: PayloadAction<any>) => {
-          state.loading = false;
+          state.loading.fetching = false;
           state.error = action.payload;
         }
       )
       .addCase(getOrganizationInfo.pending, (state) => {
-        state.loading = true;
+        state.loading.fetching = true;
         state.error = null;
       });
   },
