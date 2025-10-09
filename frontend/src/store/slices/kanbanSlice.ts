@@ -29,34 +29,41 @@ export const fetchLeadForKanban = createAsyncThunk(
       const response = await getKanbanData(filters);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message);
+      return rejectWithValue(error);
     }
   }
 );
 
 export const updateLeadStatus = createAsyncThunk(
   "kanban/updateStatus",
-  async ({
-    leadId,
-    oldStage,
-    newStage,
-    newPosition,
-    oldPosition,
-  }: {
-    leadId: string;
-    oldStage: string;
-    newStage: string;
-    oldPosition: number;
-    newPosition: number;
-  }) => {
-    const response = await updateLeadDragDropApi(
+  async (
+    {
       leadId,
       oldStage,
       newStage,
+      newPosition,
       oldPosition,
-      newPosition
-    );
-    return response;
+    }: {
+      leadId: string;
+      oldStage: string;
+      newStage: string;
+      oldPosition: number;
+      newPosition: number;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await updateLeadDragDropApi(
+        leadId,
+        oldStage,
+        newStage,
+        oldPosition,
+        newPosition
+      );
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
 );
 
@@ -74,23 +81,37 @@ export const addLead = createAsyncThunk(
 
 export const updateLeadAssignee = createAsyncThunk(
   "leads/updateAssignee",
-  async ({
-    leadId,
-    newAssigneeId,
-  }: {
-    leadId: string;
-    newAssigneeId: string;
-  }) => {
-    const response = await updateAssigneeApi(leadId, newAssigneeId);
-    return response.data;
+  async (
+    {
+      leadId,
+      newAssigneeId,
+    }: {
+      leadId: string;
+      newAssigneeId: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await updateAssigneeApi(leadId, newAssigneeId);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
   }
 );
 
 export const addExcelLead = createAsyncThunk(
   "leads/addExcelLead",
-  async (payload: { file: File | undefined; assigneeId: string }) => {
-    const response = await addLeadViaExcel(payload.file!, payload.assigneeId);
-    return response.data;
+  async (
+    payload: { file: File | undefined; assigneeId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await addLeadViaExcel(payload.file!, payload.assigneeId);
+      return response.data;
+    } catch (error: any) {
+      throw rejectWithValue(error);
+    }
   }
 );
 
