@@ -17,7 +17,7 @@ export const getOrgDataApi = async () => {
     const response = await axiosSetup.get(`org/info`);
 
     return response.data;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw error?.response?.data?.message;
   }
 };
