@@ -23,10 +23,15 @@ const initialState = {
   leadTasks: [] as LeadTask[],
   reminderList: [] as IReminderData[],
   loading: {
-    gettingTasks: false,
-    addingTask: false,
-    updatingTask: false,
-    deletingTask: false,
+    getAllMyTasks: false,
+    getIncompleteTasks: false,
+    getLeadTasksByLeadId: false,
+    getTodayLeadTasks: false,
+    addLeadTask: false,
+    updateTaskReminderStatus: false,
+    completeTask: false,
+    getMissedReminders: false,
+    deleteTask: false,
   },
   error: "",
 };
@@ -224,50 +229,49 @@ const leadTasksSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(addLeadTaskSlice.pending, (state) => {
-      state.loading.addingTask = true;
+      state.loading.addLeadTask = true;
       state.error = "";
     });
     builder.addCase(addLeadTaskSlice.fulfilled, (state) => {
-      state.loading.addingTask = false;
+      state.loading.addLeadTask = false;
     });
     builder
       .addCase(addLeadTaskSlice.rejected, (state, action) => {
-        state.loading.addingTask = false;
+        state.loading.addLeadTask = false;
         state.error = action.payload as string;
       })
       .addCase(getLeadTasksByLeadIdSlice.pending, (state) => {
-        state.loading.addingTask = true;
+        state.loading.getLeadTasksByLeadId = true;
         state.error = "";
       })
       .addCase(getLeadTasksByLeadIdSlice.fulfilled, (state, action) => {
-        state.loading.addingTask = false;
-
+        state.loading.getLeadTasksByLeadId = false;
         console.log("Fetched lead tasks:", action.payload);
         state.leadTasks = action.payload;
       })
       .addCase(getLeadTasksByLeadIdSlice.rejected, (state, action) => {
-        state.loading.addingTask = false;
+        state.loading.getLeadTasksByLeadId = false;
         state.error = action.payload as string;
       })
       .addCase(getTodayLeadTasksSlice.pending, (state) => {
-        state.loading.addingTask = true;
+        state.loading.getTodayLeadTasks = true;
         state.error = "";
       })
       .addCase(getTodayLeadTasksSlice.fulfilled, (state, action) => {
-        state.loading.addingTask = false;
+        state.loading.getTodayLeadTasks = false;
         state.todaysTasks = action.payload.tasks;
         state.todayTaskCount = action.payload.count;
       })
       .addCase(getTodayLeadTasksSlice.rejected, (state, action) => {
-        state.loading.addingTask = false;
+        state.loading.getTodayLeadTasks = false;
         state.error = action.payload as string;
       })
       .addCase(updateTaskReminderStatusSlice.pending, (state) => {
-        state.loading.updatingTask = true;
+        state.loading.updateTaskReminderStatus = true;
         state.error = "";
       })
       .addCase(updateTaskReminderStatusSlice.fulfilled, (state, action) => {
-        state.loading.updatingTask = false;
+        state.loading.updateTaskReminderStatus = false;
         const { taskId, status } = action.payload;
         const task = state.leadTasks.find((t) => t.id === taskId);
         if (task) {
@@ -275,60 +279,60 @@ const leadTasksSlice = createSlice({
         }
       })
       .addCase(updateTaskReminderStatusSlice.rejected, (state, action) => {
-        state.loading.updatingTask = false;
+        state.loading.updateTaskReminderStatus = false;
         state.error = action.payload as string;
       })
       .addCase(getMissedTaskRemindersSlice.pending, (state) => {
-        state.loading.addingTask = true;
+        state.loading.getMissedReminders = true;
         state.error = "";
       })
       .addCase(getMissedTaskRemindersSlice.fulfilled, (state, action) => {
-        state.loading.addingTask = false;
+        state.loading.getMissedReminders = false;
 
         state.reminderList = action.payload;
       })
       .addCase(getMissedTaskRemindersSlice.rejected, (state, action) => {
-        state.loading.addingTask = false;
+        state.loading.getMissedReminders = false;
         state.error = action.payload as string;
       })
       .addCase(completeTaskSlice.pending, (state) => {
-        state.loading.addingTask = true;
+        state.loading.completeTask = true;
         state.error = "";
       })
       .addCase(completeTaskSlice.fulfilled, (state, action) => {
-        state.loading.addingTask = false;
+        state.loading.completeTask = false;
         state.leadTasks = state.leadTasks.map((task) =>
           task.id === action.payload.data.id ? action.payload.data : task
         );
       })
       .addCase(completeTaskSlice.rejected, (state, action) => {
-        state.loading.addingTask = false;
+        state.loading.completeTask = false;
         state.error = action.payload as string;
       })
       .addCase(getAllMyTasksSlice.pending, (state) => {
-        state.loading.gettingTasks = true;
+        state.loading.getAllMyTasks = true;
         state.error = "";
       })
       .addCase(getAllMyTasksSlice.fulfilled, (state, action) => {
-        state.loading.gettingTasks = false;
+        state.loading.getAllMyTasks = false;
         state.myAllTasks = action.payload.tasks;
         state.allTaskCount = action.payload.count;
       })
       .addCase(getAllMyTasksSlice.rejected, (state, action) => {
-        state.loading.gettingTasks = false;
+        state.loading.getAllMyTasks = false;
         state.error = action.payload as string;
       })
       .addCase(getIncompleteTasksSlice.pending, (state) => {
-        state.loading.gettingTasks = true;
+        state.loading.getIncompleteTasks = true;
         state.error = "";
       })
       .addCase(getIncompleteTasksSlice.fulfilled, (state, action) => {
-        state.loading.gettingTasks = false;
+        state.loading.getIncompleteTasks = false;
         state.myIncompleteTasks = action.payload.tasks;
         state.myIncompleteTaskCount = action.payload.count;
       })
       .addCase(getIncompleteTasksSlice.rejected, (state, action) => {
-        state.loading.gettingTasks = false;
+        state.loading.getIncompleteTasks = false;
         state.error = action.payload as string;
       });
   },
