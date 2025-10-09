@@ -47,7 +47,9 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
   const stagesList = useSelector((state: RootState) => state.stages.stages);
   const [selectedOptions, setSelectedOptions] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
-
+  const addingLead = useSelector(
+    (state: RootState) => state.kanban.loading.addingLead
+  );
   const dispatch: RootDispatch = useDispatch();
   const [formData, setFormData] = useState<ILead>({
     name: "",
@@ -134,12 +136,12 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
   const onSubmit = async () => {
     try {
       await dispatch(addLead(formData)).unwrap();
-      // Show success toast
       SuccessToast({
         title: "Lead added",
         description: "The lead has been added successfully.",
         duration: 5000,
       });
+      onClose();
     } catch (error: any) {
       ErrorToast({
         title: "Failed to add lead",
@@ -222,7 +224,7 @@ export const AddLeadForm: React.FC<AddLeadFormProps> = ({
       onClose={handleClose}
       title="New Lead"
       onSubmit={handleSubmit}
-      submitLabel="Create Lead"
+      submitLabel={addingLead ? "Adding..." : "Add Lead"}
     >
       <div className="space-y-6">
         {/* Company Information */}
