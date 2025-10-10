@@ -29,7 +29,7 @@ const LeadDetailsPage = () => {
   const quotations = useSelector(
     (state: RootState) => state.quotation.quotations
   );
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showAddTask, setShowAddTask] = useState(false);
   const [activeTab, setActiveTab] = useState("tasks");
   const [newNote, setNewNote] = useState("");

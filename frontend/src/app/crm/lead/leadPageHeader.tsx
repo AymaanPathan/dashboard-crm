@@ -75,11 +75,6 @@ export const LeadPageHeader: React.FC<LeadPageHeaderProps> = ({
   tasks,
   quotations,
   leadNotes,
-  currentLead,
-  openQuotationModal,
-  setShowAddTask,
-  showAddTask,
-  setIsAddingNote,
 }) => {
   const tabs = [
     {
@@ -105,7 +100,7 @@ export const LeadPageHeader: React.FC<LeadPageHeaderProps> = ({
 
   return (
     <div className="bg-white">
-      <div className="px-8 pt-10 pb-2">
+      <div className="px-8 pb-2">
         <div className="flex items-start justify-between mb-8">
           <div className="flex items-center gap-3">
             {!sidebarOpen && (
@@ -115,70 +110,6 @@ export const LeadPageHeader: React.FC<LeadPageHeaderProps> = ({
               >
                 <PanelRightOpen className="h-5 w-5" />
               </button>
-            )}
-            <div>
-              <h1 className="text-3xl font-semibold text-gray-900 tracking-tight mb-1">
-                {getTabTitle(activeTab)}
-              </h1>
-              <p className="text-sm text-gray-500 font-normal">
-                {getTabSubtitle(
-                  activeTab,
-                  currentLead,
-                  tasks,
-                  leadNotes,
-                  quotations
-                )}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {activeTab === "tasks" && (
-              <>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    className="pl-9 pr-3 py-1.5 w-48 text-sm bg-white border border-gray-200 rounded text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-300 transition-all"
-                  />
-                </div>
-                <button
-                  onClick={() => setShowAddTask(!showAddTask)}
-                  className="px-3 py-1.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded transition-all flex items-center gap-1.5"
-                >
-                  <Plus className="h-4 w-4" />
-                  New
-                </button>
-              </>
-            )}
-            {activeTab === "notes" && (
-              <button
-                onClick={() => setIsAddingNote(true)}
-                className="px-3 py-1.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded transition-all flex items-center gap-1.5"
-              >
-                <Plus className="h-4 w-4" />
-                New
-              </button>
-            )}
-            {activeTab === "quotations" && (
-              <>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    className="pl-9 pr-3 py-1.5 w-48 text-sm bg-white border border-gray-200 rounded text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-300 transition-all"
-                  />
-                </div>
-                <button
-                  onClick={openQuotationModal}
-                  className="px-3 py-1.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded transition-all flex items-center gap-1.5"
-                >
-                  <Plus className="h-4 w-4" />
-                  New
-                </button>
-              </>
             )}
           </div>
         </div>

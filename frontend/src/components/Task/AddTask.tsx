@@ -30,6 +30,7 @@ import {
   TaskStatus,
   TaskRepeatInterval,
 } from "@/models/leadTask.model";
+import { getAvailableReminderOptions } from "@/utils/getAvailableReminderOptions";
 
 interface AddTaskProps {
   leadId?: string;
@@ -57,169 +58,12 @@ interface TaskFormData {
   notificationDisplay: NotificationDisplayType;
 }
 
-// Helper function to get available reminder options
-const getAvailableReminderOptions = (
-  dueDate: string,
-  dueTime: string,
-  userTimezone: string
-) => {
-  if (!dueDate) return [];
-
-  const now = dayjs().tz(userTimezone);
-  const dueDateTimeString = `${dueDate}T${dueTime || "00:00"}`;
-  const dueDateTime = dayjs.tz(dueDateTimeString, userTimezone);
-
-  const allReminderOptions = [
-    { value: "no_reminder", label: "No reminder", icon: "🚫" },
-    { value: "1_minute", label: "1 minute before", icon: "⏰" },
-    { value: "5_minutes", label: "5 minutes before", icon: "⏰" },
-    { value: "15_minutes", label: "15 minutes before", icon: "⏰" },
-    { value: "1_hour", label: "1 hour before", icon: "🕐" },
-    { value: "1_day", label: "1 day before", icon: "📅" },
-  ];
-
-  const availableOptions = [allReminderOptions[0]];
-
-  const timeBasedOptions = [
-    { option: allReminderOptions[1], minutes: 1 },
-    { option: allReminderOptions[2], minutes: 5 },
-    { option: allReminderOptions[3], minutes: 15 },
-    { option: allReminderOptions[4], minutes: 60 },
-    { option: allReminderOptions[5], minutes: 1440 },
-  ];
-
-  timeBasedOptions.forEach(({ option, minutes }) => {
-    const reminderTime = dueDateTime.subtract(minutes, "minute");
-    if (reminderTime.isAfter(now)) {
-      availableOptions.push(option);
-    }
-  });
-
-  return availableOptions;
-};
-
-// Reminder Preview Components
-const ToasterPreview: React.FC<{ task: TaskFormData }> = ({ task }) => (
-  <div className="bg-white border-l-4 border-blue-500 rounded-lg shadow-lg p-4 max-w-sm">
-    <div className="flex items-start gap-3">
-      <div className="flex-shrink-0">
-        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-          <Bell className="w-5 h-5 text-blue-600" />
-        </div>
-      </div>
-      <div className="flex-1 min-w-0">
-        <h4 className="text-sm font-semibold text-gray-900 mb-1">
-          Task Reminder
-        </h4>
-        <p className="text-sm text-gray-700 font-medium mb-1">
-          {task.title || "Your task title"}
-        </p>
-        {task.description && (
-          <p className="text-xs text-gray-600 line-clamp-2">
-            {task.description}
-          </p>
-        )}
-        <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
-          <Clock className="w-3 h-3" />
-          <span>
-            Due: {task.dueDate} {task.dueTime && `at ${task.dueTime}`}
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-const ModalPreview: React.FC<{ task: TaskFormData }> = ({ task }) => (
-  <div className="bg-white rounded-xl shadow-2xl max-w-md w-full border border-gray-200">
-    <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-t-xl">
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-          <Bell className="w-6 h-6 text-white" />
-        </div>
-        <div className="text-white">
-          <h3 className="text-lg font-semibold">Task Reminder</h3>
-          <p className="text-sm text-blue-100">You have a task due soon</p>
-        </div>
-      </div>
-    </div>
-    <div className="p-6">
-      <h4 className="text-lg font-semibold text-gray-900 mb-2">
-        {task.title || "Your task title"}
-      </h4>
-      {task.description && (
-        <p className="text-sm text-gray-600 mb-4">{task.description}</p>
-      )}
-      <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-        <div className="flex items-center gap-2 text-sm text-gray-700">
-          <Calendar className="w-4 h-4 text-gray-500" />
-          <span className="font-medium">Due Date:</span>
-          <span>
-            {task.dueDate || "Not set"} {task.dueTime && `at ${task.dueTime}`}
-          </span>
-        </div>
-      </div>
-      <div className="flex gap-2 mt-4">
-        <button className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200">
-          Snooze
-        </button>
-        <button className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
-          View Task
-        </button>
-      </div>
-    </div>
-  </div>
-);
-
-const SidebarPreview: React.FC<{ task: TaskFormData }> = ({ task }) => (
-  <div className="bg-white border-l border-gray-200 shadow-xl w-80 h-full">
-    <div className="bg-gray-50 border-b border-gray-200 p-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-900">Task Reminders</h3>
-        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-          1 Active
-        </span>
-      </div>
-    </div>
-    <div className="p-4">
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-        <div className="flex items-start gap-3">
-          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Bell className="w-4 h-4 text-white" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-semibold text-gray-900 mb-1">
-              {task.title || "Your task title"}
-            </h4>
-            {task.description && (
-              <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-                {task.description}
-              </p>
-            )}
-            <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
-              <Clock className="w-3 h-3" />
-              <span>
-                {task.dueDate || "No date"}{" "}
-                {task.dueTime && `at ${task.dueTime}`}
-              </span>
-            </div>
-            <button className="text-xs text-blue-600 font-medium hover:underline">
-              View Details →
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
 const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const now = dayjs().tz(userTimezone);
   const today = now.format("YYYY-MM-DD");
-  const currentTime = now.format("HH:mm");
   const isAdding = useSelector(
-    (state: RootState) => state.leadTasks.loading.addingTask
+    (state: RootState) => state.leadTasks.loading.addLeadTask
   );
   const dispatch: RootDispatch = useDispatch();
   const [showPreview, setShowPreview] = useState(false);
@@ -327,7 +171,7 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
       leadId: leadId || "",
       createdById: createdById || "",
       timezone: userTimezone,
-      notificationDisplay: task.notificationDisplay,
+      createdBy: null,
     };
 
     try {
