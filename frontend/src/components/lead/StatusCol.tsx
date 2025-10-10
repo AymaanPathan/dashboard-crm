@@ -88,7 +88,7 @@ export const StatusColumn: React.FC<{ stage: any }> = ({ stage }) => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-3 py-3 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
+      <div className="flex-1 px-3 py-3 space-y-2 overflow-y-auto scrollbar-custom scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
         {stage.leads?.map((lead: any, index: number) => {
           return (
             <div key={`${lead.id}-${index}`}>

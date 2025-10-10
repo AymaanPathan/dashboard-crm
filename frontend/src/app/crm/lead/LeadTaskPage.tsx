@@ -11,19 +11,19 @@ import React from "react";
 const getTaskStatusIcon = (status: string) => {
   switch (status) {
     case "completed":
-      return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      return <CheckCircle2 className="h-5 w-5 text-gray-400" />;
     case "in-progress":
-      return <Clock className="h-4 w-4 text-orange-500" />;
+      return <Clock className="h-5 w-5 text-gray-400" />;
     default:
-      return <AlertCircle className="h-4 w-4 text-gray-400" />;
+      return <AlertCircle className="h-5 w-5 text-gray-300" />;
   }
 };
 
 const getStatusBadge = (status: string) => {
   const styles = {
-    completed: "bg-green-100 text-green-700 border-green-200",
-    "in-progress": "bg-orange-100 text-orange-700 border-orange-200",
-    pending: "bg-gray-100 text-gray-700 border-gray-200",
+    completed: "bg-gray-100 text-gray-600",
+    "in-progress": "bg-gray-100 text-gray-600",
+    pending: "bg-gray-100 text-gray-500",
   };
   return styles[status as keyof typeof styles] || styles.pending;
 };
@@ -38,66 +38,71 @@ export const LeadTaskPage: React.FC<LeadTaskProps> = ({
   setShowAddTask,
 }) => {
   return (
-    <div className="p-6">
+    <div className="px-8 py-6 max-w-4xl">
       {tasks?.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="h-16 w-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="h-8 w-8 text-gray-400" />
+        <div className="py-20">
+          <div className="flex flex-col items-center">
+            <div className="h-12 w-12 bg-gray-50 rounded flex items-center justify-center mb-3">
+              <CheckCircle2 className="h-6 w-6 text-gray-300" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-700 mb-1">No tasks</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Get started by creating a new task
+            </p>
+            <button
+              onClick={() => setShowAddTask(true)}
+              className="px-3 py-1.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded transition-all"
+            >
+              New task
+            </button>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No tasks yet
-          </h3>
-          <p className="text-gray-500 mb-6">
-            Create your first task to get started with this lead
-          </p>
-          <button
-            onClick={() => setShowAddTask(true)}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
-          >
-            Create First Task
-          </button>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-1">
           {tasks.map((task, index) => (
             <div
               key={task?.id || index}
-              className="group bg-white border border-gray-200 rounded-xl p-4 hover:border-gray-300 hover:shadow-sm transition-all"
+              className="group bg-white hover:bg-gray-50 border-b border-gray-100 last:border-b-0 px-3 py-3 transition-all cursor-pointer"
             >
               <div className="flex items-start gap-3">
-                <div className="mt-1">{getTaskStatusIcon(task?.status)}</div>
+                <div className="mt-0.5 flex-shrink-0">
+                  {getTaskStatusIcon(task?.status)}
+                </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between mb-2">
-                    <h4 className="font-medium text-gray-900 pr-4">
-                      {task.title}
-                    </h4>
-                    <button className="p-1 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm text-gray-900 font-normal mb-1">
+                        {task.title}
+                      </h4>
+
+                      {task.description && (
+                        <p className="text-sm text-gray-500 leading-relaxed line-clamp-2 mb-2">
+                          {task.description}
+                        </p>
+                      )}
+
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-normal ${getStatusBadge(
+                            task?.status
+                          )}`}
+                        >
+                          {task?.status}
+                        </span>
+                        {task.dueDate && (
+                          <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(task.dueDate).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <button className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded opacity-0 group-hover:opacity-100 transition-all flex-shrink-0">
                       <MoreHorizontal className="h-4 w-4" />
                     </button>
                   </div>
-
-                  <div className="flex items-center gap-2 mb-3">
-                    <span
-                      className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border ${getStatusBadge(
-                        task?.status
-                      )}`}
-                    >
-                      {task?.status}
-                    </span>
-                    {task.dueDate && (
-                      <span className="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-md">
-                        <Calendar className="h-3 w-3" />
-                        {new Date(task.dueDate).toLocaleDateString()}
-                      </span>
-                    )}
-                  </div>
-
-                  {task.description && (
-                    <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">
-                      {task.description}
-                    </p>
-                  )}
                 </div>
               </div>
             </div>

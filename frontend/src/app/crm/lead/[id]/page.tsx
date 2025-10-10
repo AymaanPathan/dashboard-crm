@@ -118,7 +118,7 @@ const LeadDetailsPage = () => {
   ];
 
   return (
-    <div className="h-screen bg-gray-50 flex overflow-hidden">
+    <div className="h-screen bg-white flex overflow-hidden">
       {/* Sidebar */}
       <SidebarDetail
         currentLead={currentLead}
@@ -147,7 +147,7 @@ const LeadDetailsPage = () => {
         />
 
         <div className="flex-1 flex overflow-hidden">
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto bg-white">
             {activeTab === "tasks" ? (
               <LeadTaskPage tasks={tasks} setShowAddTask={setShowAddTask} />
             ) : activeTab === "quotations" ? (
@@ -171,11 +171,11 @@ const LeadDetailsPage = () => {
           </div>
 
           {showAddTask && activeTab === "tasks" && (
-            <div className="w-96 border-l border-gray-200 bg-white">
-              <div className="h-full overflow-y-auto">
-                <div className="p-4 border-b border-gray-200 flex items-center justify-between"></div>
-                <AddTask leadId={currentLead?.id} />
-              </div>
+            <div className="w-96 border-l border-gray-200 bg-white flex-shrink-0">
+              <AddTask
+                leadId={currentLead?.id}
+                onClose={() => setShowAddTask(false)}
+              />
             </div>
           )}
         </div>

@@ -1,1 +1,27 @@
 @import "tailwindcss";
+@layer utilities {
+  /* Base scrollbar class */
+  .scrollbar-custom {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(156 163 175) transparent; /* thumb and track colors */
+  }
+
+  /* For Chrome, Edge, and Safari */
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background-color: rgb(156 163 175); /* gray-400 */
+    border-radius: 9999px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(107 114 128); /* gray-500 on hover */
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
