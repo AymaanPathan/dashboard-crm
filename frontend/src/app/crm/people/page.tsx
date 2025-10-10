@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Plus,
   Search,
@@ -7,7 +7,10 @@ import {
   MoreVertical,
   Mail,
   Phone,
+  User,
+  Briefcase,
   X,
+  ChevronDown,
 } from "lucide-react";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,17 +21,216 @@ import {
 } from "@/store/slices/userSlice";
 import { IUser } from "@/models/user.model";
 
+// Inline Form Components
+const FormModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+  onSubmit: () => void;
+  submitLabel?: string;
+}> = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+  onSubmit,
+  submitLabel = "Submit",
+}) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isOpen) onClose();
+    };
+    if (isOpen) document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+    if (isOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+      <div
+        ref={modalRef}
+        className="relative w-full max-w-2xl max-h-[85vh] overflow-hidden bg-white shadow-2xl rounded-xl"
+      >
+        <div className="px-8 pt-6 pb-4">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-semibold text-gray-900">{title}</h2>
+            <button onClick={onClose} className="flex items-center gap-2 group">
+              <span className="text-xs text-gray-400 border border-gray-300 rounded px-1.5 py-0.5 font-mono group-hover:border-gray-400 transition-colors">
+                ESC
+              </span>
+            </button>
+          </div>
+          <div className="overflow-y-auto max-h-[calc(85vh-140px)] pr-1">
+            {children}
+          </div>
+        </div>
+        <div className="sticky bottom-0 bg-white border-t border-gray-100 px-8 py-3 flex items-center justify-end gap-2">
+          <button
+            onClick={onClose}
+            className="px-4 py-1.5 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onSubmit}
+            className="px-4 py-1.5 text-sm bg-gray-900 hover:bg-gray-800 text-white rounded-md transition-all"
+          >
+            {submitLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FormSection: React.FC<{
+  icon: React.ReactNode;
+  title: string;
+  children: React.ReactNode;
+}> = ({ icon, title, children }) => {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 mb-3">
+        {icon}
+        <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+          {title}
+        </h3>
+      </div>
+      {children}
+    </div>
+  );
+};
+
+const FormField: React.FC<{
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  type?: string;
+}> = ({ label, name, value, onChange, placeholder, type = "text" }) => {
+  return (
+    <div className="space-y-1.5">
+      <label className="block text-sm text-gray-700">{label}</label>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full px-0 py-2 text-sm bg-transparent border-0 border-b border-gray-200 transition-colors focus:outline-none focus:border-gray-900 placeholder:text-gray-400"
+      />
+    </div>
+  );
+};
+
+const FormSelect: React.FC<{
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  options: { value: string; label: string }[];
+  isOpen: boolean;
+  onToggle: () => void;
+}> = ({
+  label,
+  value,
+  onChange,
+  placeholder = "Select option",
+  options,
+  isOpen,
+  onToggle,
+}) => {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        if (isOpen) onToggle();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen, onToggle]);
+
+  return (
+    <div className="space-y-1.5" ref={dropdownRef}>
+      <label className="block text-sm text-gray-700">{label}</label>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={onToggle}
+          className="w-full h-9 px-3 text-sm text-left bg-white border border-gray-200 rounded-md transition-colors focus:outline-none focus:border-gray-900 flex items-center justify-between hover:border-gray-300"
+        >
+          <span className={value ? "text-gray-900" : "text-gray-400"}>
+            {value
+              ? options.find((opt) => opt.value === value)?.label
+              : placeholder}
+          </span>
+          <ChevronDown
+            className={`w-3.5 h-3.5 text-gray-400 transition-transform ${
+              isOpen ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+        {isOpen && (
+          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
+            {options.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  onChange(option.value);
+                  onToggle();
+                }}
+                className={`w-full px-3 py-2 text-sm text-left hover:bg-gray-50 transition-colors ${
+                  value === option.value ? "bg-gray-50 font-medium" : ""
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Main Component
 const PeopleDashboard: React.FC = () => {
   const dispatch: RootDispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
+  const [isManagerDropdownOpen, setIsManagerDropdownOpen] = useState(false);
   const users = useSelector((state: RootState) => state.user.users);
   const myManagers = useSelector((state: RootState) => state.user.myManagers);
 
   const [formData, setFormData] = useState<IUser>({
-    username: "joy",
-    email: "joy3@gmail.com",
-    password: "joy3@gmail.com",
-    role: "admin",
+    username: "",
+    email: "",
+    password: "",
+    role: "",
     managerId: "",
     isVerified: false,
   });
@@ -47,26 +249,17 @@ const PeopleDashboard: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
-
     if (type === "checkbox") {
       const target = e.target as HTMLInputElement;
-      setFormData((prev) => ({
-        ...prev,
-        [name]: target.checked,
-      }));
+      setFormData((prev) => ({ ...prev, [name]: target.checked }));
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     await dispatch(addUserSlice(formData));
     setIsModalOpen(false);
-    // Reset form
     setFormData({
       username: "",
       email: "",
@@ -81,7 +274,6 @@ const PeopleDashboard: React.FC = () => {
 
   const handleCancel = () => {
     setIsModalOpen(false);
-    // Reset form
     setFormData({
       username: "",
       email: "",
@@ -93,317 +285,245 @@ const PeopleDashboard: React.FC = () => {
     });
   };
 
+  const roleOptions = [
+    { value: "admin", label: "Admin" },
+    { value: "sales_manager", label: "Sales Manager" },
+    { value: "sales_rep", label: "Sales Representative" },
+    { value: "finance", label: "Finance" },
+  ];
 
+  const managerOptions =
+    myManagers?.myManagers?.map((manager: IUser) => ({
+      value: manager.id || "",
+      label: manager.username,
+    })) || [];
 
   return (
-    <div className="flex-1 space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        {/* Search and Filters */}
-        <div className="flex items-center space-x-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
-            <input
-              placeholder="Search people..."
-              className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 pl-8 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-200 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            />
-          </div>
-          <button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-white hover:bg-gray-50 hover:text-accent-foreground h-10 px-4 py-2">
-            <Filter className="mr-2 h-4 w-4" />
-            Filter
-          </button>
-        </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white hover:bg-black/90 h-10 px-4 py-2"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add People
-        </button>
-      </div>
-
-      {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <div className="rounded-lg border border-gray-200 bg-white text-gray-900 shadow-sm p-6">
-          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium text-gray-600">
-              Total People
-            </h3>
-          </div>
-          <div className="text-2xl font-bold text-gray-900">24</div>
-          <p className="text-xs text-gray-500">+2 from last month</p>
-        </div>
-        <div className="rounded-lg border border-gray-200 bg-white text-gray-900 shadow-sm p-6">
-          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium text-gray-600">
-              Active
-            </h3>
-          </div>
-          <div className="text-2xl font-bold text-gray-900">22</div>
-          <p className="text-xs text-gray-500">91.7% of total</p>
-        </div>
-        <div className="rounded-lg border border-gray-200 bg-white text-gray-900 shadow-sm p-6">
-          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium text-gray-600">
-              Departments
-            </h3>
-          </div>
-          <div className="text-2xl font-bold text-gray-900">6</div>
-          <p className="text-xs text-gray-500">Engineering, Sales, Marketing</p>
-        </div>
-        <div className="rounded-lg border border-gray-200 bg-white text-gray-900 shadow-sm p-6">
-          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium text-gray-600">
-              New This Month
-            </h3>
-          </div>
-          <div className="text-2xl font-bold text-gray-900">3</div>
-          <p className="text-xs text-gray-500">+12.5% from last month</p>
-        </div>
-      </div>
-
-      {/* People Table */}
-      <div className="rounded-md border border-gray-200 bg-white">
-        <div className="relative w-full overflow-auto">
-          <table className="w-full caption-bottom text-sm">
-            <thead className="[&_tr]:border-b">
-              <tr className="border-b border-gray-200 transition-colors hover:bg-gray-50 data-[state=selected]:bg-gray-50">
-                <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 [&:has([role=checkbox])]:pr-0">
-                  Employee
-                </th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 [&:has([role=checkbox])]:pr-0">
-                  Contact
-                </th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 [&:has([role=checkbox])]:pr-0">
-                  Role
-                </th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 [&:has([role=checkbox])]:pr-0">
-                  Department
-                </th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 [&:has([role=checkbox])]:pr-0">
-                  Status
-                </th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-gray-500 [&:has([role=checkbox])]:pr-0">
-                  <span className="sr-only">Actions</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="[&_tr:last-child]:border-0">
-              {users?.map((employee: IUser, index: number) => (
-                <tr
-                  key={index}
-                  className="border-b border-gray-100 transition-colors hover:bg-gray-50 data-[state=selected]:bg-gray-50"
-                >
-                  <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-                    <div className="flex items-center space-x-3">
-                      <div>
-                        <div className="font-medium text-gray-900">
-                          {employee?.username}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {employee?.email}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-                    <div className="space-y-1">
-                      <div className="flex items-center text-sm text-gray-900">
-                        <Mail className="mr-1 h-3 w-3 text-gray-400" />
-                        {employee.email}
-                      </div>
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Phone className="mr-1 h-3 w-3 text-gray-400" />
-                        {employee.email}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-                    <div className="font-medium text-gray-900">
-                      {employee.role}
-                    </div>
-                  </td>
-
-                  <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        employee.isVerified
-                          ? "bg-black text-white"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {employee.isVerified ? "Verified" : "Unverified"}
-                    </span>
-                  </td>
-                  <td className="p-4 align-middle [&:has([role=checkbox])]:pr-0">
-                    <button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-gray-100 hover:text-gray-900 h-8 w-8 p-0">
-                      <MoreVertical className="h-4 w-4 text-gray-600" />
-                      <span className="sr-only">Open menu</span>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Add User Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Add New User
-              </h2>
-              <button
-                onClick={handleCancel}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X className="h-5 w-5" />
+    <div className="flex-1 bg-white min-h-screen">
+      <div className="mx-auto px-12 py-8">
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  placeholder="Search people..."
+                  className="h-9 w-80 rounded-md bg-gray-50 border-0 px-3 pl-9 text-sm text-gray-900 placeholder:text-gray-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 transition-all"
+                />
+              </div>
+              <button className="h-9 px-3 rounded-md text-sm font-normal text-gray-600 bg-gray-50 hover:bg-gray-100 transition-colors inline-flex items-center gap-1.5">
+                <Filter className="h-4 w-4" />
+                Filter
               </button>
             </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Username *
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
-                  placeholder="Enter username"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
-                  placeholder="Enter email address"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Password *
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
-                  placeholder="Enter password"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="role"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Role *
-                </label>
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
-                >
-                  <option value="">Select a role</option>
-                  <option value="admin">admin</option>
-                  <option value="sales_manager">sales_manager</option>
-                  <option value="sales_rep">sales_rep</option>
-                  <option value="finance">finance</option>
-                </select>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="managerId"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Manager ID
-                </label>
-                <select
-                  value={formData.managerId}
-                  onChange={handleInputChange}
-                  name="managerId"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
-                >
-                  <option value="">Select Manager</option>
-                  {myManagers?.myManagers?.map((manager: IUser) => {
-                    return (
-                      <option key={manager.id} value={manager.id}>
-                        {manager.username}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="isVerified"
-                  name="isVerified"
-                  checked={formData.isVerified}
-                  onChange={handleInputChange}
-                  className="h-4 w-4 text-black focus:ring-black border-gray-300 rounded"
-                />
-                <label
-                  htmlFor="isVerified"
-                  className="ml-2 text-sm text-gray-700"
-                >
-                  Mark as verified
-                </label>
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-4">
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-black border border-transparent rounded-md hover:bg-black/90 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
-                >
-                  Add User
-                </button>
-              </div>
-            </form>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="h-9 px-4 rounded-md text-sm font-normal text-white bg-gray-900 hover:bg-gray-800 transition-colors inline-flex items-center gap-1.5"
+            >
+              <Plus className="h-4 w-4" />
+              Add People
+            </button>
           </div>
         </div>
-      )}
+
+        <div className="grid gap-3 grid-cols-4 mb-6">
+          <div className="rounded-lg bg-gray-50 p-5 hover:bg-gray-100 transition-colors">
+            <div className="text-xs font-medium text-gray-500 mb-2">
+              Total People
+            </div>
+            <div className="text-2xl font-semibold text-gray-900 mb-1">24</div>
+            <p className="text-xs text-gray-400">+2 from last month</p>
+          </div>
+          <div className="rounded-lg bg-gray-50 p-5 hover:bg-gray-100 transition-colors">
+            <div className="text-xs font-medium text-gray-500 mb-2">Active</div>
+            <div className="text-2xl font-semibold text-gray-900 mb-1">22</div>
+            <p className="text-xs text-gray-400">91.7% of total</p>
+          </div>
+          <div className="rounded-lg bg-gray-50 p-5 hover:bg-gray-100 transition-colors">
+            <div className="text-xs font-medium text-gray-500 mb-2">
+              Departments
+            </div>
+            <div className="text-2xl font-semibold text-gray-900 mb-1">6</div>
+            <p className="text-xs text-gray-400">
+              Engineering, Sales, Marketing
+            </p>
+          </div>
+          <div className="rounded-lg bg-gray-50 p-5 hover:bg-gray-100 transition-colors">
+            <div className="text-xs font-medium text-gray-500 mb-2">
+              New This Month
+            </div>
+            <div className="text-2xl font-semibold text-gray-900 mb-1">3</div>
+            <p className="text-xs text-gray-400">+12.5% from last month</p>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-gray-200 overflow-hidden bg-white">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200 bg-gray-50">
+                  <th className="h-11 px-4 text-left text-xs font-medium text-gray-500">
+                    Employee
+                  </th>
+                  <th className="h-11 px-4 text-left text-xs font-medium text-gray-500">
+                    Contact
+                  </th>
+                  <th className="h-11 px-4 text-left text-xs font-medium text-gray-500">
+                    Role
+                  </th>
+                  <th className="h-11 px-4 text-left text-xs font-medium text-gray-500">
+                    Department
+                  </th>
+                  <th className="h-11 px-4 text-left text-xs font-medium text-gray-500">
+                    Status
+                  </th>
+                  <th className="h-11 px-4 text-left text-xs font-medium text-gray-500">
+                    <span className="sr-only">Actions</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {users?.map((employee: IUser, index: number) => (
+                  <tr
+                    key={index}
+                    className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-gray-900 flex items-center justify-center text-white text-sm font-medium">
+                          {employee?.username?.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {employee?.username}
+                          </div>
+                          <div className="text-xs text-gray-400">
+                            {employee?.email}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center text-xs text-gray-600">
+                          <Mail className="mr-1.5 h-3 w-3 text-gray-400" />
+                          {employee.email}
+                        </div>
+                        <div className="flex items-center text-xs text-gray-400">
+                          <Phone className="mr-1.5 h-3 w-3 text-gray-400" />
+                          {employee.email}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="text-sm text-gray-900">
+                        {employee.role}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-normal ${
+                          employee.isVerified
+                            ? "bg-gray-900 text-white"
+                            : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {employee.isVerified ? "Verified" : "Unverified"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <button className="h-7 w-7 rounded-md hover:bg-gray-100 inline-flex items-center justify-center transition-colors">
+                        <MoreVertical className="h-4 w-4 text-gray-400" />
+                        <span className="sr-only">Open menu</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <FormModal
+        isOpen={isModalOpen}
+        onClose={handleCancel}
+        title="Add New User"
+        onSubmit={handleSubmit}
+        submitLabel="Add User"
+      >
+        <div className="space-y-6">
+          <FormSection
+            icon={<User className="w-4 h-4 text-gray-400" />}
+            title="User Information"
+          >
+            <FormField
+              label="Username"
+              name="username"
+              value={formData.username}
+              onChange={handleInputChange}
+              placeholder="Enter username"
+            />
+            <FormField
+              label="Email"
+              name="email"
+              value={formData.email!}
+              onChange={handleInputChange}
+              placeholder="user@example.com"
+              type="email"
+            />
+            <FormField
+              label="Password"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              placeholder="Enter password"
+              type="password"
+            />
+          </FormSection>
+
+          <FormSection
+            icon={<Briefcase className="w-4 h-4 text-gray-400" />}
+            title="Role & Access"
+          >
+            <FormSelect
+              label="Role"
+              value={formData.role}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, role: value }))
+              }
+              placeholder="Select a role"
+              options={roleOptions}
+              isOpen={isRoleDropdownOpen}
+              onToggle={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
+            />
+            <FormSelect
+              label="Manager"
+              value={formData.managerId || ""}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, managerId: value }))
+              }
+              placeholder="Select a manager"
+              options={managerOptions}
+              isOpen={isManagerDropdownOpen}
+              onToggle={() => setIsManagerDropdownOpen(!isManagerDropdownOpen)}
+            />
+            <div className="flex items-center gap-2.5 pt-1">
+              <input
+                type="checkbox"
+                id="isVerified"
+                name="isVerified"
+                checked={formData.isVerified}
+                onChange={handleInputChange}
+                className="h-4 w-4 text-gray-900 focus:ring-gray-900 border-gray-300 rounded"
+              />
+              <label htmlFor="isVerified" className="text-sm text-gray-700">
+                Mark as verified
+              </label>
+            </div>
+          </FormSection>
+        </div>
+      </FormModal>
     </div>
   );
 };

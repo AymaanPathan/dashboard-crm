@@ -400,21 +400,6 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
                   How your reminder will appear
                 </p>
               </div>
-              <div className="flex items-center justify-center min-h-[200px]">
-                {task.notificationDisplay ===
-                  NotificationDisplayType.toaster && (
-                  <ToasterPreview task={task} />
-                )}
-                {task.notificationDisplay === NotificationDisplayType.modal && (
-                  <ModalPreview task={task} />
-                )}
-                {task.notificationDisplay ===
-                  NotificationDisplayType.sidebar && (
-                  <div className="scale-75 origin-center">
-                    <SidebarPreview task={task} />
-                  </div>
-                )}
-              </div>
             </div>
           )}
 
