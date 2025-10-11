@@ -94,24 +94,26 @@ export const LeadCard: React.FC<{
       ref={ref}
       className={`
         group cursor-pointer
-        bg-white border border-gray-200 rounded-lg p-3
+        bg-white border border-gray-200 rounded-lg p-2
         hover:shadow-md hover:border-gray-300 
         transition-all duration-200
         ${isDragging ? "opacity-40 scale-95" : ""}
       `}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-3">
+      <div className="flex items-start justify-between mb-1.5">
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-gray-900 text-sm truncate mb-0.5">
+          <h3 className="font-medium text-gray-900 text-xs truncate">
             {leadData.name}
           </h3>
           {leadData.company && (
-            <p className="text-xs text-gray-500 truncate">{leadData.company}</p>
+            <p className="text-[10px] text-gray-500 truncate">
+              {leadData.company}
+            </p>
           )}
         </div>
 
-        <div className="flex items-center gap-1.5 ml-3 flex-shrink-0">
+        <div className="flex items-center gap-1 ml-2 flex-shrink-0">
           {/* Assignee Dropdown */}
           {currentUser.role !== Role.sales_rep && (
             <div className="relative">
@@ -120,30 +122,30 @@ export const LeadCard: React.FC<{
                   e.stopPropagation();
                   setIsDropdownOpen(!isDropdownOpen);
                 }}
-                className="flex items-center gap-0.5 px-1.5 py-1 hover:bg-gray-100 rounded transition-colors"
+                className="flex items-center gap-0.5 px-1 py-0.5 hover:bg-gray-100 rounded transition-colors"
               >
-                <div className="w-5 h-5 bg-gray-100 rounded-full flex items-center justify-center text-[10px] font-medium text-gray-600">
+                <div className="w-4 h-4 bg-gray-100 rounded-full flex items-center justify-center text-[9px] font-medium text-gray-600">
                   {leadData.assignedTo?.username ? (
                     getInitials(leadData.assignedTo.username)
                   ) : (
-                    <User className="w-3 h-3" />
+                    <User className="w-2.5 h-2.5" />
                   )}
                 </div>
-                <ChevronDown className="w-3 h-3 text-gray-400" />
+                <ChevronDown className="w-2.5 h-2.5 text-gray-400" />
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute right-0 top-8 z-50 min-w-[160px] bg-white border border-gray-200 rounded-lg shadow-lg py-1">
+                <div className="absolute right-0 top-7 z-50 min-w-[150px] bg-white border border-gray-200 rounded-lg shadow-lg py-1">
                   {teamMembers.salesReps.map((assignee) => (
                     <button
                       key={assignee.id}
-                      className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                      className="w-full px-2.5 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleAssigneeChange(assignee);
                       }}
                     >
-                      <div className="w-5 h-5 bg-gray-100 rounded-full flex items-center justify-center text-[10px] font-medium text-gray-600">
+                      <div className="w-4 h-4 bg-gray-100 rounded-full flex items-center justify-center text-[9px] font-medium text-gray-600">
                         {getInitials(assignee.username)}
                       </div>
                       <span className="truncate">{assignee.username}</span>
@@ -156,49 +158,49 @@ export const LeadCard: React.FC<{
 
           {/* Drag Handle */}
           <div
-            className="p-1 hover:bg-gray-100 rounded transition-colors opacity-0 group-hover:opacity-100"
+            className="p-0.5 hover:bg-gray-100 rounded transition-colors opacity-0 group-hover:opacity-100"
             style={{ cursor: isDragging ? "grabbing" : "grab" }}
           >
-            <GripVertical className="w-3.5 h-3.5 text-gray-400" />
+            <GripVertical className="w-3 h-3 text-gray-400" />
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="space-y-2">
+      <div className="space-y-1">
         {leadData.email && (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400 w-12">Email</span>
-            <span className="text-xs text-gray-700 truncate flex-1">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] text-gray-400 w-10">Email</span>
+            <span className="text-[10px] text-gray-700 truncate flex-1">
               {leadData.email}
             </span>
           </div>
         )}
 
         {leadData.phone && (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400 w-12">Phone</span>
-            <span className="text-xs text-gray-700">{leadData.phone}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] text-gray-400 w-10">Phone</span>
+            <span className="text-[10px] text-gray-700">{leadData.phone}</span>
           </div>
         )}
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+      <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-gray-100">
         <button
           onClick={(e) => e.stopPropagation()}
-          className="p-1 hover:bg-gray-100 rounded transition-colors opacity-0 group-hover:opacity-100"
+          className="p-0.5 hover:bg-gray-100 rounded transition-colors opacity-0 group-hover:opacity-100"
         >
-          <MoreHorizontal className="w-3.5 h-3.5 text-gray-400" />
+          <MoreHorizontal className="w-3 h-3 text-gray-400" />
         </button>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <div
-            className={`w-1.5 h-1.5 rounded-full ${
+            className={`w-1 h-1 rounded-full ${
               leadData.assignedTo?.username ? "bg-green-500" : "bg-gray-300"
             }`}
           ></div>
-          <span className="text-xs text-gray-500">
+          <span className="text-[10px] text-gray-500">
             {leadData.assignedTo?.username || "Unassigned"}
           </span>
         </div>
