@@ -1,17 +1,6 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  Calendar,
-  Clock,
-  ChevronDown,
-  AlertCircle,
-  Bell,
-  X,
-  Eye,
-  Maximize2,
-  Sidebar,
-  Layout,
-} from "lucide-react";
+import { Calendar, Clock, ChevronDown, Bell, X, AlignLeft } from "lucide-react";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
@@ -66,7 +55,6 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
     (state: RootState) => state.leadTasks.loading.addLeadTask
   );
   const dispatch: RootDispatch = useDispatch();
-  const [showPreview, setShowPreview] = useState(false);
 
   const [task, setTask] = useState<TaskFormData>({
     title: "",
@@ -108,7 +96,6 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
   };
 
   const canSetReminders = reminderOptions.length > 1;
-  const hasActiveReminder = task.reminderOption !== "no_reminder";
 
   const handleReminderChange = (value: string) => {
     setTask((prev) => ({ ...prev, reminderOption: value }));
@@ -200,63 +187,26 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
     }
   };
 
-  const resetForm = () => {
-    setTask({
-      title: "",
-      description: "",
-      dueDate: "",
-      dueTime: "",
-      reminderDate: "",
-      reminderTime: "",
-      reminderOption: "no_reminder",
-      status: TaskStatus.pending,
-      repeatInterval: TaskRepeatInterval.none,
-      notificationDisplay: NotificationDisplayType.toaster,
-    });
-  };
-
   const isFormValid = task.title.trim() && task.dueDate;
 
-  const notificationOptions = [
-    {
-      value: NotificationDisplayType.toaster,
-      label: "Toast",
-      icon: Layout,
-      description: "Corner notification",
-    },
-    {
-      value: NotificationDisplayType.modal,
-      label: "Modal",
-      icon: Maximize2,
-      description: "Center popup",
-    },
-    {
-      value: NotificationDisplayType.sidebar,
-      label: "Sidebar",
-      icon: Sidebar,
-      description: "Side panel",
-    },
-  ];
-
   return (
-    <div className="h-full flex flex-col bg-white border-l border-gray-200">
+    <div className="h-full flex flex-col bg-white">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-3 border-b border-gray-200">
-        <h2 className="text-sm font-semibold text-gray-900">Add task</h2>
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <h2 className="text-base font-semibold text-gray-900">New task</h2>
         <button
           onClick={onClose}
-          className="p-1.5 hover:bg-gray-100 rounded-md transition-colors"
+          className="p-1 hover:bg-gray-100 rounded transition-colors"
         >
-          <X className="w-4 h-4 text-gray-500" />
+          <X className="w-5 h-5 text-gray-400" />
         </button>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-5 py-4">
-        <div className="space-y-4">
-          {/* Task Title */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-gray-700">Title</label>
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-6 space-y-8">
+          {/* Task Title - Large Input */}
+          <div>
             <input
               type="text"
               required
@@ -265,15 +215,19 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
                 setTask((prev) => ({ ...prev, title: e.target.value }))
               }
               placeholder="Task name"
-              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:border-gray-300 placeholder:text-gray-400 transition-colors"
+              className="w-full text-2xl font-semibold text-gray-900 placeholder:text-gray-300 focus:outline-none border-0 p-0"
             />
           </div>
 
-          {/* Due Date and Time */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-gray-700">Due</label>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="relative">
+          {/* Properties Grid */}
+          <div className="space-y-1">
+            {/* Due Date Row */}
+            <div className="flex items-center py-2 hover:bg-gray-50 -mx-2 px-2 rounded">
+              <div className="flex items-center gap-2 w-32 text-sm text-gray-500">
+                <Calendar className="w-4 h-4" />
+                <span>Due date</span>
+              </div>
+              <div className="flex-1">
                 <input
                   min={today}
                   type="date"
@@ -282,194 +236,92 @@ const AddTask: React.FC<AddTaskProps> = ({ leadId, createdById, onClose }) => {
                   onChange={(e) =>
                     setTask((prev) => ({ ...prev, dueDate: e.target.value }))
                   }
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:border-gray-300 pr-9"
+                  className="w-full text-sm text-gray-900 focus:outline-none border-0 p-0 bg-transparent"
                 />
-                <Calendar className="absolute right-3 top-2.5 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
-              </div>
-              <div className="relative">
-                <input
-                  type="time"
-                  min={getMinTime()}
-                  value={task.dueTime}
-                  onChange={(e) =>
-                    setTask((prev) => ({ ...prev, dueTime: e.target.value }))
-                  }
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:border-gray-300 pr-9"
-                />
-                <Clock className="absolute right-3 top-2.5 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
               </div>
             </div>
+
+            {/* Due Time Row */}
+            {task.dueDate && (
+              <div className="flex items-center py-2 hover:bg-gray-50 -mx-2 px-2 rounded">
+                <div className="flex items-center gap-2 w-32 text-sm text-gray-500">
+                  <Clock className="w-4 h-4" />
+                  <span>Time</span>
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="time"
+                    min={getMinTime()}
+                    value={task.dueTime}
+                    onChange={(e) =>
+                      setTask((prev) => ({ ...prev, dueTime: e.target.value }))
+                    }
+                    className="w-full text-sm text-gray-900 focus:outline-none border-0 p-0 bg-transparent"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Reminder Row */}
+            {canSetReminders && (
+              <div className="flex items-center py-2 hover:bg-gray-50 -mx-2 px-2 rounded">
+                <div className="flex items-center gap-2 w-32 text-sm text-gray-500">
+                  <Bell className="w-4 h-4" />
+                  <span>Reminder</span>
+                </div>
+                <div className="flex-1 relative">
+                  <select
+                    value={task.reminderOption}
+                    onChange={(e) => handleReminderChange(e.target.value)}
+                    className="w-full text-sm text-gray-900 focus:outline-none border-0 p-0 bg-transparent appearance-none cursor-pointer pr-6"
+                  >
+                    {reminderOptions.map((reminder) => (
+                      <option key={reminder.value} value={reminder.value}>
+                        {reminder.label}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Reminder */}
-          {canSetReminders && (
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-gray-700 flex items-center gap-1.5">
-                <Bell className="h-3.5 w-3.5" />
-                Reminder
-              </label>
-              <div className="relative">
-                <select
-                  value={task.reminderOption}
-                  onChange={(e) => handleReminderChange(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:border-gray-300 appearance-none cursor-pointer pr-9"
-                >
-                  {reminderOptions.map((reminder) => (
-                    <option key={reminder.value} value={reminder.value}>
-                      {reminder.icon} {reminder.label}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-2.5 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
-          )}
-
-          {/* Notification Display Type */}
-          {hasActiveReminder && (
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-gray-700 flex items-center gap-1.5">
-                <Eye className="h-3.5 w-3.5" />
-                Display as
-              </label>
-              <div className="grid grid-cols-1 gap-1.5">
-                {notificationOptions.map((option) => {
-                  const Icon = option.icon;
-                  return (
-                    <label
-                      key={option.value}
-                      className={`relative flex items-center gap-2.5 p-2.5 rounded-md border cursor-pointer transition-colors ${
-                        task.notificationDisplay === option.value
-                          ? "border-gray-900 bg-gray-50"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="notificationDisplay"
-                        value={option.value}
-                        checked={task.notificationDisplay === option.value}
-                        onChange={(e) =>
-                          setTask((prev) => ({
-                            ...prev,
-                            notificationDisplay: e.target
-                              .value as NotificationDisplayType,
-                          }))
-                        }
-                        className="sr-only"
-                      />
-                      <div
-                        className={`w-7 h-7 rounded-md flex items-center justify-center ${
-                          task.notificationDisplay === option.value
-                            ? "bg-gray-900 text-white"
-                            : "bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        <Icon className="w-3.5 h-3.5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xs font-medium text-gray-900">
-                          {option.label}
-                        </div>
-                        <div className="text-[11px] text-gray-500">
-                          {option.description}
-                        </div>
-                      </div>
-                      {task.notificationDisplay === option.value && (
-                        <div className="w-1.5 h-1.5 bg-gray-900 rounded-full" />
-                      )}
-                    </label>
-                  );
-                })}
-              </div>
-
-              {/* Preview Button */}
-              <button
-                type="button"
-                onClick={() => setShowPreview(!showPreview)}
-                className="w-full px-3 py-2 bg-gray-50 text-gray-700 text-xs font-medium rounded-md hover:bg-gray-100 transition-colors flex items-center justify-center gap-2 border border-gray-200"
-              >
-                <Eye className="w-3.5 h-3.5" />
-                {showPreview ? "Hide preview" : "Show preview"}
-              </button>
-            </div>
-          )}
-
-          {/* Preview Display */}
-          {showPreview && hasActiveReminder && (
-            <div className="bg-gray-900 rounded-md p-4 border border-gray-800">
-              <div className="text-center">
-                <h3 className="text-xs font-medium text-white mb-0.5">
-                  Preview
-                </h3>
-                <p className="text-[11px] text-gray-400">
-                  How your reminder will appear
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* No Reminder Available Message */}
-          {!canSetReminders && task.dueDate && (
-            <div className="flex items-start gap-2 p-2.5 bg-orange-50 border border-orange-200 rounded-md">
-              <AlertCircle className="h-3.5 w-3.5 text-orange-600 flex-shrink-0 mt-0.5" />
-              <span className="text-xs text-orange-700">
-                No reminder options available - due date is too close
-              </span>
-            </div>
-          )}
-
           {/* Description */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-gray-700">
-              Description
-            </label>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <AlignLeft className="w-4 h-4" />
+              <span>Description</span>
+            </div>
             <textarea
               value={task.description}
               onChange={(e) =>
                 setTask((prev) => ({ ...prev, description: e.target.value }))
               }
-              placeholder="Add details..."
-              rows={4}
-              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:border-gray-300 resize-none placeholder:text-gray-400"
+              placeholder="Add a description..."
+              rows={6}
+              className="w-full text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none border border-gray-200 rounded-lg p-3 resize-none hover:border-gray-300 transition-colors"
             />
           </div>
-
-          {/* Validation Message */}
-          {!isFormValid && (
-            <div className="flex items-start gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-md">
-              <AlertCircle className="h-3.5 w-3.5 text-amber-600 flex-shrink-0 mt-0.5" />
-              <span className="text-xs text-amber-700">
-                Title and due date are required
-              </span>
-            </div>
-          )}
         </div>
       </div>
 
       {/* Footer */}
-      <div className="flex gap-2 px-5 py-3 border-t border-gray-200 bg-white">
+      <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-white">
         <button
           type="button"
-          onClick={resetForm}
-          className="flex-1 px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 focus:outline-none transition-colors"
+          onClick={onClose}
+          className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
         >
-          Reset
+          Cancel
         </button>
         <button
           type="button"
           onClick={handleSubmit}
           disabled={isAdding || !isFormValid}
-          className="flex-1 px-3 py-2 bg-gray-900 text-white text-xs font-medium rounded-md hover:bg-gray-800 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+          className="px-4 py-2 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
-          {isAdding ? (
-            <>
-              <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              Creating...
-            </>
-          ) : (
-            "Create task"
-          )}
+          {isAdding ? "Creating..." : "Create task"}
         </button>
       </div>
     </div>

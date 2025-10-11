@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Clock,
   MoreHorizontal,
+  Plus,
 } from "lucide-react";
 import React from "react";
 
@@ -38,77 +39,97 @@ export const LeadTaskPage: React.FC<LeadTaskProps> = ({
   setShowAddTask,
 }) => {
   return (
-    <div className="px-8 py-6 max-w-4xl">
-      {tasks?.length === 0 ? (
-        <div className="py-20">
-          <div className="flex flex-col items-center">
-            <div className="h-12 w-12 bg-gray-50 rounded flex items-center justify-center mb-3">
-              <CheckCircle2 className="h-6 w-6 text-gray-300" />
-            </div>
-            <h3 className="text-sm font-medium text-gray-700 mb-1">No tasks</h3>
-            <p className="text-sm text-gray-500 mb-4">
-              Get started by creating a new task
-            </p>
-            <button
-              onClick={() => setShowAddTask(true)}
-              className="px-3 py-1.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded transition-all"
-            >
-              New task
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-1">
-          {tasks.map((task, index) => (
-            <div
-              key={task?.id || index}
-              className="group bg-white hover:bg-gray-50 border-b border-gray-100 last:border-b-0 px-3 py-3 transition-all cursor-pointer"
-            >
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex-shrink-0">
-                  {getTaskStatusIcon(task?.status)}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm text-gray-900 font-normal mb-1">
-                        {task.title}
-                      </h4>
-
-                      {task.description && (
-                        <p className="text-sm text-gray-500 leading-relaxed line-clamp-2 mb-2">
-                          {task.description}
-                        </p>
-                      )}
-
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-normal ${getStatusBadge(
-                            task?.status
-                          )}`}
-                        >
-                          {task?.status}
-                        </span>
-                        {task.dueDate && (
-                          <span className="inline-flex items-center gap-1 text-xs text-gray-500">
-                            <Calendar className="h-3 w-3" />
-                            {new Date(task.dueDate).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <button className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded opacity-0 group-hover:opacity-100 transition-all flex-shrink-0">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+    <div className="h-full flex flex-col">
+      {tasks.length > 0 && (
+        <div className="flex items-center justify-between px-8 py-4 border-b border-gray-100">
+          <button
+            onClick={() => setShowAddTask(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-black hover:bg-gray-800 text-white text-sm font-medium rounded-md transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            New task
+          </button>
         </div>
       )}
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="px-8 py-6 max-w-4xl">
+          {tasks?.length === 0 ? (
+            <div className="py-20">
+              <div className="flex flex-col items-center">
+                <div className="h-12 w-12 bg-gray-50 rounded-lg flex items-center justify-center mb-3">
+                  <CheckCircle2 className="h-6 w-6 text-gray-300" />
+                </div>
+                <h3 className="text-sm font-medium text-gray-900 mb-1">
+                  No tasks yet
+                </h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  Create your first task to get started
+                </p>
+                <button
+                  onClick={() => setShowAddTask(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-black hover:bg-gray-800 text-white text-sm font-medium rounded-md transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  New task
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-0 border border-gray-200 rounded-lg overflow-hidden">
+              {tasks.map((task, index) => (
+                <div
+                  key={task?.id || index}
+                  className="group bg-white hover:bg-gray-50 border-b border-gray-100 last:border-b-0 px-4 py-3 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 flex-shrink-0">
+                      {getTaskStatusIcon(task?.status)}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm text-gray-900 font-medium mb-1">
+                            {task.title}
+                          </h4>
+
+                          {task.description && (
+                            <p className="text-sm text-gray-500 leading-relaxed line-clamp-2 mb-2">
+                              {task.description}
+                            </p>
+                          )}
+
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-normal ${getStatusBadge(
+                                task?.status
+                              )}`}
+                            >
+                              {task?.status}
+                            </span>
+                            {task.dueDate && (
+                              <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                                <Calendar className="h-3 w-3" />
+                                {new Date(task.dueDate).toLocaleDateString()}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <button className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded opacity-0 group-hover:opacity-100 transition-all flex-shrink-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
