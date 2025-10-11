@@ -64,10 +64,10 @@ export const FormModal: React.FC<FormModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
       <div
         ref={modalRef}
-        className="relative w-full max-w-3xl max-h-[85vh] overflow-hidden bg-white shadow-2xl rounded-2xl"
+        className="relative w-full max-w-3xl  overflow-hidden bg-white shadow-2xl rounded-2xl"
       >
-        <div className="px-6 pt-8 pb-6">
-          <div className="flex items-start justify-between mb-8">
+        <div className="flex flex-col max-h-[85vh]">
+          <div className="flex items-start justify-between px-6 pt-8 pb-2 border-b border-gray-100">
             <h2 className="text-3xl font-semibold text-gray-500">{title}</h2>
             <button onClick={onClose} className="flex items-center gap-2 group">
               <span className="text-xs text-gray-400 border border-gray-300 rounded px-1.5 py-0.5 font-mono group-hover:border-gray-400 transition-colors">
@@ -76,9 +76,7 @@ export const FormModal: React.FC<FormModalProps> = ({
             </button>
           </div>
 
-          <div className="overflow-y-auto max-h-[calc(85vh-160px)] pr-2 -mr-2">
-            {children}
-          </div>
+          <div className="flex-1 overflow-y-auto px-6 py-6">{children}</div>
         </div>
 
         <div className="sticky bottom-0 bg-white border-t border-gray-100 px-8 py-4 flex items-center justify-end gap-3">
@@ -204,16 +202,6 @@ export const FormTextarea: React.FC<FormTextareaProps> = ({
   );
 };
 
-interface FormSelectProps {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  options: { value: string; label: string }[];
-  error?: string;
-  isOpen: boolean;
-  onToggle: () => void;
-}
 
 interface FormSelectProps {
   label: string;
@@ -281,7 +269,7 @@ export const FormSelect: React.FC<FormSelectProps> = ({
         </button>
 
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+          <div className="absolute z-50  w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-32 overflow-auto">
             {options.map((option) => (
               <button
                 key={option.value}
@@ -302,6 +290,38 @@ export const FormSelect: React.FC<FormSelectProps> = ({
 
         {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
       </div>
+    </div>
+  );
+};
+interface FormCheckboxProps {
+  label: string;
+  name: string;
+  checked: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  error?: string;
+}
+
+export const FormCheckbox: React.FC<FormCheckboxProps> = ({
+  label,
+  name,
+  checked,
+  onChange,
+  error,
+}) => {
+  return (
+    <div className="flex items-center space-x-2">
+      <input
+        id={name}
+        name={name}
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900 cursor-pointer"
+      />
+      <label htmlFor={name} className="text-sm text-gray-700 cursor-pointer">
+        {label}
+      </label>
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
   );
 };

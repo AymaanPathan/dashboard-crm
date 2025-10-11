@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Plus,
   Search,
@@ -9,8 +9,6 @@ import {
   Phone,
   User,
   Briefcase,
-  X,
-  ChevronDown,
 } from "lucide-react";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,204 +18,14 @@ import {
   getUserSlice,
 } from "@/store/slices/userSlice";
 import { IUser } from "@/models/user.model";
+import {
+  FormCheckbox,
+  FormField,
+  FormModal,
+  FormSection,
+  FormSelect,
+} from "@/components/Form/Form";
 
-// Inline Form Components
-const FormModal: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-  onSubmit: () => void;
-  submitLabel?: string;
-}> = ({
-  isOpen,
-  onClose,
-  title,
-  children,
-  onSubmit,
-  submitLabel = "Submit",
-}) => {
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && isOpen) onClose();
-    };
-    if (isOpen) document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, [isOpen, onClose]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
-      ) {
-        onClose();
-      }
-    };
-    if (isOpen) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
-      <div
-        ref={modalRef}
-        className="relative w-full max-w-2xl max-h-[85vh] overflow-hidden bg-white shadow-2xl rounded-xl"
-      >
-        <div className="px-8 pt-6 pb-4">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900">{title}</h2>
-            <button onClick={onClose} className="flex items-center gap-2 group">
-              <span className="text-xs text-gray-400 border border-gray-300 rounded px-1.5 py-0.5 font-mono group-hover:border-gray-400 transition-colors">
-                ESC
-              </span>
-            </button>
-          </div>
-          <div className="overflow-y-auto max-h-[calc(85vh-140px)] pr-1">
-            {children}
-          </div>
-        </div>
-        <div className="sticky bottom-0 bg-white border-t border-gray-100 px-8 py-3 flex items-center justify-end gap-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-1.5 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-all"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onSubmit}
-            className="px-4 py-1.5 text-sm bg-gray-900 hover:bg-gray-800 text-white rounded-md transition-all"
-          >
-            {submitLabel}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const FormSection: React.FC<{
-  icon: React.ReactNode;
-  title: string;
-  children: React.ReactNode;
-}> = ({ icon, title, children }) => {
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-3">
-        {icon}
-        <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-          {title}
-        </h3>
-      </div>
-      {children}
-    </div>
-  );
-};
-
-const FormField: React.FC<{
-  label: string;
-  name: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
-  type?: string;
-}> = ({ label, name, value, onChange, placeholder, type = "text" }) => {
-  return (
-    <div className="space-y-1.5">
-      <label className="block text-sm text-gray-700">{label}</label>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className="w-full px-0 py-2 text-sm bg-transparent border-0 border-b border-gray-200 transition-colors focus:outline-none focus:border-gray-900 placeholder:text-gray-400"
-      />
-    </div>
-  );
-};
-
-const FormSelect: React.FC<{
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  options: { value: string; label: string }[];
-  isOpen: boolean;
-  onToggle: () => void;
-}> = ({
-  label,
-  value,
-  onChange,
-  placeholder = "Select option",
-  options,
-  isOpen,
-  onToggle,
-}) => {
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        if (isOpen) onToggle();
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen, onToggle]);
-
-  return (
-    <div className="space-y-1.5" ref={dropdownRef}>
-      <label className="block text-sm text-gray-700">{label}</label>
-      <div className="relative">
-        <button
-          type="button"
-          onClick={onToggle}
-          className="w-full h-9 px-3 text-sm text-left bg-white border border-gray-200 rounded-md transition-colors focus:outline-none focus:border-gray-900 flex items-center justify-between hover:border-gray-300"
-        >
-          <span className={value ? "text-gray-900" : "text-gray-400"}>
-            {value
-              ? options.find((opt) => opt.value === value)?.label
-              : placeholder}
-          </span>
-          <ChevronDown
-            className={`w-3.5 h-3.5 text-gray-400 transition-transform ${
-              isOpen ? "rotate-180" : ""
-            }`}
-          />
-        </button>
-        {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
-            {options.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => {
-                  onChange(option.value);
-                  onToggle();
-                }}
-                className={`w-full px-3 py-2 text-sm text-left hover:bg-gray-50 transition-colors ${
-                  value === option.value ? "bg-gray-50 font-medium" : ""
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Main Component
 const PeopleDashboard: React.FC = () => {
   const dispatch: RootDispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -445,85 +253,87 @@ const PeopleDashboard: React.FC = () => {
         </div>
       </div>
 
-      <FormModal
-        isOpen={isModalOpen}
-        onClose={handleCancel}
-        title="Add New User"
-        onSubmit={handleSubmit}
-        submitLabel="Add User"
-      >
-        <div className="space-y-6">
-          <FormSection
-            icon={<User className="w-4 h-4 text-gray-400" />}
-            title="User Information"
-          >
-            <FormField
-              label="Username"
-              name="username"
-              value={formData.username}
-              onChange={handleInputChange}
-              placeholder="Enter username"
-            />
-            <FormField
-              label="Email"
-              name="email"
-              value={formData.email!}
-              onChange={handleInputChange}
-              placeholder="user@example.com"
-              type="email"
-            />
-            <FormField
-              label="Password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              placeholder="Enter password"
-              type="password"
-            />
-          </FormSection>
-
-          <FormSection
-            icon={<Briefcase className="w-4 h-4 text-gray-400" />}
-            title="Role & Access"
-          >
-            <FormSelect
-              label="Role"
-              value={formData.role}
-              onChange={(value) =>
-                setFormData((prev) => ({ ...prev, role: value }))
-              }
-              placeholder="Select a role"
-              options={roleOptions}
-              isOpen={isRoleDropdownOpen}
-              onToggle={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
-            />
-            <FormSelect
-              label="Manager"
-              value={formData.managerId || ""}
-              onChange={(value) =>
-                setFormData((prev) => ({ ...prev, managerId: value }))
-              }
-              placeholder="Select a manager"
-              options={managerOptions}
-              isOpen={isManagerDropdownOpen}
-              onToggle={() => setIsManagerDropdownOpen(!isManagerDropdownOpen)}
-            />
-            <div className="flex items-center gap-2.5 pt-1">
-              <input
-                type="checkbox"
-                id="isVerified"
-                name="isVerified"
-                checked={formData.isVerified}
+      <div>
+        <FormModal
+          isOpen={isModalOpen}
+          onClose={handleCancel}
+          title="Add New User"
+          onSubmit={handleSubmit}
+          submitLabel="Add User"
+        >
+          <div className="space-y-6">
+            <FormSection
+              icon={<User className="w-4 h-4 text-gray-400" />}
+              title="User Information"
+            >
+              <FormField
+                label="Username"
+                name="username"
+                value={formData.username}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-gray-900 focus:ring-gray-900 border-gray-300 rounded"
+                placeholder="Enter username"
               />
-              <label htmlFor="isVerified" className="text-sm text-gray-700">
-                Mark as verified
-              </label>
-            </div>
-          </FormSection>
-        </div>
-      </FormModal>
+              <FormField
+                label="Email"
+                name="email"
+                value={formData.email!}
+                onChange={handleInputChange}
+                placeholder="user@example.com"
+                type="email"
+              />
+              <FormField
+                label="Password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="Enter password"
+                type="password"
+              />
+            </FormSection>
+
+            <FormSection
+              icon={<Briefcase className="w-4 h-4 text-gray-400" />}
+              title="Role & Access"
+            >
+              <FormSelect
+                label="Role"
+                value={formData.role}
+                onChange={(value) =>
+                  setFormData((prev) => ({ ...prev, role: value }))
+                }
+                placeholder="Select a role"
+                options={roleOptions}
+                isOpen={isRoleDropdownOpen}
+                onToggle={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
+              />
+              <FormSelect
+                label="Manager"
+                value={formData.managerId || ""}
+                onChange={(value) =>
+                  setFormData((prev) => ({ ...prev, managerId: value }))
+                }
+                placeholder="Select a manager"
+                options={managerOptions}
+                isOpen={isManagerDropdownOpen}
+                onToggle={() =>
+                  setIsManagerDropdownOpen(!isManagerDropdownOpen)
+                }
+              />
+              <div className="flex items-center gap-2.5 pt-1">
+                <FormCheckbox
+                  label="isVerified"
+                  name="isVerified"
+                  checked={formData.isVerified!}
+                  onChange={handleInputChange}
+                />
+                <label htmlFor="isVerified" className="text-sm text-gray-700">
+                  Mark as verified
+                </label>
+              </div>
+            </FormSection>
+          </div>
+        </FormModal>
+      </div>
     </div>
   );
 };
