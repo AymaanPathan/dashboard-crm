@@ -16,7 +16,7 @@ import {
   FormSection,
   FormSelect,
   FormTextarea,
-} from "../Form/Form";
+} from "../reuseable/Form/Form";
 import ErrorToast from "@/assets/toast/ErrorToast";
 import SuccessToast from "@/assets/toast/SuccessToast";
 

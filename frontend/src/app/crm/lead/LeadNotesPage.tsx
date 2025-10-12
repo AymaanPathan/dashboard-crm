@@ -1,3 +1,4 @@
+import { CustomButton } from "@/components/reuseable/Buttons/Button";
 import { ILeadNotes } from "@/models/lead.model";
 import { Edit3, FileText, Send, Trash2, User } from "lucide-react";
 import React from "react";
@@ -32,12 +33,13 @@ export const LeadNotesPage: React.FC<LeadNote> = ({
               </p>
             </div>
             {!isAddingNote && (
-              <button
+              <CustomButton
+                variant="primary"
                 onClick={() => setIsAddingNote(true)}
                 className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-md transition-colors shadow-sm"
               >
                 New Note
-              </button>
+              </CustomButton>
             )}
           </div>
         </div>

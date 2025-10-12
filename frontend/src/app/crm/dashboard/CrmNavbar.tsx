@@ -7,7 +7,7 @@ import { RootState } from "@/store";
 import { Page } from "@/enums/page.enum";
 import { usePathname } from "next/navigation";
 import { useLogout } from "@/hooks/useLogout";
-import { CustomButton } from "@/components/Buttons/Button";
+import { CustomButton } from "@/components/reuseable/Buttons/Button";
 import { Button } from "@/components/ui/button";
 
 const Navbar: React.FC = () => {

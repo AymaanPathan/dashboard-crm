@@ -24,7 +24,7 @@ import {
   FormModal,
   FormSection,
   FormSelect,
-} from "@/components/Form/Form";
+} from "@/components/reuseable/Form/Form";
 
 const PeopleDashboard: React.FC = () => {
   const dispatch: RootDispatch = useDispatch();

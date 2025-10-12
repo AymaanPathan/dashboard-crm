@@ -22,7 +22,7 @@ import { LeadFilters } from "@/models/lead.model";
 import { DropdownMenuForArrayOfObjects } from "@/components/dropdown/DropdownForArrayOfObj";
 import { IStage } from "@/models/stage.model";
 import { IUser } from "@/models/user.model";
-import { CustomButton } from "@/components/Buttons/Button";
+import { CustomButton } from "@/components/reuseable/Buttons/Button";
 import ErrorToast from "@/assets/toast/ErrorToast";
 
 const LeadsDashboard: React.FC = () => {

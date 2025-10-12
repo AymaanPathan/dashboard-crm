@@ -13,7 +13,7 @@ import { ButtonLoading } from "@/components/ui/ButtonLoading";
 import { useRouter } from "next/navigation";
 import { createOrganization } from "@/store/slices/orgSlice";
 import { IOrganization } from "@/models/org.model";
-import { FormSelect } from "@/components/Form/Form";
+import { FormSelect } from "@/components/reuseable/Form/Form";
 
 // Industry and company size options
 const INDUSTRIES = [
