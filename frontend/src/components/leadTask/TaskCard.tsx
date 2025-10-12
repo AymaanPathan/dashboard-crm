@@ -19,30 +19,30 @@ import Link from "next/link";
 const getTaskIcon = (status: string) => {
   switch (status?.toLowerCase()) {
     case "completed":
-      return <CheckCircle className="h-4 w-4 text-emerald-600" />;
+      return <CheckCircle className="h-3.5 w-3.5 text-gray-400" />;
     case "in-progress":
-      return <Clock className="h-4 w-4 text-blue-600" />;
+      return <Clock className="h-3.5 w-3.5 text-gray-600" />;
     case "pending":
-      return <AlertCircle className="h-4 w-4 text-amber-600" />;
+      return <AlertCircle className="h-3.5 w-3.5 text-gray-600" />;
     case "cancelled":
-      return <XCircle className="h-4 w-4 text-red-600" />;
+      return <XCircle className="h-3.5 w-3.5 text-gray-400" />;
     default:
-      return <AlertCircle className="h-4 w-4 text-gray-400" />;
+      return <AlertCircle className="h-3.5 w-3.5 text-gray-400" />;
   }
 };
 
 const getStatusStyle = (status: string) => {
   switch (status?.toLowerCase()) {
     case "completed":
-      return "text-emerald-700 bg-emerald-50 border-emerald-200";
+      return "text-gray-600 bg-gray-50";
     case "in-progress":
-      return "text-blue-700 bg-blue-50 border-blue-200";
+      return "text-gray-700 bg-gray-100";
     case "pending":
-      return "text-amber-700 bg-amber-50 border-amber-200";
+      return "text-gray-700 bg-gray-100";
     case "cancelled":
-      return "text-red-700 bg-red-50 border-red-200";
+      return "text-gray-500 bg-gray-50";
     default:
-      return "text-slate-700 bg-slate-50 border-slate-200";
+      return "text-gray-600 bg-gray-50";
   }
 };
 
@@ -55,54 +55,64 @@ export const TaskCard = ({ task }: { task: LeadTask }) => {
     await dispatch(completeTaskSlice({ taskId, status: "completed" }));
   };
   return (
-    <div className="rounded-lg border bg-card p-4 transition-colors hover:bg-accent/50">
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-4 flex-1">
-          <div className="mt-1">{getTaskIcon(task.status)}</div>
+    <div className="group rounded-md border border-gray-200 bg-white px-4 py-3 transition-all hover:bg-gray-50">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3 flex-1 min-w-0">
+          <div className="mt-0.5 shrink-0">{getTaskIcon(task.status)}</div>
 
-          <div className="flex-1 min-w-0 space-y-3">
-            <div className="flex items-start gap-3 flex-wrap">
-              <h3 className="font-medium text-sm leading-none">{task.title}</h3>
-              <div className="flex items-center gap-2">
-                <span
-                  className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors ${getStatusStyle(
-                    task.status
-                  )}`}
-                >
-                  {task.status.replace("-", " ")}
-                </span>
-              </div>
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-medium text-sm text-gray-900 leading-tight">
+                {task.title}
+              </h3>
+              <span
+                className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${getStatusStyle(
+                  task.status
+                )}`}
+              >
+                {task.status.replace("-", " ")}
+              </span>
             </div>
 
-            <p className="text-sm text-muted-foreground">{task?.description}</p>
+            {task?.description && (
+              <p className="text-sm text-gray-600 leading-snug line-clamp-2">
+                {task.description}
+              </p>
+            )}
 
-            <div className="flex items-center gap-6 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1.5">
-                <User className="h-3 w-3" />
-                <span>{task?.createdBy?.username}</span>
-              </div>
+            <div className="flex items-center gap-1.5 text-xs text-gray-500 pt-0.5">
+              <User className="h-3 w-3" />
+              <span>{task?.createdBy?.username}</span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 ml-4">
+        <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
           <Link href={`/crm/lead/${task.leadId}`} passHref>
-            <Button variant="outline" size="sm">
-              View Lead
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs font-normal text-gray-700 hover:bg-gray-100"
+            >
+              View
             </Button>
           </Link>
-          <Button variant="ghost" size="sm">
-            <MoreHorizontal className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0 hover:bg-gray-100"
+          >
+            <MoreHorizontal className="h-3.5 w-3.5 text-gray-600" />
           </Button>
 
           {task.status !== "completed" && task.status !== "cancelled" && (
             <Button
               onClick={() => handleComplete(task.id!)}
               size="sm"
-              className="gap-1.5"
+              className="gap-1 h-7 px-2 text-xs font-medium bg-black hover:bg-gray-800 text-white"
             >
               <CheckCircle className="h-3 w-3" />
-              Complete
+              Done
             </Button>
           )}
         </div>

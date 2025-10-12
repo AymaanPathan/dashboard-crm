@@ -26,14 +26,14 @@ export const AllTasksComponent = ({ searchQuery }: { searchQuery: string }) => {
 
   if (filteredTasks.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16">
-        <div className="p-4 rounded-lg bg-muted mb-6">
-          <Calendar className="h-8 w-8 text-muted-foreground" />
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="p-3 rounded-lg bg-gray-50 mb-4">
+          <Calendar className="h-6 w-6 text-gray-400" />
         </div>
-        <h3 className="text-lg font-semibold mb-2">
+        <h3 className="text-base font-medium text-gray-900 mb-1">
           {searchQuery ? "No matching tasks found" : "No tasks found"}
         </h3>
-        <p className="text-sm text-muted-foreground mb-6 text-center max-w-sm">
+        <p className="text-sm text-gray-500 text-center max-w-sm">
           {searchQuery
             ? `No tasks match "${searchQuery}". Try adjusting your search.`
             : "Ready to boost your sales pipeline? Create your first task."}
@@ -43,16 +43,7 @@ export const AllTasksComponent = ({ searchQuery }: { searchQuery: string }) => {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold">All Tasks</h2>
-          <p className="text-sm text-muted-foreground">
-            {completedCount} completed • {pendingCount} pending
-          </p>
-        </div>
-      </div>
-
+    <div className="space-y-3">
       {filteredTasks.map((task: LeadTask) => (
         <TaskCard key={task.id} task={task} />
       ))}

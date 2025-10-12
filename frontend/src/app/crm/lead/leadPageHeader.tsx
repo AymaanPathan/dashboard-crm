@@ -3,7 +3,9 @@ import { LeadTask } from "@/models/leadTask.model";
 import { ICreateQuotationPayload } from "@/models/quotation.model";
 import {
   Activity,
+  ArrowLeft,
   CheckCircle2,
+  ChevronLeft,
   FileText,
   PanelRightOpen,
   Plus,
@@ -95,47 +97,64 @@ export const LeadPageHeader: React.FC<LeadPageHeaderProps> = ({
       icon: FileText,
       count: leadNotes.length || 0,
     },
-    { id: "logs", label: "Activity Log", icon: Activity, count: null },
+    { id: "logs", label: "Activity", icon: Activity, count: null },
   ];
 
   return (
-    <div className="bg-white">
-      <div className="px-8 pb-2">
-        <div className="flex items-start justify-between mb-8">
-          <div className="flex items-center gap-3">
+    <div className="bg-white border-b border-gray-100">
+      <div className="mx-auto px-8">
+        {/* Top Navigation Bar */}
+        <div className="flex items-center justify-between py-3">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => window.history.back()}
+              className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+              title="Go back"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
             {!sidebarOpen && (
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="p-1.5 cursor-pointer text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-all"
+                className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                title="Open sidebar"
               >
-                <PanelRightOpen className="h-5 w-5" />
+                <PanelRightOpen className="h-4 w-4" />
               </button>
             )}
           </div>
         </div>
 
-        <div className="flex items-center gap-6 border-b border-gray-200">
+        {/* Tabs Navigation */}
+        <div className="flex items-center gap-1 -mb-px">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
-                className={`pb-3 cursor-pointer px-1 border-b-2 font-medium text-sm transition-all ${
+                className={`group relative px-3 py-2 text-sm font-medium rounded-t-md transition-colors ${
                   activeTab === tab.id
-                    ? "border-gray-900 text-gray-900"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
+                    ? "text-gray-900 bg-white"
+                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                 }`}
               >
                 <div className="flex items-center gap-2">
                   <Icon className="h-4 w-4" />
                   <span>{tab.label}</span>
                   {tab.count !== null && (
-                    <span className="text-gray-400 text-xs font-normal">
+                    <span
+                      className={`text-xs ${
+                        activeTab === tab.id ? "text-gray-500" : "text-gray-400"
+                      }`}
+                    >
                       {tab.count}
                     </span>
                   )}
                 </div>
+                {activeTab === tab.id && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900"></div>
+                )}
               </button>
             );
           })}

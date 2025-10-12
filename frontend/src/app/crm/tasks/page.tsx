@@ -71,134 +71,136 @@ const TasksDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#ffffff]">
       {/* Header */}
-      <div className="border-b bg-white sticky top-0 z-40">
-        <div className="px-8 py-6">
+      <div className="border-b border-gray-100 bg-white/80 backdrop-blur-sm sticky top-0 z-40">
+        <div className="mx-auto px-12 py-4">
           <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-black text-white">
-                  <Target className="h-5 w-5" />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+            <div className="space-y-0">
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-semibold text-gray-900">
                     Tasks
                   </h1>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-500 font-normal">
                     {new Date().toLocaleDateString("en-US", {
                       weekday: "long",
                       month: "long",
                       day: "numeric",
-                      year: "numeric",
                     })}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search tasks..."
+                  placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-80 rounded-md border border-input bg-background text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="pl-9 pr-3 py-1.5 w-64 rounded-md border-0 bg-gray-50 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-200 focus:bg-white transition-all"
                 />
               </div>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Filter className="h-4 w-4" />
-                Filter
-              </Button>
-              <Button size="sm" className="gap-2">
-                <Plus className="h-4 w-4" />
-                New Task
+
+              <Button
+                size="sm"
+                className="gap-1.5 h-8 text-sm font-normal bg-gray-900 hover:bg-gray-800 text-white rounded-md shadow-sm"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                New
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="px-8 py-8 space-y-8">
+      <div className="mx-auto px-12 py-8 space-y-6">
         {/* Stats Grid */}
-        <div className="grid gap-6 md:grid-cols-4">
-          <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-            <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">
+        <div className="grid gap-3 md:grid-cols-4">
+          <div className="rounded-lg border border-gray-100 bg-white hover:shadow-sm transition-shadow">
+            <div className="p-5 flex flex-row items-center justify-between space-y-0">
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                   Total Pipeline
                 </p>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-2xl font-bold">{allTaskCount}</p>
-                  <span className="text-sm text-muted-foreground">tasks</span>
+                <div className="flex items-baseline gap-1.5">
+                  <p className="text-3xl font-semibold text-gray-900">
+                    {allTaskCount}
+                  </p>
+                  <span className="text-sm text-gray-400">tasks</span>
                 </div>
               </div>
-              <Activity className="h-4 w-4 text-muted-foreground" />
+              <Activity className="h-4 w-4 text-gray-300" />
             </div>
           </div>
 
-          <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-            <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">Completed</p>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-2xl font-bold text-emerald-600">
+          <div className="rounded-lg border border-gray-100 bg-white hover:shadow-sm transition-shadow">
+            <div className="p-5 flex flex-row items-center justify-between space-y-0">
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Completed
+                </p>
+                <div className="flex items-baseline gap-1.5">
+                  <p className="text-3xl font-semibold text-green-600">
                     {completedCount}
                   </p>
-                  <span className="text-sm text-muted-foreground">done</span>
+                  <span className="text-sm text-gray-400">done</span>
                 </div>
-                <p className="text-xs text-emerald-600 font-medium">
+                <p className="text-xs text-green-600 font-medium">
                   {Math.round((completedCount / allTask.length) * 100)}%
                   completion
                 </p>
               </div>
-              <CheckCircle className="h-4 w-4 text-emerald-600" />
+              <CheckCircle className="h-4 w-4 text-green-500" />
             </div>
           </div>
 
-          <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-            <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">Pending</p>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-2xl font-bold text-amber-600">
+          <div className="rounded-lg border border-gray-100 bg-white hover:shadow-sm transition-shadow">
+            <div className="p-5 flex flex-row items-center justify-between space-y-0">
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Pending
+                </p>
+                <div className="flex items-baseline gap-1.5">
+                  <p className="text-3xl font-semibold text-amber-600">
                     {pendingCount}
                   </p>
-                  <span className="text-sm text-muted-foreground">waiting</span>
+                  <span className="text-sm text-gray-400">waiting</span>
                 </div>
                 <p className="text-xs text-amber-600 font-medium">
                   Needs attention
                 </p>
               </div>
-              <TrendingUp className="h-4 w-4 text-amber-600" />
+              <TrendingUp className="h-4 w-4 text-amber-500" />
             </div>
           </div>
         </div>
 
         {/* Tabs and Content */}
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div className="rounded-lg border border-gray-100 bg-white">
           {/* Tab Navigation */}
-          <div className="border-b">
-            <nav className="flex px-6" aria-label="Tabs">
+          <div className="border-b border-gray-100">
+            <nav className="flex px-1" aria-label="Tabs">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`${
                     activeTab === tab.id
-                      ? "border-foreground text-foreground"
-                      : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
-                  } flex items-center gap-3 whitespace-nowrap border-b-2 px-6 py-4 text-sm font-medium transition-colors`}
+                      ? "text-gray-900 border-gray-900"
+                      : "text-gray-500 border-transparent hover:text-gray-700"
+                  } flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors`}
                 >
                   {tab.label}
                   <span
                     className={`${
                       activeTab === tab.id
-                        ? "bg-secondary text-secondary-foreground"
-                        : "bg-muted text-muted-foreground"
-                    } rounded-full px-2.5 py-1 text-xs font-medium`}
+                        ? "bg-gray-100 text-gray-700"
+                        : "bg-gray-50 text-gray-500"
+                    } rounded-md px-2 py-0.5 text-xs font-medium`}
                   >
                     {tab.count}
                   </span>
