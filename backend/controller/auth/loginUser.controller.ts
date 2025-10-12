@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../../utils/prisma";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import validator from "validator";
 import { compareHashedPassword } from "../../utils/compareHashedPass.utils";
@@ -59,7 +58,7 @@ export const loginUser = async (req: Request, res: Response) => {
     // Check Password
     if (!isPassMatched) {
       response.statusCode = 400;
-      response.message = "Invalid credentials";
+      response.message = "Invalid Password";
       response.data = null;
       return sendResponse(res, response);
     }
