@@ -2,20 +2,18 @@
 import React, { useEffect } from "react";
 import {
   Clock,
-  User,
   CheckCircle2,
   ArrowRight,
-  Phone,
-  Mail,
-  Calendar,
-  FileText,
   Target,
   AlertCircle,
   MessageSquare,
+  Calendar,
+  FileText,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootDispatch, RootState } from "@/store";
 import { getLeadLogs } from "@/store/slices/leadSlice";
+import { ReusableList } from "../reuseable/Lists/ReusableList";
 
 interface LogEntry {
   id: string;
@@ -149,77 +147,61 @@ const LeadLogs: React.FC<LeadLogsProps> = ({ leadId, className = "" }) => {
     return null;
   };
 
+  const columns = [
+    {
+      key: "content",
+      render: (log: LogEntry) => (
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between mb-1">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-900">
+                {log.userName}
+              </span>
+              <span className="text-sm text-gray-600">{log.action}</span>
+            </div>
+            <span className="text-xs text-gray-500 flex-shrink-0 ml-2">
+              {formatRelativeTime(log.timestamp)}
+            </span>
+          </div>
+
+          <p className="text-sm text-gray-600 mb-2">{log.details}</p>
+
+          {renderMetadata(log)}
+
+          <div className="mt-2">
+            <span
+              className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border ${getLogTypeColor(
+                log.type
+              )}`}
+            >
+              {log.type.replace("_", " ")}
+            </span>
+          </div>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className={`${leadLogs.length > 0 && `bg-white`} ${className}`}>
       <div className="h-full flex flex-col">
-        {/* Logs List */}
         <div className="flex-1 overflow-y-auto p-4">
-          {leadLogs.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Clock className="h-6 w-6 text-gray-400" />
+          <ReusableList
+            items={leadLogs}
+            columns={columns}
+            maxHeight="calc(100vh - 200px)"
+            emptyState={{
+              icon: Clock,
+              title: "No activity yet",
+              description: "Activity will appear here as actions are taken",
+            }}
+            getItemIcon={(log: LogEntry) => (
+              <div className="flex-shrink-0 h-10 w-10 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center">
+                {getLogIcon(log.type)}
               </div>
-              <h4 className="text-sm font-medium text-gray-900 mb-1">
-                No activity yet
-              </h4>
-              <p className="text-xs text-gray-500">
-                Activity will appear here as actions are taken
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {leadLogs.map((log, index) => (
-                <div key={log.id} className="relative">
-                  {/* Timeline line */}
-                  {index < leadLogs.length - 1 && (
-                    <div className="absolute left-5 top-8 bottom-0 w-px bg-gray-200" />
-                  )}
-
-                  <div className="flex gap-3">
-                    {/* Icon */}
-                    <div className="flex-shrink-0 h-10 w-10 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center">
-                      {getLogIcon(log.type)}
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0 pb-4">
-                      <div className="flex items-start justify-between mb-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-900">
-                            {log.userName}
-                          </span>
-                          <span className="text-sm text-gray-600">
-                            {log.action}
-                          </span>
-                        </div>
-                        <span className="text-xs text-gray-500 flex-shrink-0">
-                          {formatRelativeTime(log.timestamp)}
-                        </span>
-                      </div>
-
-                      <p className="text-sm text-gray-600 mb-2">
-                        {log.details}
-                      </p>
-
-                      {/* Metadata */}
-                      {renderMetadata(log)}
-
-                      {/* Type Badge */}
-                      <div className="mt-2">
-                        <span
-                          className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border ${getLogTypeColor(
-                            log.type
-                          )}`}
-                        >
-                          {log.type.replace("_", " ")}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+            )}
+            className=""
+          />
         </div>
       </div>
     </div>

@@ -16,7 +16,7 @@ const getTaskStatusIcon = (status: string) => {
     case "completed":
       return <CheckCircle2 className="h-4 w-4 text-gray-400" />;
     case "in-progress":
-      return <Clock className="h-4 w-4 text-blue-500" />;
+      return <Clock className="h-4 w-4 text-gray-400" />;
     default:
       return <AlertCircle className="h-4 w-4 text-gray-300" />;
   }
@@ -25,7 +25,7 @@ const getTaskStatusIcon = (status: string) => {
 const getStatusBadge = (status: string) => {
   const styles = {
     completed: "bg-gray-100 text-gray-600",
-    "in-progress": "bg-blue-50 text-blue-700",
+    "in-progress": "bg-gray-50 text-gray-500",
     pending: "bg-gray-50 text-gray-500",
   };
   return styles[status as keyof typeof styles] || styles.pending;
@@ -51,7 +51,7 @@ export const LeadTaskPage: React.FC<LeadTaskProps> = ({
             </span>
           </div>
           {task.description && (
-            <p className="text-xs text-gray-500 truncate">{task.description}</p>
+            <p className="text-xs text-gray-400 truncate">{task.description}</p>
           )}
         </div>
       ),
@@ -61,7 +61,7 @@ export const LeadTaskPage: React.FC<LeadTaskProps> = ({
       width: "w-28",
       render: (task: LeadTask) => (
         <span
-          className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${getStatusBadge(
+          className={`inline-flex items-center px-2.5 py-1 rounded text-xs font-medium ${getStatusBadge(
             task?.status
           )}`}
         >
@@ -83,10 +83,22 @@ export const LeadTaskPage: React.FC<LeadTaskProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className=" bg-white">
       {/* Content Section */}
-      <div className="mx-auto px-5 py-6">
+      <div className="mx-auto px-6 py-8">
+        {tasks.length > 0 && (
+          <div className="mb-6">
+            <CustomButton
+              onClick={() => setShowAddTask(true)}
+              className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors inline-flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Add Task
+            </CustomButton>
+          </div>
+        )}
         <ReusableList
+          maxHeight="400px"
           items={tasks}
           columns={columns}
           getItemIcon={(task) => getTaskStatusIcon(task?.status)}
@@ -107,6 +119,7 @@ export const LeadTaskPage: React.FC<LeadTaskProps> = ({
             },
           ]}
           onItemClick={(task) => console.log("Clicked task", task)}
+          className="overflow-visible"
         />
       </div>
     </div>

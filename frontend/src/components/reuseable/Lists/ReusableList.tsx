@@ -31,6 +31,7 @@ interface ReusableListProps {
   actions?: ListItemAction[];
   getItemIcon?: (item: any) => React.ReactNode;
   className?: string;
+  maxHeight?: string;
 }
 
 export const ReusableList: React.FC<ReusableListProps> = ({
@@ -41,6 +42,7 @@ export const ReusableList: React.FC<ReusableListProps> = ({
   actions,
   getItemIcon,
   className = "",
+  maxHeight,
 }) => {
   if (items?.length === 0 && emptyState) {
     const EmptyIcon = emptyState.icon;
@@ -57,7 +59,7 @@ export const ReusableList: React.FC<ReusableListProps> = ({
           {emptyState.action && (
             <button
               onClick={emptyState.action.onClick}
-              className="inline-flex items-center justify-center h-8 px-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors shadow-sm"
+              className="inline-flex items-center justify-center h-8 px-3 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-md transition-colors"
             >
               {emptyState.action.label}
             </button>
@@ -69,7 +71,10 @@ export const ReusableList: React.FC<ReusableListProps> = ({
 
   return (
     <div className={`w-full ${className}`}>
-      <div className="space-y-0">
+      <div
+        className="overflow-y-auto space-y-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400"
+        style={maxHeight ? { maxHeight } : undefined}
+      >
         {items.map((item, index) => (
           <div
             key={item?.id || index}
@@ -106,7 +111,7 @@ export const ReusableList: React.FC<ReusableListProps> = ({
                         e.stopPropagation();
                         action.onClick(item);
                       }}
-                      className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                      className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
                       title={action.label}
                     >
                       <ActionIcon className="w-4 h-4" />

@@ -118,7 +118,7 @@ const LeadDetailsPage = () => {
   ];
 
   return (
-    <div className="h-screen bg-white flex overflow-hidden">
+    <div className=" bg-white flex overflow-hidden">
       {/* Sidebar */}
       <SidebarDetail
         currentLead={currentLead}

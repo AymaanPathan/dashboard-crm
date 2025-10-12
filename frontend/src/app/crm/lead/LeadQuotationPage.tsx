@@ -7,7 +7,7 @@ import { Calendar, ExternalLink, MoreHorizontal, Receipt } from "lucide-react";
 import React from "react";
 
 const getQuotationStatusBadge = (isOrder: boolean) => {
-  return isOrder ? "bg-green-50 text-green-700" : "bg-blue-50 text-blue-700";
+  return isOrder ? "bg-gray-100 text-gray-900" : "bg-gray-50 text-gray-600";
 };
 
 interface LeadQuotationProps {
@@ -26,18 +26,18 @@ export const LeadQuotationPage: React.FC<LeadQuotationProps> = ({
       key: "info",
       render: (quotation: any) => (
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium text-gray-900 mb-1">
+          <div className="text-sm font-medium text-gray-900 mb-0.5">
             {quotation.quotationName}
           </div>
-          <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+          <div className="flex items-center gap-2 text-xs text-gray-500 mb-1.5">
             <span>{quotation.quoteNumber}</span>
             <span>·</span>
             <span>{quotation.customerName}</span>
           </div>
           {quotation.items && quotation.items.length > 0 && (
-            <div className="space-y-1 mt-2">
+            <div className="space-y-0.5 mt-1.5">
               {quotation.items.slice(0, 1).map((item: any, index: number) => (
-                <div key={index} className="text-xs text-gray-500 line-clamp-1">
+                <div key={index} className="text-xs text-gray-400 line-clamp-1">
                   {item.description}
                 </div>
               ))}
@@ -56,7 +56,7 @@ export const LeadQuotationPage: React.FC<LeadQuotationProps> = ({
       width: "w-24",
       render: (quotation: any) => (
         <span
-          className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${getQuotationStatusBadge(
+          className={`inline-flex items-center px-2.5 py-1 rounded text-xs font-medium ${getQuotationStatusBadge(
             quotation.isOrder!
           )}`}
         >
@@ -102,8 +102,19 @@ export const LeadQuotationPage: React.FC<LeadQuotationProps> = ({
   return (
     <div className="min-h-screen bg-white">
       {/* Content Section */}
-      <div className="mx-auto px-5 py-6 ">
+      <div className="mx-auto px-6 py-8">
+        {quotations.length > 0 && (
+          <div className="mb-6">
+            <CustomButton
+              onClick={openQuotationModal}
+              className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+            >
+              Add Quotation
+            </CustomButton>
+          </div>
+        )}
         <ReusableList
+          maxHeight="400px"
           items={quotations}
           columns={columns}
           getItemIcon={(quotation) => (
