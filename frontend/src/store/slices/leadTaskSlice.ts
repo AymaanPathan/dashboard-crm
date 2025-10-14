@@ -179,6 +179,11 @@ const leadTasksSlice = createSlice({
         );
       }
     },
+    removeReminderById: (state, action) => {
+      state.reminderList = state.reminderList.filter(
+        (reminder) => reminder.id !== action.payload
+      );
+    },
     rollbackTaskUpdate: (state, action) => {
       const { taskId, originalTask } = action.payload;
 
@@ -338,6 +343,10 @@ const leadTasksSlice = createSlice({
   },
 });
 
-export const { setReminderList, rollbackTaskUpdate, optimisticCompleteTask } =
-  leadTasksSlice.actions;
+export const {
+  setReminderList,
+  rollbackTaskUpdate,
+  optimisticCompleteTask,
+  removeReminderById,
+} = leadTasksSlice.actions;
 export default leadTasksSlice.reducer;

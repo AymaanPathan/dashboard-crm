@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
-import { updateTaskReminderStatusSlice } from "@/store/slices/leadTaskSlice";
+import { removeReminderById, updateTaskReminderStatusSlice } from "@/store/slices/leadTaskSlice";
 
 interface ReminderModalProps {
   isOpen: boolean;
@@ -18,9 +18,15 @@ const ReminderModal: React.FC<ReminderModalProps> = ({ isOpen }) => {
   console.log("🔔 ReminderModal rendered", reminderList);
 
   const updateReminderStatus = async (taskId: string, status: string) => {
-    await dispatch(updateTaskReminderStatusSlice({ taskId, status }));
+    try {
+      await dispatch(
+        updateTaskReminderStatusSlice({ taskId, status })
+      ).unwrap();
+      dispatch(removeReminderById(taskId));
+    } catch (error) {
+      console.error("Failed to update reminder:", error);
+    }
   };
-
   if (!isOpen || !reminderList) return null;
 
   return (
