@@ -39,10 +39,13 @@ const ReminderModal: React.FC<ReminderModalProps> = ({
     };
   }, [isOpen]);
 
-  const handleClose = () => {
+  const handleCloseAll = () => {
     setIsClosing(true);
     setTimeout(() => {
       setIsClosing(false);
+      reminderList.forEach((reminder) => {
+        onRemoveReminder(reminder.taskId || "");
+      });
       onClose();
     }, 200);
   };
@@ -53,34 +56,29 @@ const ReminderModal: React.FC<ReminderModalProps> = ({
     );
     onRemoveReminder(reminderId || "");
   };
+
   if (!isOpen || !reminderData) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-start justify-end pt-4 pr-4">
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-black/5 backdrop-blur-[2px] transition-opacity duration-300 ${
+        className={`absolute inset-0 bg-black/10 transition-opacity duration-200 ${
           isClosing ? "opacity-0" : "opacity-100"
         }`}
-        onClick={handleClose}
+        onClick={handleCloseAll}
       />
 
       {/* Modal */}
       <div
-        className={`relative w-full max-w-lg bg-white border border-gray-200/60 rounded-xl shadow-lg transition-all duration-300 overflow-hidden ${
-          isClosing
-            ? "opacity-0 scale-95 translate-y-2"
-            : "opacity-100 scale-100 translate-y-0"
+        className={`relative w-full max-w-md bg-white rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-200 ${
+          isClosing ? "opacity-0 translate-x-4" : "opacity-100 translate-x-0"
         }`}
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100">
+        <div className="px-4 py-3 border-b border-gray-100">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Reminders</h2>
-            <button
-              onClick={handleClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-50"
-            >
+            <div className="flex items-center gap-2">
               <svg
                 width="16"
                 height="16"
@@ -90,41 +88,58 @@ const ReminderModal: React.FC<ReminderModalProps> = ({
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                className="text-gray-700"
               >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
               </svg>
+              <h2 className="text-sm font-semibold text-gray-900">
+                Reminders ({reminderList.length})
+              </h2>
+            </div>
+            <button
+              onClick={handleCloseAll}
+              className="text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-1.5 rounded-md transition-all"
+            >
+              Close all
             </button>
           </div>
         </div>
 
         {/* Content */}
-        <div className="max-h-96 overflow-y-auto">
+        <div className="max-h-[600px] overflow-y-auto">
           {reminderList &&
             reminderList.length > 0 &&
             reminderList.map((data, index) => {
               return (
                 <div
                   key={data.taskId}
-                  className="px-6 py-4 border-b border-gray-50 last:border-0"
+                  className="px-4 py-4 border-b border-gray-100 last:border-0"
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start gap-3">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                        <div className="flex-1">
-                          <p className="text-sm text-gray-900 leading-relaxed">
-                            {data?.title}
-                          </p>
-                        </div>
-                      </div>
+                  <div className="space-y-3">
+                    <p className="text-sm text-gray-900 leading-relaxed font-medium">
+                      {data?.title}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => updateReminderStatus("seen", data.id)}
+                        className="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-white bg-gray-900 hover:bg-black rounded-lg transition-colors"
+                      >
+                        Complete
+                      </button>
+                      <button
+                        onClick={() => onRemoveReminder(data.taskId || "")}
+                        className="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                      >
+                        Snooze
+                      </button>
+                      <button
+                        onClick={() => onRemoveReminder(data.taskId || "")}
+                        className="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-gray-600 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg transition-colors"
+                      >
+                        Close
+                      </button>
                     </div>
-                    <button
-                      onClick={() => updateReminderStatus("seen", data.id)}
-                      className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 hover:border-gray-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
-                    >
-                      Complete
-                    </button>
                   </div>
                 </div>
               );
@@ -133,8 +148,8 @@ const ReminderModal: React.FC<ReminderModalProps> = ({
 
         {/* Empty state if no reminders */}
         {(!reminderList || reminderList.length === 0) && (
-          <div className="px-6 py-8 text-center">
-            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+          <div className="px-4 py-16 text-center">
+            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
                 width="20"
                 height="20"
@@ -146,11 +161,11 @@ const ReminderModal: React.FC<ReminderModalProps> = ({
                 strokeLinejoin="round"
                 className="text-gray-400"
               >
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12,6 12,12 16,14"></polyline>
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
               </svg>
             </div>
-            <p className="text-sm text-gray-500">No reminders at this time</p>
+            <p className="text-sm text-gray-500 font-medium">No reminders</p>
           </div>
         )}
       </div>
