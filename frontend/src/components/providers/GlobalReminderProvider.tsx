@@ -3,13 +3,9 @@
 import { useEffect } from "react";
 import ReminderModal from "../modals/reminder.modal";
 import { connectSocket } from "@/lib/socket";
-import {
-  getMissedTaskRemindersSlice,
-  setReminderList,
-} from "@/store/slices/leadTaskSlice";
+import { getTaskRemindersSlice } from "@/store/slices/leadTaskSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootDispatch, RootState } from "@/store";
-import { IReminderData } from "@/models/LeadTaskReminder.model";
 
 const GlobalReminderProvider = () => {
   const dispatch: RootDispatch = useDispatch();
@@ -17,6 +13,7 @@ const GlobalReminderProvider = () => {
   const reminderList = useSelector(
     (state: RootState) => state.leadTasks.reminderList
   );
+  console.log("🔔 GlobalReminderProvider rendered", reminderList);
 
   // Show modal if there's at least one reminder
   const showReminderModal = reminderList.length > 0;
@@ -24,8 +21,8 @@ const GlobalReminderProvider = () => {
   useEffect(() => {
     const socket = connectSocket();
 
-    const handleTaskReminder = (data: IReminderData) => {
-      dispatch(setReminderList([...reminderList, data]));
+    const handleTaskReminder = async () => {
+      await dispatch(getTaskRemindersSlice());
     };
 
     socket.on("taskReminder", handleTaskReminder);
@@ -36,29 +33,10 @@ const GlobalReminderProvider = () => {
   }, [dispatch, reminderList]);
 
   useEffect(() => {
-    dispatch(getMissedTaskRemindersSlice());
+    dispatch(getTaskRemindersSlice());
   }, [dispatch]);
 
-  const handleRemoveReminder = (taskId: string) => {
-    const updatedList = reminderList.filter(
-      (reminder) => reminder.taskId !== taskId
-    );
-    dispatch(setReminderList(updatedList));
-  };
-
-  return (
-    <>
-      {showReminderModal && (
-        <ReminderModal
-          isOpen={true}
-          onClose={() => handleRemoveReminder(reminderList[0].taskId!)}
-          reminderData={reminderList[0]}
-          onAction={(action, id) => handleRemoveReminder(id!)}
-          onRemoveReminder={handleRemoveReminder}
-        />
-      )}
-    </>
-  );
+  return <>{showReminderModal && <ReminderModal isOpen={true} />}</>;
 };
 
 export default GlobalReminderProvider;

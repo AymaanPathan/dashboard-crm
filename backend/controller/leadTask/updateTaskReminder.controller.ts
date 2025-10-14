@@ -20,6 +20,12 @@ export const updateTaskReminderStatus = async (req: Request, res: Response) => {
       return sendResponse(res, response);
     }
 
+    if (!["pending", "completed", "missed", "seen"].includes(status)) {
+      response.statusCode = 400;
+      response.message = "Invalid status value";
+      return sendResponse(res, response);
+    }
+
     const task = await prisma.task.findFirst({
       where: {
         id: taskId,
@@ -33,14 +39,26 @@ export const updateTaskReminderStatus = async (req: Request, res: Response) => {
       return sendResponse(res, response);
     }
 
+    // Base update data
+    const updateData: any = {
+      reminderStatus: status,
+    };
+
+    if (status === "completed") {
+      updateData.status = "completed"; 
+    }
+
     const updatedTask = await prisma.task.update({
       where: { id: taskId },
-      data: {
-        reminderStatus: status,
-      },
+      data: updateData,
     });
 
-    response.data = [updatedTask];
+    response.data = updatedTask;
+    response.message =
+      status === "completed"
+        ? "Task marked as completed successfully"
+        : "Reminder status updated successfully";
+
     return sendResponse(res, response);
   } catch (error: any) {
     console.error("updateReminderStatus error:", error);

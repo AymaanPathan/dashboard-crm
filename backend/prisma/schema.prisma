@@ -163,12 +163,14 @@ model Task {
   lead Lead @relation(fields: [leadId],references: [id],onDelete: Cascade)
   createdById String
   createdBy user @relation("UserCreatedTasks",fields: [createdById],references: [id])
+  completedAt DateTime?
 }
 
 enum ReminderStatus {
   pending     
-  seen        
-  missed      
+  completed        
+  missed
+  seen
 }
 
 

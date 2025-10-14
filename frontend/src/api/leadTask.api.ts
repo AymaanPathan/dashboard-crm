@@ -41,6 +41,7 @@ export const updateTaskReminderStatusApi = async (
       taskId,
       status,
     });
+    console.log("updateTaskReminderStatusApi response:", response.data.data);
     return response.data.data;
   } catch (error: any) {
     throw error.response?.data?.message;

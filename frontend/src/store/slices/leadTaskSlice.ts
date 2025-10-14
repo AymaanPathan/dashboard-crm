@@ -30,7 +30,7 @@ const initialState = {
     addLeadTask: false,
     updateTaskReminderStatus: false,
     completeTask: false,
-    getMissedReminders: false,
+    getTaskReminders: false,
     deleteTask: false,
   },
   error: "",
@@ -89,7 +89,7 @@ export const updateTaskReminderStatusSlice = createAsyncThunk(
   }
 );
 
-export const getMissedTaskRemindersSlice = createAsyncThunk(
+export const getTaskRemindersSlice = createAsyncThunk(
   "leadTasks/getMissedReminders",
   async (_, { rejectWithValue }) => {
     try {
@@ -282,17 +282,17 @@ const leadTasksSlice = createSlice({
         state.loading.updateTaskReminderStatus = false;
         state.error = action.payload as string;
       })
-      .addCase(getMissedTaskRemindersSlice.pending, (state) => {
-        state.loading.getMissedReminders = true;
+      .addCase(getTaskRemindersSlice.pending, (state) => {
+        state.loading.getTaskReminders = true;
         state.error = "";
       })
-      .addCase(getMissedTaskRemindersSlice.fulfilled, (state, action) => {
-        state.loading.getMissedReminders = false;
+      .addCase(getTaskRemindersSlice.fulfilled, (state, action) => {
+        state.loading.getTaskReminders = false;
 
         state.reminderList = action.payload;
       })
-      .addCase(getMissedTaskRemindersSlice.rejected, (state, action) => {
-        state.loading.getMissedReminders = false;
+      .addCase(getTaskRemindersSlice.rejected, (state, action) => {
+        state.loading.getTaskReminders = false;
         state.error = action.payload as string;
       })
       .addCase(completeTaskSlice.pending, (state) => {

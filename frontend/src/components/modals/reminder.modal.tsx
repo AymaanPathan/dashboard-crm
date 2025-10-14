@@ -1,63 +1,27 @@
 "use client";
-import React, { useState, useEffect } from "react";
-
-import { IReminderData } from "@/models/LeadTaskReminder.model";
+import React, { useState } from "react";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { updateTaskReminderStatusSlice } from "@/store/slices/leadTaskSlice";
 
 interface ReminderModalProps {
   isOpen: boolean;
-  onClose: () => void;
-  reminderData: IReminderData | null;
   onAction?: (action: string, reminderId?: string) => void;
-  onRemoveReminder: (taskId: string) => void;
 }
 
-const ReminderModal: React.FC<ReminderModalProps> = ({
-  isOpen,
-  onClose,
-  reminderData,
-  onAction,
-  onRemoveReminder,
-}) => {
+const ReminderModal: React.FC<ReminderModalProps> = ({ isOpen }) => {
   const dispatch: RootDispatch = useDispatch();
-  const [isClosing, setIsClosing] = useState(false);
+  const [isClosing] = useState(false);
   const reminderList = useSelector(
     (state: RootState) => state.leadTasks.reminderList
   );
   console.log("🔔 ReminderModal rendered", reminderList);
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
 
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
-
-  const handleCloseAll = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      setIsClosing(false);
-      reminderList.forEach((reminder) => {
-        onRemoveReminder(reminder.taskId || "");
-      });
-      onClose();
-    }, 200);
+  const updateReminderStatus = async (taskId: string, status: string) => {
+    await dispatch(updateTaskReminderStatusSlice({ taskId, status }));
   };
 
-  const updateReminderStatus = async (status: string, reminderId?: string) => {
-    await dispatch(
-      updateTaskReminderStatusSlice({ taskId: reminderId || "", status })
-    );
-    onRemoveReminder(reminderId || "");
-  };
-
-  if (!isOpen || !reminderData) return null;
+  if (!isOpen || !reminderList) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end pt-4 pr-4">
@@ -66,7 +30,6 @@ const ReminderModal: React.FC<ReminderModalProps> = ({
         className={`absolute inset-0 bg-black/10 transition-opacity duration-200 ${
           isClosing ? "opacity-0" : "opacity-100"
         }`}
-        onClick={handleCloseAll}
       />
 
       {/* Modal */}
@@ -97,10 +60,7 @@ const ReminderModal: React.FC<ReminderModalProps> = ({
                 Reminders ({reminderList.length})
               </h2>
             </div>
-            <button
-              onClick={handleCloseAll}
-              className="text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-1.5 rounded-md transition-all"
-            >
+            <button className="text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-1.5 rounded-md transition-all">
               Close all
             </button>
           </div>
@@ -109,33 +69,34 @@ const ReminderModal: React.FC<ReminderModalProps> = ({
         {/* Content */}
         <div className="max-h-[600px] overflow-y-auto">
           {reminderList &&
-            reminderList.length > 0 &&
-            reminderList.map((data, index) => {
+            reminderList?.length > 0 &&
+            reminderList?.map((data, index) => {
+              console.log("Rendering reminder item:", data);
               return (
                 <div
-                  key={data.taskId}
+                  key={index}
                   className="px-4 py-4 border-b border-gray-100 last:border-0"
                 >
-                  <div className="space-y-3">
-                    <p className="text-sm text-gray-900 leading-relaxed font-medium">
+                  <div className="flex items-center justify-between gap-4">
+                    <p className="text-sm text-gray-900 leading-relaxed font-medium flex-1">
                       {data?.title}
                     </p>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <button
-                        onClick={() => updateReminderStatus("seen", data.id)}
-                        className="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-white bg-gray-900 hover:bg-black rounded-lg transition-colors"
+                        onClick={() => {
+                          console.log("Complete clicked", data?.id);
+                          updateReminderStatus(data?.id, "completed");
+                        }}
+                        className="inline-flex cursor-pointer items-center justify-center px-3 py-2 text-xs font-medium text-white bg-gray-900 hover:bg-black rounded-lg transition-colors"
                       >
                         Complete
                       </button>
                       <button
-                        onClick={() => onRemoveReminder(data.taskId || "")}
-                        className="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                      >
-                        Snooze
-                      </button>
-                      <button
-                        onClick={() => onRemoveReminder(data.taskId || "")}
-                        className="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-gray-600 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg transition-colors"
+                        onClick={() => {
+                          console.log("seev clicked", data?.id);
+                          updateReminderStatus(data?.id, "seen");
+                        }}
+                        className="inline-flex cursor-pointer items-center justify-center px-3 py-2 text-xs font-medium text-gray-600 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg transition-colors"
                       >
                         Close
                       </button>
