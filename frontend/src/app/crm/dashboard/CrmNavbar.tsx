@@ -8,38 +8,22 @@ import {
   FileText,
   BarChart3,
   Users,
-  ChevronDown,
-  ChevronRight,
   Grid3x3,
   Sparkles,
-  UserPlus,
-  Upload,
   ShoppingCart,
-  Settings,
-  Bell,
-  Wallet,
-  FileSpreadsheet,
-  User,
   Menu,
   X,
 } from "lucide-react";
 
-import Link from "next/link";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { usePathname } from "next/navigation";
 import { useLogout } from "@/hooks/useLogout";
-import { getUser } from "@/utils/auth.utils";
 import NavItem from "@/components/crmSideBar/NavItems";
 
 const CrmNavbar: React.FC = () => {
   const pathname = usePathname();
-  const currentUser = getUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLeadsOpen, setIsLeadsOpen] = useState(false);
-  const [isQuotationsOpen, setIsQuotationsOpen] = useState(false);
-  const [isOrdersOpen, setIsOrdersOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const todayTaskCount = useSelector(
     (state: RootState) => state.leadTasks.todayTaskCount
@@ -103,8 +87,7 @@ const CrmNavbar: React.FC = () => {
 
       {/* Navigation */}
       <div className="flex-1 overflow-y-auto scrollbar-custom">
-        <nav className="px-3 space-y-1 pb-4 pt-2">
-          {/* Dashboard */}
+        <nav className="px-3 space-y-2 pb-4 pt-2">
           <div>
             <NavItem
               label="Dashboard"
@@ -168,6 +151,7 @@ const CrmNavbar: React.FC = () => {
             />
           </div>
         </nav>
+        <div className="border-t mx-2 border-gray-200"></div>
       </div>
 
       {/* Bottom Section */}
