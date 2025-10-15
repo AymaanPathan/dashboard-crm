@@ -173,6 +173,7 @@ const LeadsDashboard: React.FC = () => {
                 variant="primary"
                 icon={<Plus className="h-4 w-4" />}
                 className="ml-auto"
+                style={{ background: "var(--color-text)" }}
               >
                 New Lead
               </CustomButton>
