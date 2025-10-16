@@ -27,7 +27,7 @@ const NavItem: React.FC<NavItemProps> = ({
         ${
           isActive
             ? "bg-gray-100"
-            : "hover:bg-gray-50 hover:shadow-sm"
+            : "hover:bg-gray-50 hover:shadow-xs"
         }
       `}
       >

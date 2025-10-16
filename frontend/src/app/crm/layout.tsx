@@ -5,7 +5,7 @@ import "../../app/globals.css";
 import { useEffect } from "react";
 import { RootDispatch, store } from "@/store";
 import { Toaster } from "sonner";
-import Navbar from "./dashboard/CrmNavbar";
+import Navbar from "./dashboard/CrmSideBar";
 import { getTodayLeadTasksSlice } from "@/store/slices/leadTaskSlice";
 import GlobalReminderProvider from "@/components/providers/GlobalReminderProvider";
 

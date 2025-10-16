@@ -13,6 +13,8 @@ import {
   ShoppingCart,
   Menu,
   X,
+  Settings,
+  Bell,
 } from "lucide-react";
 
 import { useSelector } from "react-redux";
@@ -88,6 +90,10 @@ const CrmNavbar: React.FC = () => {
       {/* Navigation */}
       <div className="flex-1 overflow-y-auto scrollbar-custom">
         <nav className="px-3 space-y-2 pb-4 pt-2">
+          {/* Favorites Section */}
+
+          <div className="border-t mx-2 mb-3 border-gray-200"></div>
+
           <div>
             <NavItem
               label="Dashboard"
@@ -150,6 +156,14 @@ const CrmNavbar: React.FC = () => {
               href="reports"
             />
           </div>
+          <div>
+            <NavItem
+              label="Notifications"
+              icon={<Bell className="h-4 w-4" />}
+              isActive={getIsActive("notifications")}
+              href="notifications"
+            />
+          </div>
         </nav>
         <div className="border-t mx-2 border-gray-200"></div>
       </div>
@@ -159,6 +173,17 @@ const CrmNavbar: React.FC = () => {
         className="px-3 py-3 border-t shrink-0"
         style={{ borderColor: "rgba(229, 229, 229, 0.3)" }}
       >
+        <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors cursor-pointer hover:bg-gray-100 group mb-2">
+          <Settings
+            className="h-4 w-4 text-gray-500 transition-colors"
+            strokeWidth={2.5}
+          />
+          <span className="text-xs font-medium text-gray-600 transition-colors flex-1">
+            Settings
+          </span>
+          <span className="text-gray-400">›</span>
+        </div>
+
         <div
           onClick={handleLogout}
           className="flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors cursor-pointer hover:bg-red-50 group"
