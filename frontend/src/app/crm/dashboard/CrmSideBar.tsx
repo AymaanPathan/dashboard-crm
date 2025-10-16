@@ -89,10 +89,10 @@ const CrmNavbar: React.FC = () => {
 
       {/* Navigation */}
       <div className="flex-1 overflow-y-auto scrollbar-custom">
-        <nav className="px-3 space-y-2 pb-4 pt-2">
+        <nav className="px-3 space-y-2 pb-4 ">
           {/* Favorites Section */}
 
-          <div className="border-t mx-2 mb-3 border-gray-200"></div>
+          <div className=" mx-2 mb-3 "></div>
 
           <div>
             <NavItem
