@@ -17,19 +17,19 @@ const NavItem: React.FC<NavItemProps> = ({
   badge,
 }) => {
   return (
-    <Link href={`/${href}`}>
+    <Link href={`/crm/${href}`}>
       <div
         className={`flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors cursor-pointer group relative ${
           isActive
-            ? "bg-gray-900 text-white"
-            : "hover:bg-gray-100 text-gray-600"
+            ? "bg-gray-100 text-black"
+            : "hover:bg-gray-50 text-gray-600" 
         }`}
       >
         <div className="relative">
           <div
             className={`transition-colors ${
               isActive
-                ? "text-white"
+                ? "text-black"
                 : "text-gray-500 group-hover:text-gray-700"
             }`}
           >
@@ -43,7 +43,7 @@ const NavItem: React.FC<NavItemProps> = ({
         </div>
         <span
           className={`text-xs font-medium transition-colors flex-1 ${
-            isActive ? "text-white" : "text-gray-600 group-hover:text-gray-900"
+            isActive ? "text-black" : "text-gray-600 group-hover:text-gray-900"
           }`}
         >
           {label}
