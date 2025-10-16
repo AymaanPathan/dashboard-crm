@@ -162,6 +162,7 @@ const CrmNavbar: React.FC = () => {
               icon={<Bell className="h-4 w-4" />}
               isActive={getIsActive("notifications")}
               href="notifications"
+              badge={todayTaskCount}
             />
           </div>
         </nav>
