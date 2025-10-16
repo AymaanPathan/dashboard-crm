@@ -126,9 +126,9 @@ const LeadsDashboard: React.FC = () => {
     <>
       <DndProvider backend={HTML5Backend}>
         <div className="min-h-screen bg-white">
-          <div className="px-12 py-8">
+          <div className="px-8 py-6">
             {/* Toolbar */}
-            <div className="flex items-center gap-3 mb-8 pb-6 border-b border-gray-100">
+            <div className="flex items-center gap-3 mb-6 pb-5 border-b border-gray-100">
               {/* Search */}
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -138,7 +138,7 @@ const LeadsDashboard: React.FC = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   type="text"
                   placeholder="Search leads..."
-                  className="w-full h-9 pl-9 pr-3 text-sm bg-gray-50 border-0 rounded-lg focus:outline-none focus:bg-white focus:ring-1 focus:ring-gray-200 transition-all placeholder:text-gray-400"
+                  className="w-full h-10 pl-10 pr-4 text-sm bg-gray-50 border-0 rounded-lg focus:outline-none focus:bg-white focus:ring-1 focus:ring-gray-200 transition-all placeholder:text-gray-400"
                 />
               </div>
 
@@ -199,9 +199,17 @@ const LeadsDashboard: React.FC = () => {
             />
 
             {/* Kanban Board */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+            <div
+              className="flex gap-4 overflow-x-auto pb-4"
+              style={{
+                scrollbarWidth: "thin",
+                scrollbarColor: "#d1d5db transparent",
+              }}
+            >
               {kanbanData?.map((stage: any, index: number) => (
-                <StatusColumn key={index} stage={stage} />
+                <div key={index} className="flex-shrink-0 w-80">
+                  <StatusColumn stage={stage} />
+                </div>
               ))}
             </div>
           </div>
