@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Filter, ArrowUpDown, Grid3x3 } from "lucide-react";
 
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -125,80 +125,62 @@ const LeadsDashboard: React.FC = () => {
   return (
     <>
       <DndProvider backend={HTML5Backend}>
-        <div className="min-h-screen bg-white">
-          <div className="px-8 py-6">
-            {/* Toolbar */}
-            <div className="flex items-center gap-3 mb-6 pb-5 border-b border-gray-100">
-              {/* Search */}
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  onKeyDown={handleSearchChange}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  type="text"
-                  placeholder="Search leads..."
-                  className="w-full h-10 pl-10 pr-4 text-sm bg-gray-50 border-0 rounded-lg focus:outline-none focus:bg-white focus:ring-1 focus:ring-gray-200 transition-all placeholder:text-gray-400"
-                />
+        <div className="min-h-screen">
+          {/* Top Bar */}
+          <div className="bg-white border-b border-gray-200 px-6 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <h1 className="text-lg font-semibold text-gray-900">Deals</h1>
               </div>
 
-              {/* Filters */}
-              <div className="flex items-center gap-2">
-                <DropdownMenuForArray
-                  selectedType={selectedType ? selectedType : "All"}
-                  setSelectedType={setSelectedType}
-                  items={leadTypes}
-                  dropdownLabel="Lead Type"
-                />
-
-                <DropdownMenuForArrayOfObjects
-                  selectedType={selectedStage ? selectedStage : "All"}
-                  setSelectedType={setSelectedStage}
-                  items={stages.map((stage) => stage)}
-                  dropdownLabel="Stage"
-                />
-
-                {usersByRole.salesReps.length > 0 && (
-                  <DropdownMenuForArrayOfObjects
-                    selectedType={selectedUser ? selectedUser.username : "All"}
-                    setSelectedType={setSelectedUser}
-                    items={usersByRole.salesReps.map((user) => user)}
-                    dropdownLabel="User"
+              {/* Right Side Actions */}
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+                  <input
+                    onKeyDown={handleSearchChange}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    type="text"
+                    placeholder="Search something..."
+                    className="w-64 h-9 pl-9 pr-4 text-xs bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400"
                   />
-                )}
+                </div>
+
+                <CustomButton
+                  onClick={() => setIsAddLeadOptionsOpen(true)}
+                  variant="primary"
+                  icon={<Plus className="h-3.5 w-3.5" />}
+                  className="h-9 text-xs"
+                  style={{ background: "var(--color-text)" }}
+                >
+                  Add New
+                </CustomButton>
               </div>
-
-              <CustomButton
-                onClick={() => setIsAddLeadOptionsOpen(true)}
-                variant="primary"
-                icon={<Plus className="h-4 w-4" />}
-                className="ml-auto"
-                style={{ background: "var(--color-text)" }}
-              >
-                New Lead
-              </CustomButton>
             </div>
+          </div>
 
-            <AddLeadOptionsModal
-              isOpen={isAddLeadOptionsOpen}
-              onClose={() => setIsAddLeadOptionsOpen(false)}
-              onSelectForm={handleSelectForm}
-              onSelectExcel={handleSelectExcel}
+          <AddLeadOptionsModal
+            isOpen={isAddLeadOptionsOpen}
+            onClose={() => setIsAddLeadOptionsOpen(false)}
+            onSelectForm={handleSelectForm}
+            onSelectExcel={handleSelectExcel}
+          />
+
+          {isAddLeadFormOpen && (
+            <AddLeadForm
+              isOpen={isAddLeadFormOpen}
+              onClose={() => setIsAddLeadFormOpen(false)}
             />
+          )}
 
-            {isAddLeadFormOpen && (
-              <AddLeadForm
-                isOpen={isAddLeadFormOpen}
-                onClose={() => setIsAddLeadFormOpen(false)}
-              />
-            )}
+          <ExcelUploadModal
+            isOpen={isExcelUploadOpen}
+            onClose={() => setIsExcelUploadOpen(false)}
+          />
 
-            <ExcelUploadModal
-              isOpen={isExcelUploadOpen}
-              onClose={() => setIsExcelUploadOpen(false)}
-            />
-
-            {/* Kanban Board */}
+          {/* Kanban Board */}
+          <div className="px-6 py-4">
             <div
               className="flex gap-4 overflow-x-auto pb-4"
               style={{
@@ -207,7 +189,7 @@ const LeadsDashboard: React.FC = () => {
               }}
             >
               {kanbanData?.map((stage: any, index: number) => (
-                <div key={index} className="flex-shrink-0 w-80">
+                <div key={index} className="flex-shrink-0">
                   <StatusColumn stage={stage} />
                 </div>
               ))}

@@ -22,20 +22,24 @@ export default function RootLayout({
 
   return (
     <>
-      <Navbar />
-      <GlobalReminderProvider />
-      <Provider store={store}>{children}</Provider>
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            padding: "1rem",
-            borderRadius: "0.5rem",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-          },
-        }}
-      />
+      <Provider store={store}>
+        <Navbar />
+        <GlobalReminderProvider />
+        <main className="md:ml-60 min-h-screen bg-white transition-all">
+          {children}
+        </main>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              padding: "1rem",
+              borderRadius: "0.5rem",
+              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+            },
+          }}
+        />
+      </Provider>
     </>
   );
 }
