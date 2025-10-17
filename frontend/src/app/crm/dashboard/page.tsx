@@ -25,28 +25,94 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+// Mock data based on Prisma schema
 const revenueData = [
-  { month: "Mar", value: 18000 },
-  { month: "Apr", value: 25000 },
-  { month: "May", value: 20000 },
-  { month: "Jun", value: 32000 },
-  { month: "Jul", value: 28000 },
-  { month: "Aug", value: 22000 },
-  { month: "Sept", value: 26000 },
-  { month: "Oct", value: 30000 },
-  { month: "Nov", value: 35000 },
-  { month: "Dec", value: 28000 },
-  { month: "Jan", value: 24000 },
-  { month: "Feb", value: 38000 },
-  { month: "Mar", value: 42000 },
+  { month: "Mar", value: 145000 },
+  { month: "Apr", value: 178000 },
+  { month: "May", value: 156000 },
+  { month: "Jun", value: 198000 },
+  { month: "Jul", value: 223000 },
+  { month: "Aug", value: 189000 },
+  { month: "Sept", value: 234000 },
+  { month: "Oct", value: 267000 },
+  { month: "Nov", value: 298000 },
+  { month: "Dec", value: 245000 },
+  { month: "Jan", value: 289000 },
+  { month: "Feb", value: 312000 },
+  { month: "Mar", value: 356000 },
 ];
 
-const retentionData = [
-  { month: "Jan", staff: 85, startups: 78, enterprises: 92 },
-  { month: "Feb", staff: 88, startups: 82, enterprises: 95 },
-  { month: "Mar", staff: 82, startups: 75, enterprises: 90 },
-  { month: "Apr", staff: 90, startups: 85, enterprises: 98 },
-  { month: "May", staff: 87, startups: 80, enterprises: 93 },
+const leadsBySourceData = [
+  { month: "Jan", website: 45, referral: 32, cold: 28 },
+  { month: "Feb", website: 52, referral: 38, cold: 31 },
+  { month: "Mar", website: 48, referral: 35, cold: 25 },
+  { month: "Apr", website: 58, referral: 42, cold: 33 },
+  { month: "May", website: 55, referral: 40, cold: 29 },
+];
+
+// Lead status breakdown
+const leadStats = {
+  total: 261,
+  hot: 114,
+  warm: 89,
+  cold: 58,
+  converted: 42,
+};
+
+// Task metrics
+const taskStats = {
+  pending: 47,
+  completed: 156,
+  overdue: 12,
+  today: 23,
+};
+
+// User/Team metrics
+const teamStats = {
+  totalUsers: 24,
+  activeUsers: 21,
+  salesReps: 12,
+  telecallers: 8,
+  managers: 4,
+};
+
+// Lead conversion by stage
+const stageConversionData = [
+  { stage: "New", count: 45, conversion: 85 },
+  { stage: "Contacted", count: 38, conversion: 72 },
+  { stage: "Qualified", count: 28, conversion: 65 },
+  { stage: "Proposal", count: 22, conversion: 58 },
+  { stage: "Negotiation", count: 15, conversion: 45 },
+  { stage: "Closed Won", count: 12, conversion: 100 },
+];
+
+// Top performing users
+const topPerformers = [
+  { name: "Rajesh Kumar", leads: 48, conversions: 18, revenue: 156000 },
+  { name: "Priya Sharma", leads: 42, conversions: 15, revenue: 142000 },
+  { name: "Amit Patel", leads: 38, conversions: 12, revenue: 128000 },
+];
+
+// Recent activities
+const recentActivities = [
+  {
+    time: "9:00 AM",
+    user: "Rajesh Kumar",
+    action: "Created lead",
+    lead: "Acme Corp",
+  },
+  {
+    time: "9:15 AM",
+    user: "Priya Sharma",
+    action: "Updated quotation",
+    lead: "Tech Solutions",
+  },
+  {
+    time: "9:30 AM",
+    user: "Amit Patel",
+    action: "Completed task",
+    lead: "Global Industries",
+  },
 ];
 
 export default function Dashboard() {
@@ -106,21 +172,21 @@ export default function Dashboard() {
 
         {/* Metrics Row */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
-          {/* Leads Card */}
+          {/* Total Leads Card */}
           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-5 border border-black/[0.06] hover:shadow-sm transition-all duration-200">
             <div className="flex items-center justify-between mb-3">
               <span className="text-[13px] font-medium text-[#37352f]/60">
-                Leads
+                Total Leads
               </span>
               <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[12px] font-medium rounded">
-                + 8%
+                + 12%
               </span>
             </div>
             <div className="text-[32px] font-semibold text-[#37352f] mb-1 tracking-tight">
-              129
+              {leadStats.total}
             </div>
             <div className="text-[12px] text-[#37352f]/50">
-              +24 vs last week
+              +28 vs last month
             </div>
           </div>
 
@@ -131,30 +197,32 @@ export default function Dashboard() {
                 Conversion Rate
               </span>
               <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[12px] font-medium rounded">
-                + 2%
+                + 3%
               </span>
             </div>
             <div className="text-[32px] font-semibold text-[#37352f] mb-1 tracking-tight">
-              24%
+              16.1%
             </div>
-            <div className="text-[12px] text-[#37352f]/50">+8 vs last week</div>
+            <div className="text-[12px] text-[#37352f]/50">
+              {leadStats.converted} leads converted
+            </div>
           </div>
 
-          {/* CLV Card */}
+          {/* Active Tasks Card */}
           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-5 border border-black/[0.06] hover:shadow-sm transition-all duration-200">
             <div className="flex items-center justify-between mb-3">
               <span className="text-[13px] font-medium text-[#37352f]/60">
-                CLV
+                Active Tasks
               </span>
-              <span className="px-2 py-0.5 bg-red-50 text-red-700 text-[12px] font-medium rounded">
-                - 4%
+              <span className="px-2 py-0.5 bg-amber-50 text-amber-700 text-[12px] font-medium rounded">
+                {taskStats.overdue} overdue
               </span>
             </div>
             <div className="text-[32px] font-semibold text-[#37352f] mb-1 tracking-tight">
-              14d
+              {taskStats.pending}
             </div>
             <div className="text-[12px] text-[#37352f]/50">
-              +10 vs last week
+              {taskStats.today} due today
             </div>
           </div>
 
@@ -194,10 +262,10 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-[13px] font-medium text-[#37352f]/60 mb-1">
-                  Revenue
+                  Total Revenue
                 </h3>
                 <div className="text-[28px] font-semibold text-[#37352f] tracking-tight">
-                  $32,209{" "}
+                  ₹3,56,000{" "}
                   <span className="text-[14px] font-normal text-emerald-600">
                     +22% vs last month
                   </span>
@@ -256,140 +324,137 @@ export default function Dashboard() {
 
           {/* Calendar Events */}
           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-black/[0.06] hover:shadow-sm transition-all duration-200">
+            <h3 className="text-[15px] font-semibold text-[#37352f] mb-4">
+              Today&apos;s Schedule
+            </h3>
             <div className="space-y-5">
-              <div className="border-l-2 border-blue-500 pl-4 pb-4 border-b border-black/[0.06] last:border-b-0">
+              <div className="border-l-2 border-blue-500 pl-4 pb-4 border-b border-black/[0.06]">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[11px] text-[#37352f]/50 tracking-wide">
-                    9:00 AM - 10:00 AM
+                    9:00 AM
                   </span>
                 </div>
-                <h4 className="font-medium text-[14px] text-[#37352f] mb-3">
-                  Mesh Weekly Meeting
+                <h4 className="font-medium text-[14px] text-[#37352f] mb-1">
+                  Follow-up: Acme Corp
                 </h4>
-                <div className="flex items-center justify-between">
-                  <div className="flex -space-x-2">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-purple-500 border-2 border-white"></div>
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 border-2 border-white"></div>
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-400 to-pink-500 border-2 border-white"></div>
-                  </div>
-                  <span className="text-[11px] text-[#37352f]/50">
-                    On Google Meet →
-                  </span>
-                </div>
+                <p className="text-[12px] text-[#37352f]/60">
+                  Call regarding quotation #QT-2401
+                </p>
               </div>
 
-              <div className="border-l-2 border-transparent pl-4 pb-4 border-b border-black/[0.06]">
+              <div className="border-l-2 border-emerald-500 pl-4 pb-4 border-b border-black/[0.06]">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[11px] text-[#37352f]/50 tracking-wide">
-                    10:00 AM - 10:45 AM
+                    11:30 AM
                   </span>
                 </div>
-                <h4 className="font-medium text-[14px] text-[#37352f]/50">
-                  Available Time
+                <h4 className="font-medium text-[14px] text-[#37352f] mb-1">
+                  Meeting: Tech Solutions
                 </h4>
+                <p className="text-[12px] text-[#37352f]/60">
+                  Product demo presentation
+                </p>
               </div>
 
-              <div className="border-l-2 border-emerald-500 pl-4">
+              <div className="border-l-2 border-amber-500 pl-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[11px] text-[#37352f]/50 tracking-wide">
-                    10:45 AM - 11:45 AM
+                    2:00 PM
                   </span>
                 </div>
-                <h4 className="font-medium text-[14px] text-[#37352f] mb-3">
-                  Patreon Gamification Demo
+                <h4 className="font-medium text-[14px] text-[#37352f] mb-1">
+                  Task: Global Industries
                 </h4>
-                <div className="flex items-center justify-between">
-                  <div className="flex -space-x-2">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 border-2 border-white"></div>
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-teal-400 to-teal-500 border-2 border-white"></div>
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-500 border-2 border-white"></div>
-                  </div>
-                  <span className="text-[11px] text-[#37352f]/50">
-                    On Slack →
-                  </span>
-                </div>
+                <p className="text-[12px] text-[#37352f]/60">
+                  Send proposal document
+                </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Row - Leads, Retention, Locations */}
+        {/* Bottom Row - Leads, Sources, Performers */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Leads Management */}
           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-black/[0.06] hover:shadow-sm transition-all duration-200">
             <h3 className="text-[15px] font-semibold text-[#37352f] mb-4">
-              Leads Management
+              Lead Distribution
             </h3>
             <div className="flex gap-6 mb-5 text-[13px] border-b border-black/[0.06]">
               <button className="pb-2 border-b-2 border-[#37352f] text-[#37352f] font-medium">
-                Status
+                By Type
               </button>
               <button className="pb-2 text-[#37352f]/50 hover:text-[#37352f]/80 transition-colors">
-                Sources
+                By Source
               </button>
               <button className="pb-2 text-[#37352f]/50 hover:text-[#37352f]/80 transition-colors">
-                Qualification
+                By Stage
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-5">
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-blue-400"></div>
-                  <span className="text-[12px] text-[#37352f]/60">Open</span>
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                  <span className="text-[12px] text-[#37352f]/60">Hot</span>
                 </div>
                 <div className="text-[28px] font-semibold text-[#37352f] tracking-tight">
-                  114
+                  {leadStats.hot}
                 </div>
-                <div className="text-[11px] text-[#37352f]/40">Leads</div>
+                <div className="text-[11px] text-[#37352f]/40">
+                  43.7% of total
+                </div>
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-blue-600"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
+                  <span className="text-[12px] text-[#37352f]/60">Warm</span>
+                </div>
+                <div className="text-[28px] font-semibold text-[#37352f] tracking-tight">
+                  {leadStats.warm}
+                </div>
+                <div className="text-[11px] text-[#37352f]/40">
+                  34.1% of total
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
+                  <span className="text-[12px] text-[#37352f]/60">Cold</span>
+                </div>
+                <div className="text-[28px] font-semibold text-[#37352f] tracking-tight">
+                  {leadStats.cold}
+                </div>
+                <div className="text-[11px] text-[#37352f]/40">
+                  22.2% of total
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
                   <span className="text-[12px] text-[#37352f]/60">
-                    In Progress
+                    Converted
                   </span>
                 </div>
                 <div className="text-[28px] font-semibold text-[#37352f] tracking-tight">
-                  62
+                  {leadStats.converted}
                 </div>
-                <div className="text-[11px] text-[#37352f]/40">Leads</div>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-blue-200"></div>
-                  <span className="text-[12px] text-[#37352f]/60">Lost</span>
-                </div>
-                <div className="text-[28px] font-semibold text-[#37352f] tracking-tight">
-                  47
-                </div>
-                <div className="text-[11px] text-[#37352f]/40">Leads</div>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#37352f]"></div>
-                  <span className="text-[12px] text-[#37352f]/60">Won</span>
-                </div>
-                <div className="text-[28px] font-semibold text-[#37352f] tracking-tight">
-                  38
-                </div>
-                <div className="text-[11px] text-[#37352f]/40">Leads</div>
+                <div className="text-[11px] text-[#37352f]/40">16.1% rate</div>
               </div>
             </div>
 
             <div className="h-1.5 bg-black/[0.04] rounded-full overflow-hidden flex">
-              <div className="bg-blue-400" style={{ width: "44%" }}></div>
-              <div className="bg-blue-600" style={{ width: "24%" }}></div>
-              <div className="bg-blue-200" style={{ width: "18%" }}></div>
-              <div className="bg-[#37352f]" style={{ width: "14%" }}></div>
+              <div className="bg-red-500" style={{ width: "43.7%" }}></div>
+              <div className="bg-amber-500" style={{ width: "34.1%" }}></div>
+              <div className="bg-blue-500" style={{ width: "22.2%" }}></div>
             </div>
           </div>
 
-          {/* Retention Rate */}
+          {/* Lead Sources Chart */}
           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-black/[0.06] hover:shadow-sm transition-all duration-200">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[15px] font-semibold text-[#37352f]">
-                Retention Rate
+                Leads by Source
               </h3>
               <button className="p-1 hover:bg-black/[0.03] rounded transition-all duration-200">
                 <MoreVertical className="w-4 h-4 text-[#37352f]/40" />
@@ -397,28 +462,28 @@ export default function Dashboard() {
             </div>
             <div className="mb-4">
               <div className="text-[28px] font-semibold text-[#37352f] tracking-tight">
-                95%
+                261
               </div>
               <div className="text-[12px] text-emerald-600">
-                +12% vs last month
+                +18% vs last month
               </div>
             </div>
             <div className="flex gap-4 text-[12px] mb-4">
               <div className="flex items-center gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-blue-400"></div>
-                <span className="text-[#37352f]/60">Staffs</span>
+                <span className="text-[#37352f]/60">Website</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-blue-600"></div>
-                <span className="text-[#37352f]/60">Startups</span>
+                <span className="text-[#37352f]/60">Referral</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#37352f]"></div>
-                <span className="text-[#37352f]/60">Enterprises</span>
+                <span className="text-[#37352f]/60">Cold Call</span>
               </div>
             </div>
             <ResponsiveContainer width="100%" height={150}>
-              <BarChart data={retentionData}>
+              <BarChart data={leadsBySourceData}>
                 <XAxis
                   dataKey="month"
                   tick={{ fontSize: 10, fill: "#37352f", opacity: 0.5 }}
@@ -426,99 +491,52 @@ export default function Dashboard() {
                   strokeOpacity={0.1}
                 />
                 <YAxis hide />
-                <Bar dataKey="staff" fill="#60a5fa" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="startups" fill="#2563eb" radius={[4, 4, 0, 0]} />
-                <Bar
-                  dataKey="enterprises"
-                  fill="#37352f"
-                  radius={[4, 4, 0, 0]}
-                />
+                <Bar dataKey="website" fill="#60a5fa" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="referral" fill="#2563eb" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="cold" fill="#37352f" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
 
-          {/* Top Customer Locations */}
+          {/* Top Performers */}
           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-black/[0.06] hover:shadow-sm transition-all duration-200">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[15px] font-semibold text-[#37352f]">
-                Top Customer Locations
+                Top Performers
               </h3>
               <button className="p-1 hover:bg-black/[0.03] rounded transition-all duration-200">
                 <MoreVertical className="w-4 h-4 text-[#37352f]/40" />
               </button>
             </div>
-            <div className="mb-5 relative">
-              <svg viewBox="0 0 200 100" className="w-full h-24">
-                <path
-                  d="M 140 40 L 160 35 L 165 45 L 155 50 L 145 48 Z"
-                  fill="#37352f"
-                  opacity="0.8"
-                />
-                <path
-                  d="M 145 60 L 155 58 L 160 65 L 150 68 Z"
-                  fill="#37352f"
-                  opacity="0.8"
-                />
-                <ellipse
-                  cx="90"
-                  cy="50"
-                  rx="20"
-                  ry="15"
-                  fill="#37352f"
-                  opacity="0.06"
-                />
-                <ellipse
-                  cx="40"
-                  cy="45"
-                  rx="15"
-                  ry="12"
-                  fill="#37352f"
-                  opacity="0.06"
-                />
-                <ellipse
-                  cx="160"
-                  cy="65"
-                  rx="12"
-                  ry="10"
-                  fill="#37352f"
-                  opacity="0.06"
-                />
-              </svg>
-            </div>
-            <div className="space-y-3.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-5 h-4 rounded overflow-hidden bg-blue-900 flex items-center justify-center text-white text-[10px]">
-                    🇦🇺
+            <div className="space-y-4">
+              {topPerformers.map((performer, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-[12px] font-medium">
+                      {performer.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </div>
+                    <div>
+                      <div className="text-[13px] font-medium text-[#37352f]">
+                        {performer.name}
+                      </div>
+                      <div className="text-[11px] text-[#37352f]/50">
+                        {performer.conversions} conversions
+                      </div>
+                    </div>
                   </div>
-                  <span className="text-[13px] text-[#37352f]">Australia</span>
-                </div>
-                <span className="text-[13px] font-medium text-[#37352f]">
-                  48%
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-5 h-4 rounded overflow-hidden bg-red-600 flex items-center justify-center text-white text-[10px]">
-                    🇮🇩
+                  <div className="text-right">
+                    <div className="text-[13px] font-semibold text-[#37352f]">
+                      ₹{(performer.revenue / 1000).toFixed(0)}K
+                    </div>
+                    <div className="text-[11px] text-[#37352f]/50">
+                      {performer.leads} leads
+                    </div>
                   </div>
-                  <span className="text-[13px] text-[#37352f]">Indonesia</span>
                 </div>
-                <span className="text-[13px] font-medium text-[#37352f]">
-                  15%
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-5 h-4 rounded overflow-hidden bg-red-600 flex items-center justify-center text-white text-[10px]">
-                    🇸🇬
-                  </div>
-                  <span className="text-[13px] text-[#37352f]">Singapore</span>
-                </div>
-                <span className="text-[13px] font-medium text-[#37352f]">
-                  7%
-                </span>
-              </div>
+              ))}
             </div>
           </div>
         </div>
