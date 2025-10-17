@@ -1,16 +1,11 @@
 "use client";
 import React from "react";
 import {
-  Calendar,
   Download,
   Share2,
   Upload,
   Search,
   Home,
-  BarChart3,
-  Users,
-  Settings,
-  FileText,
   MoreVertical,
 } from "lucide-react";
 import {
@@ -246,7 +241,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-7 gap-1 text-center text-[11px]">
               <div className="text-[#37352f]/40">7</div>
               <div className="text-[#37352f]/40">8</div>
-              <div className="text-[#37352f] font-medium bg-[#37352f] text-white rounded-full w-6 h-6 flex items-center justify-center mx-auto">
+              <div className=" font-medium bg-[#37352f] text-white rounded-full w-6 h-6 flex items-center justify-center mx-auto">
                 9
               </div>
               <div className="text-[#37352f]/40">10</div>
@@ -328,7 +323,7 @@ export default function Dashboard() {
               Today&apos;s Schedule
             </h3>
             <div className="space-y-5">
-              <div className="border-l-2 border-blue-500 pl-4 pb-4 border-b border-black/[0.06]">
+              <div className="border-l-2 pl-4 pb-4 border-b border-black/[0.06]">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[11px] text-[#37352f]/50 tracking-wide">
                     9:00 AM
@@ -342,7 +337,7 @@ export default function Dashboard() {
                 </p>
               </div>
 
-              <div className="border-l-2 border-emerald-500 pl-4 pb-4 border-b border-black/[0.06]">
+              <div className="border-l-2  pl-4 pb-4 border-b border-black/[0.06]">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[11px] text-[#37352f]/50 tracking-wide">
                     11:30 AM
