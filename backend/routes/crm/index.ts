@@ -8,6 +8,7 @@ import stageRouter from "./stages/stageRoutes";
 import leadTaskRouter from "./leadTask/leadTaskRoute";
 import templateRouter from "./template/templateRoute";
 import quotationRouter from "./quotation/quotationRoute";
+import dashboardRouter from "./dashboard/dashboardRoutes";
 
 const router = Router();
 router.use("/", authRouter);
@@ -19,5 +20,6 @@ router.use("/stages", stageRouter);
 router.use("/leadTask", leadTaskRouter);
 router.use("/template", templateRouter);
 router.use("/quotation", quotationRouter);
+router.use("/dashboard", dashboardRouter);
 
 export default router;
