@@ -84,6 +84,7 @@ export const loginUser = async (req: Request, res: Response) => {
           username: userFindbyEmailID.username,
           org: userFindbyEmailID.currentOrganizationId ? true : false,
           isVerified: userFindbyEmailID.isVerified,
+          currentOrganizationId: userFindbyEmailID.currentOrganizationId!,
         },
       },
     };

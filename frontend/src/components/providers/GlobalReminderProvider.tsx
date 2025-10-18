@@ -25,7 +25,7 @@ const GlobalReminderProvider = () => {
       dispatch(getTaskRemindersSlice()).catch(console.error);
     };
 
-    socket.on("taskReminder", handleTaskReminder);
+    socket?.on("taskReminder", handleTaskReminder);
 
     return () => {
       socket.off("taskReminder", handleTaskReminder);

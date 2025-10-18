@@ -7,11 +7,16 @@ const SOCKET_URL =
 
 let socket: Socket | null = null;
 
-const user = getUser();
-
 // Connect (singleton)
 export const connectSocket = (): Socket => {
   if (!socket) {
+    const user = getUser();
+    console.log("Connecting socket for user:", user);
+    if (!user) {
+      console.warn("User not found. Socket connection aborted.");
+      return null as any;
+    }
+
     socket = io(SOCKET_URL, {
       auth: {
         role: user.role,
@@ -21,18 +26,16 @@ export const connectSocket = (): Socket => {
 
     socket.on("connect", () => {
       console.log("✅ Socket connected:", socket?.id);
-      // Join task reminder room
-      socket?.emit("registerTaskReminderRoom", { userId: user?.id });
+      socket?.emit("registerTaskReminderRoom", { userId: user.id });
+      socket?.emit(`org_${user.currentOrganizationId}_admins`);
     });
 
-    socket.on("disconnect", () => {
-      console.log("❌ Socket disconnected");
-    });
-
-    socket.on("connect_error", (err) => {
-      console.error("⚠️ Socket connect_error:", err);
-    });
+    socket.on("disconnect", () => console.log("❌ Socket disconnected"));
+    socket.on("connect_error", (err) =>
+      console.error("⚠️ Socket connect_error:", err)
+    );
   }
+
   return socket;
 };
 

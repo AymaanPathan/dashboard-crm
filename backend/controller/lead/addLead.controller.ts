@@ -245,10 +245,10 @@ const createLead = async (req: Request, res: Response) => {
       position: nextPosition,
     };
 
-    io.to(`org_${organizationId}_admins`).emit("lead:created", {
+    const sock = io.to(`org_${organizationId}_admins`).emit("lead:created", {
       leadId: newLead.id,
     });
-
+    console.log("Socket emit result:", sock);
     return sendResponse(res, response);
   } catch (error: any) {
     console.error("Error creating lead:", error);
