@@ -28,3 +28,10 @@ export interface LeadFilter {
   source?: string;
   leadType?: string;
 }
+
+export interface LeadStats {
+  totalLeads?: number;
+  currentMonthLeads?: number;
+  lastMonthLeads?: number;
+  percentGrowth?: number;
+}

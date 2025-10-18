@@ -8,11 +8,13 @@ import stageReducer from "./slices/stagesSlice";
 import leadTasksReducer from "./slices/leadTaskSlice";
 import leadReducer from "./slices/leadSlice";
 import quotationReducer from "./slices/quotationSlice";
+import dashboardReducer from "./slices/dashboardSlice";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     org: orgReducer,
     leadTasks: leadTasksReducer,
+    dashboard: dashboardReducer,
     lead: leadReducer,
     user: userReducer,
     kanban: kanbanReducer,

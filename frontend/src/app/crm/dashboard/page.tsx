@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Download,
   Share2,
@@ -19,6 +19,9 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { RootDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { getLeadStatus } from "@/store/slices/dashboardSlice";
 
 // Mock data based on Prisma schema
 const revenueData = [
@@ -111,6 +114,16 @@ const recentActivities = [
 ];
 
 export default function Dashboard() {
+  const dispatch: RootDispatch = useDispatch();
+  const leadStats = useSelector(
+    (state: RootState) => state.dashboard.leadStats
+  );
+  console.log("Lead Stats from Redux:", leadStats);
+
+  useEffect(() => {
+    dispatch(getLeadStatus());
+  }, [dispatch]);
+
   return (
     <div className="min-h-screen bg-[#fafafa]">
       {/* Header */}
@@ -173,15 +186,46 @@ export default function Dashboard() {
               <span className="text-[13px] font-medium text-[#37352f]/60">
                 Total Leads
               </span>
-              <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[12px] font-medium rounded">
-                + 12%
-              </span>
+              {leadStats?.percentGrowth !== undefined && (
+                <span
+                  className={`px-2 py-0.5 text-[12px] font-medium rounded ${
+                    leadStats.percentGrowth > 0
+                      ? "bg-emerald-50 text-emerald-700"
+                      : leadStats.percentGrowth < 0
+                      ? "bg-red-50 text-red-700"
+                      : "bg-gray-50 text-gray-600"
+                  }`}
+                >
+                  {leadStats.percentGrowth > 0
+                    ? `+${leadStats.percentGrowth}% increase`
+                    : leadStats.percentGrowth < 0
+                    ? `${leadStats.percentGrowth}% decrease`
+                    : "No change"}
+                </span>
+              )}
             </div>
+            {/* Total Leads */}
             <div className="text-[32px] font-semibold text-[#37352f] mb-1 tracking-tight">
-              {leadStats.total}
+              {leadStats?.totalLeads ?? 0}
             </div>
-            <div className="text-[12px] text-[#37352f]/50">
-              +28 vs last month
+
+            <div
+              className={`text-[12px] ${
+                leadStats.percentGrowth! > 0
+                  ? "text-emerald-600"
+                  : leadStats.percentGrowth! < 0
+                  ? "text-red-600"
+                  : "text-gray-500"
+              }`}
+            >
+              {leadStats?.lastMonthLeads === 0 &&
+              leadStats.currentMonthLeads! > 0
+                ? `${leadStats.currentMonthLeads} new leads this month`
+                : leadStats.percentGrowth! > 0
+                ? `More leads than last month`
+                : leadStats.percentGrowth! < 0
+                ? `Fewer leads than last month`
+                : "Same as last month"}
             </div>
           </div>
 

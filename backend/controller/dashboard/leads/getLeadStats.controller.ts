@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { ResponseModel, sendResponse } from "../../../utils/response.utils";
 import prisma from "../../../utils/prisma";
-
 export const getLeadStats = async (req: Request, res: Response) => {
   const response: ResponseModel = {
     statusCode: 200,

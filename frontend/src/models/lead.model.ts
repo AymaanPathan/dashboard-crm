@@ -69,3 +69,9 @@ export interface LeadFilters {
   category?: string;
   leadType?: "hot" | "cold" | "warm" | "All" | null;
 }
+export interface LeadStats {
+  totalLeads?: number;
+  currentMonthLeads?: number;
+  lastMonthLeads?: number;
+  percentGrowth?: number;
+}
