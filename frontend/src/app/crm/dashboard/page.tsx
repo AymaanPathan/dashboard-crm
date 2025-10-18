@@ -129,9 +129,11 @@ export default function Dashboard() {
   useEffect(() => {
     const socket = connectSocket();
     socket.on("lead:created", (data: any) => {
-      console.log("New lead created:", data);
+      if (data) {
+        dispatch(getLeadStatus());
+      }
     });
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
