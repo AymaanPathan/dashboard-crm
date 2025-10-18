@@ -21,8 +21,8 @@ const GlobalReminderProvider = () => {
   useEffect(() => {
     const socket = connectSocket();
 
-    const handleTaskReminder = async () => {
-      await dispatch(getTaskRemindersSlice());
+    const handleTaskReminder = () => {
+      dispatch(getTaskRemindersSlice()).catch(console.error);
     };
 
     socket.on("taskReminder", handleTaskReminder);
@@ -30,7 +30,7 @@ const GlobalReminderProvider = () => {
     return () => {
       socket.off("taskReminder", handleTaskReminder);
     };
-  }, [dispatch, reminderList]);
+  }, [dispatch]); // removed reminderList to avoid re-running the effect unnecessarily
 
   useEffect(() => {
     dispatch(getTaskRemindersSlice());

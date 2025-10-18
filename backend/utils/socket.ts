@@ -1,7 +1,8 @@
 // backend/socket.ts
 import { Server } from "socket.io";
+import { registerRooms } from "../config/socketRooms";
 
-let io: Server;
+export let io: Server;
 
 export const initSocket = (httpServer: any) => {
   io = new Server(httpServer, {
@@ -12,12 +13,7 @@ export const initSocket = (httpServer: any) => {
   });
   io.on("connection", (socket) => {
     console.log(`🔌 New socket connected: ${socket.id}`);
-    socket.on("register", ({ userId }) => {
-      if (userId) {
-        socket.join(userId);
-        console.log(`🟢 Socket ${socket.id} joined room for user: ${userId}`);
-      }
-    });
+    registerRooms(socket, io);
   });
 
   return io;

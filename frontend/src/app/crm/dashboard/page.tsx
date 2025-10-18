@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect } from "react";
 import {
@@ -22,6 +23,7 @@ import {
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { getLeadStatus } from "@/store/slices/dashboardSlice";
+import { connectSocket } from "@/lib/socket";
 
 // Mock data based on Prisma schema
 const revenueData = [
@@ -123,6 +125,13 @@ export default function Dashboard() {
   useEffect(() => {
     dispatch(getLeadStatus());
   }, [dispatch]);
+
+  useEffect(() => {
+    const socket = connectSocket();
+    socket.on("lead:created", (data: any) => {
+      console.log("New lead created:", data);
+    });
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#fafafa]">

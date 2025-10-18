@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import prisma from "../../utils/prisma";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
 import { ILead } from "../../models/lead.model";
+import { io } from "../../utils/socket";
 
 const createLead = async (req: Request, res: Response) => {
   const response: ResponseModel = {
@@ -243,6 +244,10 @@ const createLead = async (req: Request, res: Response) => {
       stage: stage.name,
       position: nextPosition,
     };
+
+    io.to(`org_${organizationId}_admins`).emit("lead:created", {
+      leadId: newLead.id,
+    });
 
     return sendResponse(res, response);
   } catch (error: any) {
