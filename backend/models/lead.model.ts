@@ -34,4 +34,6 @@ export interface LeadStats {
   currentMonthLeads?: number;
   lastMonthLeads?: number;
   percentGrowth?: number;
+  percentWon?: number;
+  wonLeads?: number;
 }

@@ -251,10 +251,10 @@ export default function Dashboard() {
               </span>
             </div>
             <div className="text-[32px] font-semibold text-[#37352f] mb-1 tracking-tight">
-              16.1%
+              {leadStats.percentWon}%
             </div>
             <div className="text-[12px] text-[#37352f]/50">
-              {leadStats.converted} leads converted
+              {leadStats.wonLeads} leads converted
             </div>
           </div>
 
