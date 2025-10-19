@@ -36,4 +36,5 @@ export interface LeadStats {
   percentGrowth?: number;
   percentWon?: number;
   wonLeads?: number;
+  wonPercentGrowth?: number;
 }

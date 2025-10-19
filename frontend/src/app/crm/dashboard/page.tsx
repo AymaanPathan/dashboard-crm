@@ -208,7 +208,7 @@ export default function Dashboard() {
                   }`}
                 >
                   {leadStats.percentGrowth > 0
-                    ? `+${leadStats.percentGrowth}% increase`
+                    ? `+${leadStats.percentGrowth}% vs last month.`
                     : leadStats.percentGrowth < 0
                     ? `${leadStats.percentGrowth}% decrease`
                     : "No change"}
@@ -247,7 +247,7 @@ export default function Dashboard() {
                 Conversion Rate
               </span>
               <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[12px] font-medium rounded">
-                + 3%
+                + {leadStats.wonPercentGrowth}% vs last month.
               </span>
             </div>
             <div className="text-[32px] font-semibold text-[#37352f] mb-1 tracking-tight">

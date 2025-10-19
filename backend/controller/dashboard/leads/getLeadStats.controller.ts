@@ -21,7 +21,6 @@ export const getLeadStats = async (req: Request, res: Response) => {
       });
     }
 
-    // ===================== 📅 Date Ranges =====================
     const now = new Date();
 
     const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -44,10 +43,8 @@ export const getLeadStats = async (req: Request, res: Response) => {
       59
     );
 
-    // ===================== 📊 Count Leads =====================
-    const totalLeads = await prisma.lead.count({
-      where: { organizationId },
-    });
+    // ---------------- Total Leads ----------------
+    const totalLeads = await prisma.lead.count({ where: { organizationId } });
 
     const currentMonthLeads = await prisma.lead.count({
       where: {
@@ -63,15 +60,28 @@ export const getLeadStats = async (req: Request, res: Response) => {
       },
     });
 
-    // ===================== 📊 Count Won Leads =====================
-    const wonLeads = await prisma.lead.count({
+    // ---------------- Won Leads ----------------
+    const totalWonLeads = await prisma.lead.count({
+      where: { organizationId, stage: { name: "Closed" } },
+    });
+
+    const currentMonthWonLeads = await prisma.lead.count({
       where: {
         organizationId,
         stage: { name: "Closed" },
+        createdAt: { gte: currentMonthStart, lte: currentMonthEnd },
       },
     });
 
-    // ===================== 📈 Calculate Growth =====================
+    const lastMonthWonLeads = await prisma.lead.count({
+      where: {
+        organizationId,
+        stage: { name: "Closed" },
+        createdAt: { gte: lastMonthStart, lte: lastMonthEnd },
+      },
+    });
+
+    // ---------------- Lead Growth ----------------
     let percentGrowth = 0;
     if (lastMonthLeads === 0 && currentMonthLeads > 0) {
       percentGrowth = 100;
@@ -80,10 +90,16 @@ export const getLeadStats = async (req: Request, res: Response) => {
         ((currentMonthLeads - lastMonthLeads) / lastMonthLeads) * 100;
     }
 
-    // ===================== 📈 Calculate Won Percentage =====================
-    let percentWon = 0;
-    if (totalLeads > 0) {
-      percentWon = (wonLeads / totalLeads) * 100;
+    // ---------------- Won Percentage ----------------
+    let percentWon = totalLeads > 0 ? (totalWonLeads / totalLeads) * 100 : 0;
+
+    // ---------------- Won Month-over-Month Growth ----------------
+    let wonPercentGrowth = 0;
+    if (lastMonthWonLeads === 0 && currentMonthWonLeads > 0) {
+      wonPercentGrowth = 100;
+    } else if (lastMonthWonLeads > 0) {
+      wonPercentGrowth =
+        ((currentMonthWonLeads - lastMonthWonLeads) / lastMonthWonLeads) * 100;
     }
 
     response.data = {
@@ -91,8 +107,11 @@ export const getLeadStats = async (req: Request, res: Response) => {
       currentMonthLeads,
       lastMonthLeads,
       percentGrowth: Number(percentGrowth.toFixed(2)),
-      wonLeads,
+      totalWonLeads,
+      currentMonthWonLeads,
+      lastMonthWonLeads,
       percentWon: Number(percentWon.toFixed(2)),
+      wonPercentGrowth: Number(wonPercentGrowth.toFixed(2)),
     };
 
     return sendResponse(res, response);
