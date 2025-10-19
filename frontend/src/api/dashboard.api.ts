@@ -10,3 +10,14 @@ export const getLeadStatsApi = async () => {
     throw error.response?.data?.message;
   }
 };
+
+
+export const getTaskStatsApi = async () => {
+  try {
+    const response = await axiosSetup.get("/dashboard/getTaskStats");
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching Task Stats:", error);
+    throw error.response?.data?.message;
+  }
+};

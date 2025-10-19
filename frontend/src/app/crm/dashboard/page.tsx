@@ -22,7 +22,7 @@ import {
 } from "recharts";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
-import { getLeadStatus } from "@/store/slices/dashboardSlice";
+import { getLeadStatus, getTaskStatus } from "@/store/slices/dashboardSlice";
 import { connectSocket } from "@/lib/socket";
 
 // Mock data based on Prisma schema
@@ -120,10 +120,15 @@ export default function Dashboard() {
   const leadStats = useSelector(
     (state: RootState) => state.dashboard.leadStats
   );
+  const taskStats = useSelector(
+    (state: RootState) => state.dashboard.taskStats
+  );
   console.log("Lead Stats from Redux:", leadStats);
+  console.log("Task Stats from Redux:", taskStats);
 
   useEffect(() => {
     dispatch(getLeadStatus());
+    dispatch(getTaskStatus());
   }, [dispatch]);
 
   useEffect(() => {
@@ -259,23 +264,22 @@ export default function Dashboard() {
           </div>
 
           {/* Active Tasks Card */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg p-5 border border-black/[0.06] hover:shadow-sm transition-all duration-200">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[13px] font-medium text-[#37352f]/60">
+          <div className="bg-white rounded-lg p-6 border border-gray-200/60 hover:border-gray-300/60 transition-all duration-200 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-medium text-gray-500">
                 Active Tasks
               </span>
-              <span className="px-2 py-0.5 bg-amber-50 text-amber-700 text-[12px] font-medium rounded">
-                {taskStats.overdue} overdue
+              <span className="px-2.5 py-1 bg-red-50 text-red-600 text-xs font-medium rounded-md">
+                {taskStats.overdueTasks} overdue
               </span>
             </div>
-            <div className="text-[32px] font-semibold text-[#37352f] mb-1 tracking-tight">
-              {taskStats.pending}
+            <div className="text-4xl font-semibold text-gray-900 mb-2 tracking-tight">
+              {taskStats.totalPendingTasks}
             </div>
-            <div className="text-[12px] text-[#37352f]/50">
-              {taskStats.today} due today
+            <div className="text-sm text-gray-400">
+              {taskStats.todaysPendingTasks} due today
             </div>
           </div>
-
           {/* Calendar Card */}
           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-5 border border-black/[0.06] hover:shadow-sm transition-all duration-200">
             <div className="flex items-center justify-between mb-3">

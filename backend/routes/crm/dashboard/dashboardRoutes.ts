@@ -9,5 +9,11 @@ dashboardRouter.get(
   isAdmin,
   dashboardController.getLeadStats
 );
+dashboardRouter.get(
+  "/getTaskStats",
+  authenticate,
+  isAdmin,
+  dashboardController.getTaskStats
+);
 
 export default dashboardRouter;

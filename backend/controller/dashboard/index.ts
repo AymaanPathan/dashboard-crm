@@ -1,3 +1,3 @@
 import { getLeadStats } from "./leads/getLeadStats.controller";
-
-export { getLeadStats };
+import { getTaskStats } from "./tasks/getTasksStats.controller";
+export { getLeadStats, getTaskStats };

@@ -1,3 +1,4 @@
+import { LeadTask } from "./leadTask.model";
 import { IKanbanLoadingState } from "./loadings.model";
 
 export interface IAddress {
@@ -77,4 +78,14 @@ export interface LeadStats {
   percentWon?: number;
   wonLeads?: number;
   wonPercentGrowth?: number;
+}
+
+export interface TaskStats {
+  totalTasks?: number;
+  totalPendingTasks?: number;
+  todaysPendingTasks?: number;
+  totalCompletedTasks?: number;
+  todaysCompletedTasks?: number;
+  overdueTasks?: number;
+  todaysSchedule?: LeadTask[];
 }
