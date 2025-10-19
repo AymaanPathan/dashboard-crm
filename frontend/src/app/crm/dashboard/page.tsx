@@ -139,6 +139,12 @@ export default function Dashboard() {
         dispatch(getLeadStatus());
       }
     });
+    socket.on("task:updated", (data: any) => {
+      if (data) {
+        console.log("Received task:updated event:", data);
+        dispatch(getTaskStatus());
+      }
+    });
   }, [dispatch]);
 
   return (
@@ -282,7 +288,7 @@ export default function Dashboard() {
             </div>
           </div>
           {/* Calendar Card */}
-         <Calendar/>
+          <Calendar />
         </div>
 
         {/* Revenue Chart & Calendar Details */}
@@ -357,48 +363,53 @@ export default function Dashboard() {
             <h3 className="text-[15px] font-semibold text-[#37352f] mb-4">
               Today&apos;s Schedule
             </h3>
-            <div className="space-y-5">
-              <div className="border-l-2 pl-4 pb-4 border-b border-black/[0.06]">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] text-[#37352f]/50 tracking-wide">
-                    9:00 AM
-                  </span>
-                </div>
-                <h4 className="font-medium text-[14px] text-[#37352f] mb-1">
-                  Follow-up: Acme Corp
-                </h4>
-                <p className="text-[12px] text-[#37352f]/60">
-                  Call regarding quotation #QT-2401
-                </p>
-              </div>
 
-              <div className="border-l-2  pl-4 pb-4 border-b border-black/[0.06]">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] text-[#37352f]/50 tracking-wide">
-                    11:30 AM
-                  </span>
-                </div>
-                <h4 className="font-medium text-[14px] text-[#37352f] mb-1">
-                  Meeting: Tech Solutions
-                </h4>
-                <p className="text-[12px] text-[#37352f]/60">
-                  Product demo presentation
-                </p>
-              </div>
+            <div className="space-y-3 max-h-[280px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-black/10 scrollbar-track-transparent hover:scrollbar-thumb-black/20">
+              {taskStats.todaysSchedule &&
+              taskStats.todaysSchedule.length > 0 ? (
+                taskStats.todaysSchedule.map((task: any) => (
+                  <div
+                    key={task.id}
+                    className="group relative bg-white hover:bg-black/[0.02] rounded-[3px] p-3.5 border border-black/[0.06] transition-all duration-150 cursor-pointer"
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-black/20" />
+                        <span className="text-[11px] text-black/40 font-normal">
+                          {new Date(task.dueDate).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </div>
+                    </div>
 
-              <div className="border-l-2 border-amber-500 pl-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] text-[#37352f]/50 tracking-wide">
-                    2:00 PM
-                  </span>
+                    <h4 className="font-medium text-[14px] text-black/90 mb-1.5 leading-tight">
+                      {task.title || "Untitled Task"}
+                    </h4>
+
+                    <p className="text-[13px] text-black/50 leading-relaxed mb-2">
+                      {task.description || "No description available"}
+                    </p>
+
+                    <div className="flex items-center gap-1.5 pt-1.5 border-t border-black/[0.04]">
+                      <span className="text-[11px] text-black/35 font-normal">
+                        {task.lead?.name || "Unknown"}
+                      </span>
+                      <span className="text-[11px] text-black/20">·</span>
+                      <span className="text-[11px] text-black/30 font-normal">
+                        {task.lead?.company || "Unknown"}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="flex items-center justify-center py-12">
+                  <p className="text-[13px] text-black/40 font-normal">
+                    No tasks scheduled for today
+                  </p>
                 </div>
-                <h4 className="font-medium text-[14px] text-[#37352f] mb-1">
-                  Task: Global Industries
-                </h4>
-                <p className="text-[12px] text-[#37352f]/60">
-                  Send proposal document
-                </p>
-              </div>
+              )}
             </div>
           </div>
         </div>

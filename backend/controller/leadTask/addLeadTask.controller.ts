@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { taskReminderQueue } from "../../queues/taskReminderQueue";
+import { io } from "../../utils/socket";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -131,6 +132,10 @@ export const addLeadTask = async (req: Request, res: Response) => {
     }
 
     response.data = [createdTask];
+
+    io.to(`org_${organizationId}_admins`).emit("task:updated", {
+      taskId: createdTask.id,
+    });
     return sendResponse(res, response);
   } catch (error: any) {
     console.error("addLeadTask error:", error);
