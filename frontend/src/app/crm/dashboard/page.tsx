@@ -2,12 +2,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import {
-  Download,
   Share2,
-  Upload,
   Search,
   Home,
   MoreVertical,
+  TrendingUp,
+  RefreshCw,
 } from "lucide-react";
 import {
   LineChart,
@@ -44,7 +44,6 @@ const revenueData = [
   { month: "Mar", value: 356000 },
 ];
 
-// Top performing users
 const topPerformers = [
   { name: "Rajesh Kumar", leads: 48, conversions: 18, revenue: 156000 },
   { name: "Priya Sharma", leads: 42, conversions: 15, revenue: 142000 },
@@ -56,6 +55,8 @@ export default function Dashboard() {
     "type"
   );
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   const dispatch: RootDispatch = useDispatch();
   const leadStats = useSelector(
     (state: RootState) => state.dashboard.leadStats
@@ -63,8 +64,12 @@ export default function Dashboard() {
   const taskStats = useSelector(
     (state: RootState) => state.dashboard.taskStats
   );
-  console.log("Lead Stats from Redux:", leadStats);
-  console.log("Task Stats from Redux:", taskStats);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await Promise.all([dispatch(getLeadStatus()), dispatch(getTaskStatus())]);
+    setTimeout(() => setIsRefreshing(false), 500);
+  };
 
   useEffect(() => {
     dispatch(getLeadStatus());
@@ -80,101 +85,80 @@ export default function Dashboard() {
     });
     socket.on("task:updated", (data: any) => {
       if (data) {
-        console.log("Received task:updated event:", data);
         dispatch(getTaskStatus());
       }
     });
   }, [dispatch]);
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
-      {/* Header */}
-      <header className="bg-white/60 backdrop-blur-xl border-b border-black/[0.06] px-8 py-4 sticky top-0 z-50">
-        <div className="flex items-center justify-between max-w-[1600px] mx-auto">
-          <h1 className="text-[28px] font-semibold text-[#37352f] tracking-tight">
-            Dashboard
-          </h1>
-          <div className="flex items-center gap-2">
-            <button className="p-2 hover:bg-black/[0.03] rounded-md transition-all duration-200">
-              <Home className="w-[18px] h-[18px] text-[#37352f]/60" />
-            </button>
-            <div className="relative">
-              <Search className="w-[16px] h-[16px] text-[#37352f]/40 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="pl-9 pr-4 py-1.5 bg-black/[0.03] border-none rounded-md text-[14px] text-[#37352f] placeholder:text-[#37352f]/40 w-[240px] focus:outline-none focus:bg-white focus:shadow-sm transition-all duration-200"
-              />
-            </div>
-            <button className="flex items-center gap-2 px-3 py-1.5 hover:bg-black/[0.03] rounded-md transition-all duration-200">
-              <Share2 className="w-[16px] h-[16px] text-[#37352f]/60" />
-              <span className="text-[14px] text-[#37352f]/80">Share</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <div className="px-8 py-8 max-w-[1600px] mx-auto">
-        <div className="flex items-center gap-2 mb-8">
-          <button className="flex items-center gap-2 px-3 py-1.5 bg-[#37352f] text-white rounded-md hover:bg-[#2f2d2a] transition-all duration-200 text-[14px] font-medium shadow-sm">
+    <div className="min-h-screen ">
+      <div className="px-6 py-6 max-w-[1600px] mx-auto">
+        {/* Action Bar */}
+        <div className="flex items-center gap-2.5 mb-6">
+          <button className="flex items-center cursor-pointer gap-2 px-3.5 py-1.5 bg-gray-900/90 backdrop-blur-sm text-white rounded-lg hover:bg-gray-900 transition-all text-sm font-medium shadow-lg shadow-gray-900/10">
             <span>Ask AI</span>
           </button>
-          <button className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-black/[0.03] rounded-md transition-all duration-200 text-[14px] text-[#37352f]/80 border border-black/[0.06]">
-            <span>Customize Widget</span>
-          </button>
-          <div className="ml-auto flex items-center gap-2">
-            <span className="text-[13px] text-[#37352f]/50 flex items-center gap-1.5">
+
+          <div className="ml-auto flex items-center gap-2.5">
+            <span className="text-xs font-medium text-gray-500 flex items-center gap-2 bg-white/60 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-gray-200/50 shadow-sm">
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
               Last updated now
             </span>
-            <button className="flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-black/[0.03] rounded-md transition-all duration-200 text-[14px] text-[#37352f]/80 border border-black/[0.06]">
-              <Upload className="w-[15px] h-[15px]" />
-              <span>Imports</span>
-            </button>
-            <button className="flex items-center gap-2 px-3 py-1.5 bg-[#37352f] text-white rounded-md hover:bg-[#2f2d2a] transition-all duration-200 text-[14px] font-medium shadow-sm">
-              <Download className="w-[15px] h-[15px]" />
-              <span>Exports</span>
+            <button
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="flex  cursor-pointer items-center gap-2 px-3.5 py-1.5 bg-gray-900/90 backdrop-blur-sm text-white rounded-lg hover:bg-gray-900 transition-all text-sm font-medium shadow-lg shadow-gray-900/10 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <RefreshCw
+                className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
+              />
+              <span>{isRefreshing ? "Refreshing..." : "Refresh"}</span>
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <LeadStatsComponent leadStats={leadStats} />
           <TaskStatsComponent taskStats={taskStats} />
-          <Calendar />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-black/[0.06] hover:shadow-sm transition-all duration-200">
-            <div className="flex items-center justify-between mb-6">
+        {/* Revenue Chart & Schedule */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+          <div className="lg:col-span-2 bg-white/60 backdrop-blur-xl rounded-xl p-5 border border-gray-200/50 hover:border-gray-300/50 transition-all shadow-lg shadow-gray-900/5">
+            <div className="flex items-center justify-between mb-5">
               <div>
-                <h3 className="text-[13px] font-medium text-[#37352f]/60 mb-1">
-                  Total Revenue
-                </h3>
-                <div className="text-[28px] font-semibold text-[#37352f] tracking-tight">
-                  ₹3,56,000{" "}
-                  <span className="text-[14px] font-normal text-emerald-600">
-                    +22% vs last month
+                <div className="flex items-center gap-2 mb-1.5">
+                  <TrendingUp className="w-4 h-4 text-gray-600" />
+                  <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                    Revenue
+                  </h3>
+                </div>
+                <div className="text-2xl font-semibold text-gray-900">
+                  ₹32,209{" "}
+                  <span className="text-sm font-medium text-emerald-600">
+                    +22%
                   </span>
                 </div>
+                <p className="text-xs text-gray-500 mt-0.5">vs last month</p>
               </div>
-              <div className="flex items-center gap-1">
-                <button className="px-2.5 py-1 text-[12px] text-[#37352f]/60 hover:bg-black/[0.03] rounded transition-all duration-200">
+              <div className="flex items-center gap-1 bg-white/60 backdrop-blur-sm rounded-lg p-1 border border-gray-200/50 shadow-sm">
+                <button className="px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-white/80 hover:shadow-sm rounded transition-all">
                   1D
                 </button>
-                <button className="px-2.5 py-1 text-[12px] text-[#37352f]/60 hover:bg-black/[0.03] rounded transition-all duration-200">
+                <button className="px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-white/80 hover:shadow-sm rounded transition-all">
                   1W
                 </button>
-                <button className="px-2.5 py-1 text-[12px] text-[#37352f]/60 hover:bg-black/[0.03] rounded transition-all duration-200">
+                <button className="px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-white/80 hover:shadow-sm rounded transition-all">
                   1M
                 </button>
-                <button className="px-2.5 py-1 text-[12px] text-[#37352f]/60 hover:bg-black/[0.03] rounded transition-all duration-200">
+                <button className="px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-white/80 hover:shadow-sm rounded transition-all">
                   6M
                 </button>
-                <button className="px-2.5 py-1 text-[12px] bg-[#37352f]/90 text-white rounded transition-all duration-200">
+                <button className="px-2.5 py-1 text-xs font-medium bg-gray-900/90 backdrop-blur-sm text-white rounded shadow-md">
                   1Y
                 </button>
-                <button className="px-2.5 py-1 text-[12px] text-[#37352f]/60 hover:bg-black/[0.03] rounded transition-all duration-200">
+                <button className="px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-white/80 hover:shadow-sm rounded transition-all">
                   ALL
                 </button>
               </div>
@@ -183,25 +167,32 @@ export default function Dashboard() {
               <LineChart data={revenueData}>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="#37352f"
-                  strokeOpacity={0.06}
+                  stroke="#e5e7eb"
+                  vertical={false}
                 />
                 <XAxis
                   dataKey="month"
-                  tick={{ fontSize: 11, fill: "#37352f", opacity: 0.5 }}
-                  stroke="#37352f"
-                  strokeOpacity={0.1}
+                  tick={{ fontSize: 11, fill: "#6b7280" }}
+                  stroke="#e5e7eb"
+                  tickLine={false}
                 />
                 <YAxis
-                  tick={{ fontSize: 11, fill: "#37352f", opacity: 0.5 }}
-                  stroke="#37352f"
-                  strokeOpacity={0.1}
+                  tick={{ fontSize: 11, fill: "#6b7280" }}
+                  stroke="#e5e7eb"
+                  tickLine={false}
                 />
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "white",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "8px",
+                    fontSize: "12px",
+                  }}
+                />
                 <Line
                   type="monotone"
                   dataKey="value"
-                  stroke="#37352f"
+                  stroke="#18181b"
                   strokeWidth={2}
                   dot={false}
                 />
@@ -212,46 +203,51 @@ export default function Dashboard() {
           <TodayScheduleComponent taskStats={taskStats} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Bottom Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <LeadDistributionComponent
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             leadStats={leadStats}
           />
+
           {/* Top Performers */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-black/[0.06] hover:shadow-sm transition-all duration-200">
+          <div className="bg-white/60 backdrop-blur-xl rounded-xl p-5 border border-gray-200/50 hover:border-gray-300/50 transition-all shadow-lg shadow-gray-900/5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[15px] font-semibold text-[#37352f]">
+              <h3 className="text-sm font-semibold text-gray-900">
                 Top Performers
               </h3>
-              <button className="p-1 hover:bg-black/[0.03] rounded transition-all duration-200">
-                <MoreVertical className="w-4 h-4 text-[#37352f]/40" />
+              <button className="p-1.5 bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg transition-all border border-gray-200/50 shadow-sm">
+                <MoreVertical className="w-4 h-4 text-gray-400" />
               </button>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {topPerformers.map((performer, index) => (
-                <div key={index} className="flex items-center justify-between">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg border border-gray-200/50 transition-all shadow-sm"
+                >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-[12px] font-medium">
+                    <div className="w-9 h-9 rounded-lg bg-gray-900/90 backdrop-blur-sm flex items-center justify-center text-white text-xs font-semibold shadow-md">
                       {performer.name
                         .split(" ")
                         .map((n) => n[0])
                         .join("")}
                     </div>
                     <div>
-                      <div className="text-[13px] font-medium text-[#37352f]">
+                      <div className="text-sm font-medium text-gray-900">
                         {performer.name}
                       </div>
-                      <div className="text-[11px] text-[#37352f]/50">
+                      <div className="text-xs text-gray-500">
                         {performer.conversions} conversions
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[13px] font-semibold text-[#37352f]">
+                    <div className="text-sm font-semibold text-gray-900">
                       ₹{(performer.revenue / 1000).toFixed(0)}K
                     </div>
-                    <div className="text-[11px] text-[#37352f]/50">
+                    <div className="text-xs text-gray-500">
                       {performer.leads} leads
                     </div>
                   </div>

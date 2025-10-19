@@ -28,8 +28,8 @@ export const Calendar = () => {
         key={day}
         className={
           isToday
-            ? "font-medium bg-black text-white rounded w-5 h-5 flex items-center justify-center mx-auto text-[11px]"
-            : "text-gray-500 text-[11px] hover:bg-gray-100 rounded w-5 h-5 flex items-center justify-center mx-auto cursor-pointer"
+            ? "font-semibold bg-gray-900 text-white rounded w-6 h-6 flex items-center justify-center mx-auto text-[11px]"
+            : "text-gray-600 text-[11px] hover:bg-gray-50 rounded w-6 h-6 flex items-center justify-center mx-auto cursor-pointer transition-colors"
         }
       >
         {day}
@@ -40,15 +40,15 @@ export const Calendar = () => {
   const dayNames = ["S", "M", "T", "W", "T", "F", "S"];
 
   return (
-    <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+    <div className="bg-white rounded-lg p-4 border border-gray-200/60 hover:border-gray-300/60 hover:shadow-sm transition-all duration-200">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-semibold text-gray-900">
+        <span className="text-xs font-medium text-gray-600">
           {currentMonth}
         </span>
       </div>
-      <div className="grid grid-cols-7 gap-1 text-center text-[10px] mb-1 font-medium">
+      <div className="grid grid-cols-7 gap-1 text-center text-[10px] mb-2 font-medium">
         {dayNames.map((day, idx) => (
-          <div key={idx} className="text-gray-400 w-5">
+          <div key={idx} className="text-gray-400 w-6">
             {day}
           </div>
         ))}

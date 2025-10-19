@@ -9,39 +9,39 @@ export const LeadDistributionComponent: React.FC<{
   >;
 }> = ({ leadStats, activeTab, setActiveTab }) => {
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-black/[0.06] hover:shadow-sm transition-all duration-200">
-      <h3 className="text-[15px] font-semibold text-[#37352f] mb-4">
+    <div className="bg-white/60 backdrop-blur-xl rounded-xl p-5 border border-gray-200/50 hover:border-gray-300/50 transition-all shadow-lg shadow-gray-900/5">
+      <h3 className="text-sm font-semibold text-gray-900 mb-4">
         Lead Distribution
       </h3>
 
       {/* Tabs */}
-      <div className="flex gap-6 mb-5 text-[13px] border-b border-black/[0.06]">
+      <div className="flex gap-6 mb-5 text-sm border-b border-gray-200/50">
         <button
           onClick={() => setActiveTab("type")}
-          className={`pb-2 font-medium ${
+          className={`pb-2 cursor-pointer font-medium transition-colors ${
             activeTab === "type"
-              ? "border-b-2 border-[#37352f] text-[#37352f]"
-              : "text-[#37352f]/50 hover:text-[#37352f]/80"
+              ? "border-b-2 border-gray-900 text-gray-900"
+              : "text-gray-500 hover:text-gray-700"
           }`}
         >
           By Type
         </button>
         <button
           onClick={() => setActiveTab("source")}
-          className={`pb-2 font-medium ${
+          className={`pb-2  cursor-pointer font-medium transition-colors ${
             activeTab === "source"
-              ? "border-b-2 border-[#37352f] text-[#37352f]"
-              : "text-[#37352f]/50 hover:text-[#37352f]/80"
+              ? "border-b-2 border-gray-900 text-gray-900"
+              : "text-gray-500 hover:text-gray-700"
           }`}
         >
           By Source
         </button>
         <button
           onClick={() => setActiveTab("stage")}
-          className={`pb-2 font-medium ${
+          className={`pb-2 cursor-pointer font-medium transition-colors ${
             activeTab === "stage"
-              ? "border-b-2 border-[#37352f] text-[#37352f]"
-              : "text-[#37352f]/50 hover:text-[#37352f]/80"
+              ? "border-b-2 border-gray-900 text-gray-900"
+              : "text-gray-500 hover:text-gray-700"
           }`}
         >
           By Stage
@@ -52,10 +52,13 @@ export const LeadDistributionComponent: React.FC<{
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-5">
         {activeTab === "type" &&
           leadStats?.leadDistribution?.map((item, i) => (
-            <div key={i}>
+            <div
+              key={i}
+              className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-gray-200/50 shadow-sm"
+            >
               <div className="flex items-center gap-2 mb-2">
                 <div
-                  className={`w-2.5 h-2.5 rounded-full ${
+                  className={`w-2 h-2 rounded-full ${
                     item.type === "Hot"
                       ? "bg-red-500"
                       : item.type === "Warm"
@@ -63,61 +66,94 @@ export const LeadDistributionComponent: React.FC<{
                       : "bg-blue-500"
                   }`}
                 ></div>
-                <span className="text-[12px] text-[#37352f]/60">
+                <span className="text-xs text-gray-600 font-medium">
                   {item.type}
                 </span>
               </div>
-              <div className="text-[28px] font-semibold text-[#37352f] tracking-tight">
+              <div className="text-2xl font-semibold text-gray-900 tracking-tight">
                 {item.count}
               </div>
-              <div className="text-[11px] text-[#37352f]/40">
+              <div className="text-xs text-gray-500">
                 {item.percentage}% of total
               </div>
             </div>
           ))}
 
         {activeTab === "source" &&
-          leadStats?.sourceDistribution?.map(
-            (src, i) =>
+          leadStats?.sourceDistribution?.map((src, i) => {
+            const colors = [
+              "bg-emerald-500",
+              "bg-blue-500",
+              "bg-purple-500",
+              "bg-orange-500",
+              "bg-pink-500",
+              "bg-cyan-500",
+            ];
+            return (
               src.count! > 0 && (
-                <div key={i}>
+                <div
+                  key={i}
+                  className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-gray-200/50 shadow-sm"
+                >
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
-                    <span className="text-[12px] text-[#37352f]/60">
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        colors[i % colors.length]
+                      }`}
+                    ></div>
+                    <span className="text-xs text-gray-600 font-medium">
                       {src.source}
                     </span>
                   </div>
-                  <div className="text-[24px] font-semibold text-[#37352f] tracking-tight">
+                  <div className="text-2xl font-semibold text-gray-900 tracking-tight">
                     {src.count}
                   </div>
-                  <div className="text-[11px] text-[#37352f]/40">
+                  <div className="text-xs text-gray-500">
                     {src.percentage}% of total
                   </div>
                 </div>
               )
-          )}
+            );
+          })}
 
         {activeTab === "stage" &&
-          leadStats?.stageDistribution?.map((stage, i) => (
-            <div key={i}>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-indigo-500"></div>
-                <span className="text-[12px] text-[#37352f]/60">
-                  {stage.stage}
-                </span>
+          leadStats?.stageDistribution?.map((stage, i) => {
+            const colors = [
+              "bg-indigo-500",
+              "bg-violet-500",
+              "bg-fuchsia-500",
+              "bg-rose-500",
+              "bg-teal-500",
+              "bg-lime-500",
+            ];
+            return (
+              <div
+                key={i}
+                className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-gray-200/50 shadow-sm"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      colors[i % colors.length]
+                    }`}
+                  ></div>
+                  <span className="text-xs text-gray-600 font-medium">
+                    {stage.stage}
+                  </span>
+                </div>
+                <div className="text-2xl font-semibold text-gray-900 tracking-tight">
+                  {stage.count}
+                </div>
+                <div className="text-xs text-gray-500">
+                  {stage.percentage}% of total
+                </div>
               </div>
-              <div className="text-[24px] font-semibold text-[#37352f] tracking-tight">
-                {stage.count}
-              </div>
-              <div className="text-[11px] text-[#37352f]/40">
-                {stage.percentage}% of total
-              </div>
-            </div>
-          ))}
+            );
+          })}
       </div>
 
       {/* Progress Bar */}
-      <div className="h-1.5 bg-black/[0.04] rounded-full overflow-hidden flex">
+      <div className="h-2 bg-white/60 backdrop-blur-sm rounded-full overflow-hidden flex border border-gray-200/50">
         {activeTab === "type" &&
           leadStats?.leadDistribution?.map((item, i) => (
             <div
@@ -134,25 +170,43 @@ export const LeadDistributionComponent: React.FC<{
           ))}
 
         {activeTab === "source" &&
-          leadStats?.sourceDistribution?.map((item, i) => (
-            <div
-              key={i}
-              className="bg-emerald-500"
-              style={{ width: `${item.percentage}%` }}
-            ></div>
-          ))}
+          leadStats?.sourceDistribution?.map((item, i) => {
+            const colors = [
+              "bg-emerald-500",
+              "bg-blue-500",
+              "bg-purple-500",
+              "bg-orange-500",
+              "bg-pink-500",
+              "bg-cyan-500",
+            ];
+            return (
+              <div
+                key={i}
+                className={colors[i % colors.length]}
+                style={{ width: `${item.percentage}%` }}
+              ></div>
+            );
+          })}
 
         {activeTab === "stage" &&
-          leadStats?.stageDistribution?.map((item, i) => (
-            <div
-              key={i}
-              className="bg-indigo-500"
-              style={{ width: `${item.percentage}%` }}
-            ></div>
-          ))}
+          leadStats?.stageDistribution?.map((item, i) => {
+            const colors = [
+              "bg-indigo-500",
+              "bg-violet-500",
+              "bg-fuchsia-500",
+              "bg-rose-500",
+              "bg-teal-500",
+              "bg-lime-500",
+            ];
+            return (
+              <div
+                key={i}
+                className={colors[i % colors.length]}
+                style={{ width: `${item.percentage}%` }}
+              ></div>
+            );
+          })}
       </div>
-
-      <div className="h-1.5 bg-black/[0.04] rounded-full overflow-hidden flex"></div>
     </div>
   );
 };
