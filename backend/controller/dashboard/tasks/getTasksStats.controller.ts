@@ -89,7 +89,7 @@ export const getTaskStats = async (req: Request, res: Response) => {
         lead: {
           select: {
             name: true,
-            company: true,
+            id: true,
           },
         },
         createdBy: {

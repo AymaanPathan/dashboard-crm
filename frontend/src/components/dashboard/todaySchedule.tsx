@@ -1,10 +1,13 @@
 import { TaskStats } from "@/models/lead.model";
 import { LeadTask } from "@/models/leadTask.model";
+import { ArrowBigRight } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 
 export const TodayScheduleComponent: React.FC<{
   taskStats: TaskStats;
 }> = ({ taskStats }) => {
+  console.log("Today's Schedule Tasks:", taskStats.todaysSchedule);
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-black/[0.06] hover:shadow-sm transition-all duration-200">
       <h3 className="text-[15px] font-semibold text-[#37352f] mb-4">
@@ -43,9 +46,11 @@ export const TodayScheduleComponent: React.FC<{
                   {task.lead?.name || "Unknown"}
                 </span>
                 <span className="text-[11px] text-black/20">·</span>
-                <span className="text-[11px] text-black/30 font-normal">
-                  {task.lead?.name || "Unknown"}
-                </span>
+                <Link href={`lead/${task.lead?.id}`}>
+                  <span className="text-[11px] text-black/30 font-normal">
+                   <ArrowBigRight size={12} />
+                  </span>
+                </Link>
               </div>
             </div>
           ))
