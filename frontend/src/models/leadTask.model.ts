@@ -1,3 +1,5 @@
+import { ILead } from "./lead.model";
+
 export enum TaskStatus {
   pending = "pending",
   completed = "completed",
@@ -28,4 +30,5 @@ export interface LeadTask {
   createdById: string;
   timezone?: string;
   reminderStatus?: string;
+  lead: ILead;
 }
