@@ -70,6 +70,23 @@ export interface LeadFilters {
   category?: string;
   leadType?: "hot" | "cold" | "warm" | "All" | null;
 }
+
+interface LeadDistributionByType {
+  type?: string;
+  count?: number;
+  percentage?: number;
+}
+interface LeadDistributionBySource {
+  source?: string;
+  count?: number;
+  percentage?: number;
+}
+interface LeadDistributionByStage {
+  stage?: string;
+  count?: number;
+  percentage?: number;
+}
+
 export interface LeadStats {
   totalLeads?: number;
   currentMonthLeads?: number;
@@ -78,6 +95,12 @@ export interface LeadStats {
   percentWon?: number;
   wonLeads?: number;
   wonPercentGrowth?: number;
+  totalWonLeads?: number;
+  currentMonthWonLeads?: number;
+  lastMonthWonLeads?: number;
+  leadDistribution: LeadDistributionByType[];
+  sourceDistribution: LeadDistributionBySource[];
+  stageDistribution: LeadDistributionByStage[];
 }
 
 export interface TaskStats {

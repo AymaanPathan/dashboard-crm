@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Download,
   Share2,
@@ -117,6 +117,10 @@ const recentActivities = [
 ];
 
 export default function Dashboard() {
+  const [activeTab, setActiveTab] = useState<"type" | "source" | "stage">(
+    "type"
+  );
+
   const dispatch: RootDispatch = useDispatch();
   const leadStats = useSelector(
     (state: RootState) => state.dashboard.leadStats
@@ -415,130 +419,153 @@ export default function Dashboard() {
         </div>
 
         {/* Bottom Row - Leads, Sources, Performers */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Leads Management */}
           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-black/[0.06] hover:shadow-sm transition-all duration-200">
             <h3 className="text-[15px] font-semibold text-[#37352f] mb-4">
               Lead Distribution
             </h3>
+
+            {/* Tabs */}
             <div className="flex gap-6 mb-5 text-[13px] border-b border-black/[0.06]">
-              <button className="pb-2 border-b-2 border-[#37352f] text-[#37352f] font-medium">
+              <button
+                onClick={() => setActiveTab("type")}
+                className={`pb-2 font-medium ${
+                  activeTab === "type"
+                    ? "border-b-2 border-[#37352f] text-[#37352f]"
+                    : "text-[#37352f]/50 hover:text-[#37352f]/80"
+                }`}
+              >
                 By Type
               </button>
-              <button className="pb-2 text-[#37352f]/50 hover:text-[#37352f]/80 transition-colors">
+              <button
+                onClick={() => setActiveTab("source")}
+                className={`pb-2 font-medium ${
+                  activeTab === "source"
+                    ? "border-b-2 border-[#37352f] text-[#37352f]"
+                    : "text-[#37352f]/50 hover:text-[#37352f]/80"
+                }`}
+              >
                 By Source
               </button>
-              <button className="pb-2 text-[#37352f]/50 hover:text-[#37352f]/80 transition-colors">
+              <button
+                onClick={() => setActiveTab("stage")}
+                className={`pb-2 font-medium ${
+                  activeTab === "stage"
+                    ? "border-b-2 border-[#37352f] text-[#37352f]"
+                    : "text-[#37352f]/50 hover:text-[#37352f]/80"
+                }`}
+              >
                 By Stage
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-5">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                  <span className="text-[12px] text-[#37352f]/60">Hot</span>
-                </div>
-                <div className="text-[28px] font-semibold text-[#37352f] tracking-tight">
-                  {leadStats.hot}
-                </div>
-                <div className="text-[11px] text-[#37352f]/40">
-                  43.7% of total
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
-                  <span className="text-[12px] text-[#37352f]/60">Warm</span>
-                </div>
-                <div className="text-[28px] font-semibold text-[#37352f] tracking-tight">
-                  {leadStats.warm}
-                </div>
-                <div className="text-[11px] text-[#37352f]/40">
-                  34.1% of total
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
-                  <span className="text-[12px] text-[#37352f]/60">Cold</span>
-                </div>
-                <div className="text-[28px] font-semibold text-[#37352f] tracking-tight">
-                  {leadStats.cold}
-                </div>
-                <div className="text-[11px] text-[#37352f]/40">
-                  22.2% of total
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
-                  <span className="text-[12px] text-[#37352f]/60">
-                    Converted
-                  </span>
-                </div>
-                <div className="text-[28px] font-semibold text-[#37352f] tracking-tight">
-                  {leadStats.converted}
-                </div>
-                <div className="text-[11px] text-[#37352f]/40">16.1% rate</div>
-              </div>
+            {/* Content */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-5">
+              {activeTab === "type" &&
+                leadStats?.leadDistribution?.map((item, i) => (
+                  <div key={i}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div
+                        className={`w-2.5 h-2.5 rounded-full ${
+                          item.type === "Hot"
+                            ? "bg-red-500"
+                            : item.type === "Warm"
+                            ? "bg-amber-500"
+                            : "bg-blue-500"
+                        }`}
+                      ></div>
+                      <span className="text-[12px] text-[#37352f]/60">
+                        {item.type}
+                      </span>
+                    </div>
+                    <div className="text-[28px] font-semibold text-[#37352f] tracking-tight">
+                      {item.count}
+                    </div>
+                    <div className="text-[11px] text-[#37352f]/40">
+                      {item.percentage}% of total
+                    </div>
+                  </div>
+                ))}
+
+              {activeTab === "source" &&
+                leadStats?.sourceDistribution?.map(
+                  (src, i) =>
+                    src.count > 0 && (
+                      <div key={i}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                          <span className="text-[12px] text-[#37352f]/60">
+                            {src.source}
+                          </span>
+                        </div>
+                        <div className="text-[24px] font-semibold text-[#37352f] tracking-tight">
+                          {src.count}
+                        </div>
+                        <div className="text-[11px] text-[#37352f]/40">
+                          {src.percentage}% of total
+                        </div>
+                      </div>
+                    )
+                )}
+
+              {activeTab === "stage" &&
+                leadStats?.stageDistribution?.map((stage, i) => (
+                  <div key={i}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-indigo-500"></div>
+                      <span className="text-[12px] text-[#37352f]/60">
+                        {stage.stage}
+                      </span>
+                    </div>
+                    <div className="text-[24px] font-semibold text-[#37352f] tracking-tight">
+                      {stage.count}
+                    </div>
+                    <div className="text-[11px] text-[#37352f]/40">
+                      {stage.percentage}% of total
+                    </div>
+                  </div>
+                ))}
             </div>
 
+            {/* Progress Bar */}
             <div className="h-1.5 bg-black/[0.04] rounded-full overflow-hidden flex">
-              <div className="bg-red-500" style={{ width: "43.7%" }}></div>
-              <div className="bg-amber-500" style={{ width: "34.1%" }}></div>
-              <div className="bg-blue-500" style={{ width: "22.2%" }}></div>
-            </div>
-          </div>
+              {activeTab === "type" &&
+                leadStats?.leadDistribution?.map((item, i) => (
+                  <div
+                    key={i}
+                    className={`${
+                      item.type === "Hot"
+                        ? "bg-red-500"
+                        : item.type === "Warm"
+                        ? "bg-amber-500"
+                        : "bg-blue-500"
+                    }`}
+                    style={{ width: `${item.percentage}%` }}
+                  ></div>
+                ))}
 
-          {/* Lead Sources Chart */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-black/[0.06] hover:shadow-sm transition-all duration-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[15px] font-semibold text-[#37352f]">
-                Leads by Source
-              </h3>
-              <button className="p-1 hover:bg-black/[0.03] rounded transition-all duration-200">
-                <MoreVertical className="w-4 h-4 text-[#37352f]/40" />
-              </button>
-            </div>
-            <div className="mb-4">
-              <div className="text-[28px] font-semibold text-[#37352f] tracking-tight">
-                261
-              </div>
-              <div className="text-[12px] text-emerald-600">
-                +18% vs last month
-              </div>
-            </div>
-            <div className="flex gap-4 text-[12px] mb-4">
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-blue-400"></div>
-                <span className="text-[#37352f]/60">Website</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-blue-600"></div>
-                <span className="text-[#37352f]/60">Referral</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#37352f]"></div>
-                <span className="text-[#37352f]/60">Cold Call</span>
-              </div>
-            </div>
-            <ResponsiveContainer width="100%" height={150}>
-              <BarChart data={leadsBySourceData}>
-                <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: 10, fill: "#37352f", opacity: 0.5 }}
-                  stroke="#37352f"
-                  strokeOpacity={0.1}
-                />
-                <YAxis hide />
-                <Bar dataKey="website" fill="#60a5fa" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="referral" fill="#2563eb" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="cold" fill="#37352f" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+              {activeTab === "source" &&
+                leadStats?.sourceDistribution?.map((item, i) => (
+                  <div
+                    key={i}
+                    className="bg-emerald-500"
+                    style={{ width: `${item.percentage}%` }}
+                  ></div>
+                ))}
 
+              {activeTab === "stage" &&
+                leadStats?.stageDistribution?.map((item, i) => (
+                  <div
+                    key={i}
+                    className="bg-indigo-500"
+                    style={{ width: `${item.percentage}%` }}
+                  ></div>
+                ))}
+            </div>
+
+            <div className="h-1.5 bg-black/[0.04] rounded-full overflow-hidden flex"></div>
+          </div>
           {/* Top Performers */}
           <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-black/[0.06] hover:shadow-sm transition-all duration-200">
             <div className="flex items-center justify-between mb-4">
