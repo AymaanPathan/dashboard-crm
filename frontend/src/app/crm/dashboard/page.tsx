@@ -24,6 +24,7 @@ import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { getLeadStatus, getTaskStatus } from "@/store/slices/dashboardSlice";
 import { connectSocket } from "@/lib/socket";
+import Calendar from "@/components/dashboard/Calender";
 
 // Mock data based on Prisma schema
 const revenueData = [
@@ -281,32 +282,7 @@ export default function Dashboard() {
             </div>
           </div>
           {/* Calendar Card */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg p-5 border border-black/[0.06] hover:shadow-sm transition-all duration-200">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[13px] font-medium text-[#37352f]/60">
-                Calendar
-              </span>
-              <span className="text-[13px] text-[#37352f]/50">June</span>
-            </div>
-            <div className="grid grid-cols-7 gap-1 text-center text-[11px] mb-2">
-              <div className="text-[#37352f]/40">Sun</div>
-              <div className="text-[#37352f]/40">Mon</div>
-              <div className="text-[#37352f]/40">Tue</div>
-              <div className="text-[#37352f] font-medium">Wed</div>
-              <div className="text-[#37352f]/40">Thu</div>
-              <div className="text-[#37352f]/40">Fri</div>
-              <div className="text-[#37352f]/40">Sat</div>
-            </div>
-            <div className="grid grid-cols-7 gap-1 text-center text-[11px]">
-              <div className="text-[#37352f]/40">7</div>
-              <div className="text-[#37352f]/40">8</div>
-              <div className=" font-medium bg-[#37352f] text-white rounded-full w-6 h-6 flex items-center justify-center mx-auto">
-                9
-              </div>
-              <div className="text-[#37352f]/40">10</div>
-              <div className="text-[#37352f]/40">11</div>
-            </div>
-          </div>
+         <Calendar/>
         </div>
 
         {/* Revenue Chart & Calendar Details */}
