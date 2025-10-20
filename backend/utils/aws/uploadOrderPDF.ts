@@ -1,10 +1,9 @@
 import puppeteer from "puppeteer";
 import { compressPdf } from "../compressPdf";
-import { quotation_bucket_name } from "../../constant/aws";
+import { order_bucket_name } from "../../constant/aws";
 import { uploadToS3 } from "./s3.utils";
 
-export async function uploadQuotationPDF(quotationId: string, html: string) {
-  // Launch Puppeteer and generate PDF
+export async function uploadOrderPDF(orderId: string, html: string) {
   const browser = await puppeteer.launch({
     headless: true,
     args: ["--no-sandbox"],
@@ -20,12 +19,14 @@ export async function uploadQuotationPDF(quotationId: string, html: string) {
 
   await browser.close();
 
+  // Compress PDF
   const compressedBuffer = await compressPdf(Buffer.from(pdfBuffer), "ebook");
 
-  const key = `quotations/${quotationId}.pdf`;
+  // Upload to S3 using existing function
+  const key = `orders/${orderId}.pdf`;
   const pdfUrl = await uploadToS3(
     compressedBuffer,
-    quotation_bucket_name!,
+    order_bucket_name!,
     key,
     "application/pdf"
   );

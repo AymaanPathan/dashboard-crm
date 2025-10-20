@@ -7,6 +7,7 @@ import {
   Config,
   ICustomerInfo,
 } from "../../models/template.model";
+import { uploadOrderPDF } from "../../utils/aws/uploadOrderPDF";
 import { uploadQuotationPDF } from "../../utils/aws/uploadQuotationPDF";
 import prisma from "../../utils/prisma";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
@@ -150,17 +151,17 @@ export const confirmQuotationAsOrder = async (req: Request, res: Response) => {
       );
     }
 
-    const pdfUrl = await uploadQuotationPDF(quotation.id, htmlContent);
+    const orderPdfUrl = await uploadOrderPDF(order.id, htmlContent);
     await prisma.order.update({
       where: { id: order.id },
-      data: { pdfUrl },
+      data: { pdfUrl: orderPdfUrl },
     });
 
-    const updatedQuotation = await prisma.order.findUnique({
+    const updatedOrder = await prisma.order.findUnique({
       where: { id: order.id },
     });
 
-    response.data = { quotation: updatedQuotation };
+    response.data = { quotation: updatedOrder };
 
     response.data = order;
     return sendResponse(res, response);
