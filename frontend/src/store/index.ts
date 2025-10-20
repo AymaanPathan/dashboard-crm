@@ -9,6 +9,7 @@ import leadTasksReducer from "./slices/leadTaskSlice";
 import leadReducer from "./slices/leadSlice";
 import quotationReducer from "./slices/quotationSlice";
 import dashboardReducer from "./slices/dashboardSlice";
+import orderSlice from "./slices/orderSlice";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -20,6 +21,7 @@ export const store = configureStore({
     kanban: kanbanReducer,
     stages: stageReducer,
     quotation: quotationReducer,
+    order: orderSlice,
   },
 });
 

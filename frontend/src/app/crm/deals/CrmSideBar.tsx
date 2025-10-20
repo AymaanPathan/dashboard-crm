@@ -143,10 +143,10 @@ const CrmNavbar: React.FC = () => {
 
           <div>
             <NavItem
-              label="Products"
+              label="Orders"
               icon={<ShoppingCart className="h-4 w-4" />}
-              isActive={getIsActive("products")}
-              href="products"
+              isActive={getIsActive("orders")}
+              href="orders"
             />
           </div>
 

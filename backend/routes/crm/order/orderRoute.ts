@@ -8,4 +8,10 @@ orderRouter.post(
   authenticate,
   orderController.confirmQuotationAsOrder
 );
+orderRouter.get(
+  "/getAllOrders",
+  authenticate,
+  orderController.getAllOrdersController
+);
+
 export default orderRouter;

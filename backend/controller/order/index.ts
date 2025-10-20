@@ -1,2 +1,3 @@
 import { confirmQuotationAsOrder } from "./confirmOrder.controller";
-export { confirmQuotationAsOrder };
+import { getAllOrdersController } from "./getAllOrder.controller";
+export { confirmQuotationAsOrder, getAllOrdersController };
