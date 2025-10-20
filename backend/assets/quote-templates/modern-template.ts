@@ -9,11 +9,12 @@ export function getModernTemplate(
   companyInfo: CompanyInfo,
   customerInfo: ICustomerInfo,
   orderDetails: IOrderDetails,
-  config: Config
+  config: Config,
+  isOrder: boolean = false
 ) {
   const items = orderDetails.items || [];
   const subtotal = items.reduce(
-    (sum, item) => sum + item.quantity * item.price,
+    (sum: number, item: any) => sum + item.quantity * item.price,
     0
   );
   const taxRate = orderDetails.taxRate || 0.18;
@@ -51,6 +52,11 @@ export function getModernTemplate(
       addr.pincode || ""
     }`;
   };
+
+  // Document type labels
+  const docType = isOrder ? "Purchase Order" : "Quotation";
+  const docDateLabel = isOrder ? "Order Date" : "Date";
+  const validityLabel = isOrder ? "Delivery" : "Valid";
 
   return `
     <!DOCTYPE html>
@@ -115,6 +121,10 @@ export function getModernTemplate(
           border: 1px solid #e8e8e8;
           min-width: 160px;
         }
+        .quote-block.order {
+          background: #f0f8f0;
+          border-color: #c8e6c9;
+        }
         .doc-label {
           font-size: 9pt;
           font-weight: 500;
@@ -122,6 +132,21 @@ export function getModernTemplate(
           letter-spacing: 1.5px;
           color: #000;
           margin-bottom: 8px;
+        }
+        .doc-label.order {
+          color: #2e7d32;
+        }
+        .order-status {
+          display: inline-block;
+          background: #2e7d32;
+          color: #fff;
+          padding: 2px 8px;
+          font-size: 7pt;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.8px;
+          border-radius: 3px;
+          margin-top: 4px;
         }
         .quote-num {
           font-size: 12pt;
@@ -262,6 +287,9 @@ export function getModernTemplate(
           text-transform: uppercase;
           letter-spacing: 0.8px;
         }
+        .totals-head.order {
+          background: #2e7d32;
+        }
         .totals-content {
           padding: 10px 12px;
         }
@@ -349,12 +377,13 @@ export function getModernTemplate(
   }
             </div>
           </div>
-          <div class="quote-block">
-            <div class="doc-label">Quotation</div>
+          <div class="quote-block ${isOrder ? "order" : ""}">
+            <div class="doc-label ${isOrder ? "order" : ""}">${docType}</div>
+            ${isOrder ? '<div class="order-status">Confirmed</div>' : ""}
             <div class="quote-num">#${orderDetails.quoteNumber}</div>
             <div class="date-text">
-              Date: ${formatDate(new Date().toISOString())}<br>
-              Valid: ${formatDate(orderDetails.validUntil)}
+              ${docDateLabel}: ${formatDate(new Date().toISOString())}<br>
+              ${validityLabel}: ${formatDate(orderDetails.validUntil)}
             </div>
           </div>
         </div>
@@ -372,7 +401,9 @@ export function getModernTemplate(
           </div>
         </div>
         <div class="card">
-          <div class="card-label">Billing Address</div>
+          <div class="card-label">${
+            isOrder ? "Delivery Address" : "Billing Address"
+          }</div>
           <div class="card-text">
             ${formatBillingAddress() || "N/A"}<br><br>
             <strong>GST Rate:</strong> ${gstPercentage}%
@@ -398,7 +429,7 @@ export function getModernTemplate(
           <tbody>
             ${items
               .map(
-                (item, index) => `
+                (item: any, index: number) => `
             <tr>
               <td class="text-center">${index + 1}</td>
               <td><span class="item-title">${item.description}</span></td>
@@ -425,7 +456,9 @@ export function getModernTemplate(
         <div class="left-content">
           <!-- Terms -->
           <div class="content-box">
-            <div class="content-label">Terms & Conditions</div>
+            <div class="content-label">${
+              isOrder ? "Order Terms & Conditions" : "Terms & Conditions"
+            }</div>
             <div class="content-text">
               ${
                 config.termsAndConditions &&
@@ -433,6 +466,8 @@ export function getModernTemplate(
                   ? config.termsAndConditions
                       .map((line, idx) => `${idx + 1}. ${line}`)
                       .join("<br>")
+                  : isOrder
+                  ? `1. Order confirmed with payment terms as agreed<br>2. Delivery as per schedule mentioned above<br>3. Goods once sold will not be taken back<br>4. All disputes subject to local jurisdiction`
                   : `1. Prices valid for 30 days from quotation date<br>2. Payment terms as per agreement<br>3. Delivery schedule as agreed upon<br>4. All disputes subject to local jurisdiction`
               }
             </div>
@@ -465,7 +500,9 @@ export function getModernTemplate(
         <!-- Totals -->
         <div class="totals-card">
           <div class="totals-wrap">
-            <div class="totals-head">Amount Summary</div>
+            <div class="totals-head ${
+              isOrder ? "order" : ""
+            }">Amount Summary</div>
             <div class="totals-content">
               <div class="total-item">
                 <span>Subtotal</span>
@@ -497,9 +534,11 @@ export function getModernTemplate(
 
       <!-- Footer -->
       <div class="footer-bar">
-        Thank you for your business · ${companyInfo.email} · ${
-    companyInfo.phone
-  }
+        ${
+          isOrder
+            ? `Confirmed Purchase Order · ${companyInfo.email} · ${companyInfo.phone}`
+            : `Thank you for your business · ${companyInfo.email} · ${companyInfo.phone}`
+        }
       </div>
     </body>
     </html>

@@ -9,11 +9,12 @@ export function getClassicTemplate(
   companyInfo: CompanyInfo,
   customerInfo: ICustomerInfo,
   orderDetails: IOrderDetails,
-  config: Config
+  config: Config,
+  isOrder: boolean = false
 ) {
   const items = orderDetails.items || [];
   const subtotal = items.reduce(
-    (sum, item) => sum + item.quantity * item.price,
+    (sum: number, item: any) => sum + item.quantity * item.price,
     0
   );
   const taxRate = orderDetails.taxRate || 0.18;
@@ -51,6 +52,12 @@ export function getClassicTemplate(
       addr.pincode || ""
     }`;
   };
+
+  // Document type labels
+  const docType = isOrder ? "Purchase Order" : "Quotation";
+  const docNumberLabel = isOrder ? "Order No." : "Quote No.";
+  const docDateLabel = isOrder ? "Order Date" : "Date";
+  const validityLabel = isOrder ? "Delivery By" : "Valid Until";
 
   return `
     <!DOCTYPE html>
@@ -120,6 +127,9 @@ export function getClassicTemplate(
           margin-bottom: 6px;
           color: #1a1a1a;
         }
+        .doc-type.order {
+          color: #006400;
+        }
         .quote-details {
           font-size: 8.5pt;
           line-height: 1.6;
@@ -130,6 +140,18 @@ export function getClassicTemplate(
           font-weight: 600;
           color: #000;
           margin-bottom: 2px;
+        }
+        .order-badge {
+          display: inline-block;
+          background: #006400;
+          color: #fff;
+          padding: 3px 8px;
+          font-size: 7pt;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          margin-top: 4px;
+          border-radius: 2px;
         }
 
         /* Elegant Info Panels */
@@ -253,6 +275,9 @@ export function getClassicTemplate(
           text-transform: uppercase;
           letter-spacing: 1.5px;
         }
+        .totals-header.order {
+          background: #006400;
+        }
         .totals-body {
           padding: 10px 12px;
           background: linear-gradient(to bottom, #fafafa 0%, #ffffff 100%);
@@ -343,11 +368,12 @@ export function getClassicTemplate(
             </div>
           </div>
           <div class="quote-section">
-            <div class="doc-type">Quotation</div>
+            <div class="doc-type ${isOrder ? "order" : ""}">${docType}</div>
+            ${isOrder ? '<div class="order-badge">Confirmed Order</div>' : ""}
             <div class="quote-number">#${orderDetails.quoteNumber}</div>
             <div class="quote-details">
-              Date: ${formatDate(new Date().toISOString())}<br>
-              Valid Until: ${formatDate(orderDetails.validUntil)}
+              ${docDateLabel}: ${formatDate(new Date().toISOString())}<br>
+              ${validityLabel}: ${formatDate(orderDetails.validUntil)}
             </div>
           </div>
         </div>
@@ -365,7 +391,9 @@ export function getClassicTemplate(
           </div>
         </div>
         <div class="panel">
-          <div class="panel-title">Billing Address</div>
+          <div class="panel-title">${
+            isOrder ? "Delivery Address" : "Billing Address"
+          }</div>
           <div class="panel-body">
             ${formatBillingAddress() || "As per customer records"}<br><br>
             <strong>GST Rate:</strong> ${gstPercentage}%
@@ -391,7 +419,7 @@ export function getClassicTemplate(
           <tbody>
             ${items
               .map(
-                (item, index) => `
+                (item: any, index: number) => `
             <tr>
               <td class="text-center">${index + 1}</td>
               <td><span class="item-name">${item.description}</span></td>
@@ -418,7 +446,9 @@ export function getClassicTemplate(
         <div class="info-column">
           <!-- Terms -->
           <div class="info-block">
-            <div class="block-heading">Terms & Conditions</div>
+            <div class="block-heading">${
+              isOrder ? "Order Terms & Conditions" : "Terms & Conditions"
+            }</div>
             <div class="block-content">
               ${
                 config.termsAndConditions &&
@@ -426,6 +456,8 @@ export function getClassicTemplate(
                   ? config.termsAndConditions
                       .map((line, idx) => `${idx + 1}. ${line}`)
                       .join("<br>")
+                  : isOrder
+                  ? `1. Order confirmed and payment terms as agreed<br>2. Delivery as per schedule mentioned above<br>3. Goods once sold will not be taken back<br>4. Subject to local jurisdiction`
                   : `1. Quotation valid for 30 days from date of issue<br>2. Payment terms as per mutual agreement<br>3. Delivery schedule as agreed upon<br>4. Subject to local jurisdiction`
               }
             </div>
@@ -458,7 +490,9 @@ export function getClassicTemplate(
         <!-- Totals -->
         <div class="totals-column">
           <div class="totals-container">
-            <div class="totals-header">Amount Summary</div>
+            <div class="totals-header ${
+              isOrder ? "order" : ""
+            }">Amount Summary</div>
             <div class="totals-body">
               <div class="sum-line">
                 <span>Subtotal</span>
@@ -491,8 +525,11 @@ export function getClassicTemplate(
 
       <!-- Footer -->
       <div class="footer">
-        This quotation is valid subject to the terms and conditions mentioned above<br>
-        For inquiries: ${companyInfo.email} | ${companyInfo.phone}
+        ${
+          isOrder
+            ? `This is a confirmed purchase order. Please process as per terms mentioned above<br>For inquiries: ${companyInfo.email} | ${companyInfo.phone}`
+            : `This quotation is valid subject to the terms and conditions mentioned above<br>For inquiries: ${companyInfo.email} | ${companyInfo.phone}`
+        }
       </div>
     </body>
     </html>

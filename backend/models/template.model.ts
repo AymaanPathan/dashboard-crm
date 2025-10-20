@@ -26,7 +26,7 @@ export interface CompanyInfo {
   website: string;
   gstin: string;
   email: string;
-  logo: any;
+  logo?: any;
   name: string;
   address: string;
   phone: string;
@@ -58,8 +58,8 @@ export interface OrderDetails {
 }
 
 export interface Config {
-  signature: any;
-  termsAndConditions: string;
+  signature?: any;
+  termsAndConditions: string[];
   bankDetails: any;
   brandColor?: string;
   accentColor?: string;

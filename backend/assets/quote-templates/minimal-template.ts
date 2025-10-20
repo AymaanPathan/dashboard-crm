@@ -9,11 +9,12 @@ export function getMinimalTemplate(
   companyInfo: CompanyInfo,
   customerInfo: ICustomerInfo,
   orderDetails: IOrderDetails,
-  config: Config
+  config: Config,
+  isOrder: boolean = false
 ) {
   const items = orderDetails.items || [];
   const subtotal = items.reduce(
-    (sum, item) => sum + item.quantity * item.price,
+    (sum: number, item: any) => sum + item.quantity * item.price,
     0
   );
   const taxRate = orderDetails.taxRate || 0.18;
@@ -52,6 +53,12 @@ export function getMinimalTemplate(
     }`;
   };
 
+  // Document type labels
+  const docType = isOrder ? "Purchase Order" : "Quotation";
+  const docDateLabel = isOrder ? "Order Date" : "Date";
+  const validityLabel = isOrder ? "Delivery" : "Valid";
+  const accentColor = isOrder ? "#27ae60" : "#3498db";
+
   return `
     <!DOCTYPE html>
     <html>
@@ -80,7 +87,7 @@ export function getMinimalTemplate(
         
         /* Minimal Header with Accent */
         .header {
-          border-bottom: 2px solid #3498db;
+          border-bottom: 2px solid ${accentColor};
           padding-bottom: 10px;
           margin-bottom: 12px;
         }
@@ -113,13 +120,28 @@ export function getMinimalTemplate(
           border-radius: 3px;
           min-width: 140px;
         }
+        .quote-section.order {
+          background: #e8f5e9;
+        }
         .doc-title {
           font-size: 11pt;
           font-weight: 400;
           text-transform: uppercase;
           letter-spacing: 2px;
-          color: #3498db;
+          color: ${accentColor};
           margin-bottom: 6px;
+        }
+        .order-badge {
+          display: inline-block;
+          background: ${accentColor};
+          color: #fff;
+          padding: 2px 8px;
+          font-size: 7pt;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          border-radius: 2px;
+          margin-top: 3px;
         }
         .quote-meta {
           font-size: 8pt;
@@ -141,7 +163,7 @@ export function getMinimalTemplate(
           flex: 1;
           background: #f8f9fa;
           padding: 10px;
-          border-left: 3px solid #3498db;
+          border-left: 3px solid ${accentColor};
           border-radius: 2px;
         }
         .card-title {
@@ -149,7 +171,7 @@ export function getMinimalTemplate(
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.5px;
-          color: #3498db;
+          color: ${accentColor};
           margin-bottom: 6px;
         }
         .card-content {
@@ -185,7 +207,7 @@ export function getMinimalTemplate(
           text-transform: uppercase;
           letter-spacing: 0.3px;
           color: #34495e;
-          border-bottom: 2px solid #3498db;
+          border-bottom: 2px solid ${accentColor};
         }
         td {
           padding: 5px 5px;
@@ -248,7 +270,9 @@ export function getMinimalTemplate(
           overflow: hidden;
         }
         .totals-header {
-          background: linear-gradient(to right, #3498db, #2980b9);
+          background: linear-gradient(to right, ${accentColor}, ${
+    isOrder ? "#229954" : "#2980b9"
+  });
           color: #fff;
           padding: 6px 10px;
           font-size: 8pt;
@@ -273,7 +297,7 @@ export function getMinimalTemplate(
         .total-line.grand {
           margin-top: 6px;
           padding-top: 8px;
-          border-top: 2px solid #3498db;
+          border-top: 2px solid ${accentColor};
           font-size: 9pt;
           font-weight: 600;
           color: #2c3e50;
@@ -282,7 +306,7 @@ export function getMinimalTemplate(
           font-weight: 500;
         }
         .grand .total-value {
-          color: #3498db;
+          color: ${accentColor};
         }
 
         /* Minimal Footer */
@@ -341,12 +365,13 @@ export function getMinimalTemplate(
   }
             </div>
           </div>
-          <div class="quote-section">
-            <div class="doc-title">Quotation</div>
+          <div class="quote-section ${isOrder ? "order" : ""}">
+            <div class="doc-title">${docType}</div>
+            ${isOrder ? '<div class="order-badge">Confirmed</div>' : ""}
             <div class="quote-meta">
               <strong>#${orderDetails.quoteNumber}</strong><br>
-              Date: ${formatDate(new Date().toISOString())}<br>
-              Valid: ${formatDate(orderDetails.validUntil)}
+              ${docDateLabel}: ${formatDate(new Date().toISOString())}<br>
+              ${validityLabel}: ${formatDate(orderDetails.validUntil)}
             </div>
           </div>
         </div>
@@ -364,7 +389,9 @@ export function getMinimalTemplate(
           </div>
         </div>
         <div class="info-card">
-          <div class="card-title">Billing Address</div>
+          <div class="card-title">${
+            isOrder ? "Delivery Address" : "Billing Address"
+          }</div>
           <div class="card-content">
             ${formatBillingAddress() || "N/A"}<br><br>
             <strong>GST:</strong> ${gstPercentage}%
@@ -390,7 +417,7 @@ export function getMinimalTemplate(
           <tbody>
             ${items
               .map(
-                (item, index) => `
+                (item: any, index: number) => `
             <tr>
               <td class="text-center">${index + 1}</td>
               <td><span class="item-name">${item.description}</span></td>
@@ -417,7 +444,9 @@ export function getMinimalTemplate(
         <div class="left-column">
           <!-- Terms -->
           <div class="info-box">
-            <div class="box-title">Terms & Conditions</div>
+            <div class="box-title">${
+              isOrder ? "Order Terms & Conditions" : "Terms & Conditions"
+            }</div>
             <div class="box-text">
               ${
                 config.termsAndConditions &&
@@ -425,6 +454,8 @@ export function getMinimalTemplate(
                   ? config.termsAndConditions
                       .map((line, idx) => `${idx + 1}. ${line}`)
                       .join("<br>")
+                  : isOrder
+                  ? `1. Order confirmed with payment terms as agreed<br>2. Delivery as per schedule mentioned above<br>3. Goods once sold will not be taken back<br>4. Disputes subject to local jurisdiction`
                   : `1. Prices valid for 30 days from date of quotation<br>2. Payment terms as per agreement<br>3. Delivery schedule as agreed<br>4. Disputes subject to local jurisdiction`
               }
             </div>
@@ -481,7 +512,11 @@ export function getMinimalTemplate(
       <!-- Footer -->
       <div class="footer">
         <div class="footer-note">
-          Thank you for your business opportunity
+          ${
+            isOrder
+              ? "Confirmed purchase order"
+              : "Thank you for your business opportunity"
+          }
         </div>
         <div class="signature-area">
           <div class="sig-space"></div>

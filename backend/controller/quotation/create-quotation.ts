@@ -153,6 +153,7 @@ export const createQuotationController = async (
         leadId: lead,
         companyId: companyId,
         quotationName,
+        templateId: template.id,
         customerName: customerInfo.name,
         customerCompany: customerInfo.company,
         customerEmail: customerInfo.email,
@@ -214,21 +215,24 @@ export const createQuotationController = async (
         companyInfoForQuotation,
         customerInfoForQuotation,
         orderDetailsForQuotation,
-        config
+        config,
+        false
       );
     } else if (template.templateType === "modern") {
       htmlContent = getModernTemplate(
         companyInfoForQuotation,
         customerInfoForQuotation,
         orderDetailsForQuotation,
-        config
+        config,
+        false
       );
     } else if (template.templateType === "minimal") {
       htmlContent = getMinimalTemplate(
         companyInfoForQuotation,
         customerInfoForQuotation,
         orderDetailsForQuotation,
-        config
+        config,
+        false
       );
     }
 

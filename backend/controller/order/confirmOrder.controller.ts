@@ -1,3 +1,13 @@
+import { getClassicTemplate } from "../../assets/quote-templates/classic-template";
+import { getMinimalTemplate } from "../../assets/quote-templates/minimal-template";
+import { getModernTemplate } from "../../assets/quote-templates/modern-template";
+import { IOrderDetails } from "../../models/quotation.model";
+import {
+  CompanyInfo,
+  Config,
+  ICustomerInfo,
+} from "../../models/template.model";
+import { uploadQuotationPDF } from "../../utils/aws/uploadQuotationPDF";
 import prisma from "../../utils/prisma";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
 import { Request, Response } from "express";
@@ -16,6 +26,19 @@ export const confirmQuotationAsOrder = async (req: Request, res: Response) => {
 
     const quotation = await prisma.quotation.findUnique({
       where: { id: quotationId },
+      select: {
+        templateId: true,
+        template: true,
+        isOrder: true,
+        leadId: true,
+        lead: true,
+        total: true,
+        items: true,
+        tax: true,
+        validUntil: true,
+        id: true,
+        quoteNumber: true,
+      },
     });
 
     if (!quotation) {
@@ -31,6 +54,16 @@ export const confirmQuotationAsOrder = async (req: Request, res: Response) => {
     }
 
     const orderNumber = `ORD-${Date.now()}`;
+
+    const existingOrder = await prisma.order.findUnique({
+      where: { quotationId },
+    });
+
+    if (existingOrder) {
+      response.statusCode = 400;
+      response.message = "Order already exists for this quotation";
+      return sendResponse(res, response);
+    }
 
     const order = await prisma.order.create({
       data: {
@@ -48,6 +81,86 @@ export const confirmQuotationAsOrder = async (req: Request, res: Response) => {
       where: { id: quotationId },
       data: { isOrder: true },
     });
+    const companyInfoForOrder: CompanyInfo = {
+      website: quotation?.template?.website!,
+      gstin: quotation?.template?.gstin!,
+      email: quotation?.template?.companyEmail!,
+      name: quotation?.template?.companyName!,
+      address: quotation?.template?.companyAddress!,
+      phone: quotation?.template?.companyPhone!,
+    };
+
+    const customerInfoForOrder: ICustomerInfo = {
+      name: quotation?.lead?.name!,
+      company: quotation?.lead?.name!,
+      email: quotation?.lead?.email!,
+      phone: quotation?.lead?.phone!,
+      gstin: quotation?.template?.gstin!,
+      address: quotation?.lead?.address!,
+    };
+
+    const orderDetailsForOrder: IOrderDetails = {
+      items: quotation?.items!,
+      taxRate: quotation?.tax,
+      validUntil: quotation?.validUntil!,
+      quoteNumber: quotation.quoteNumber!,
+    };
+
+    const bankDetails = quotation?.template?.bankDetails as {
+      ifsc?: string;
+      bankName?: string;
+      accountName?: string;
+      accountNumber?: string;
+    };
+
+    const config: Config = {
+      termsAndConditions: quotation?.template?.termsAndConditions || [],
+      bankDetails: {
+        ifsc: bankDetails?.ifsc || "",
+        bankName: bankDetails?.bankName || "",
+        accountName: bankDetails?.accountName || "",
+        accountNumber: bankDetails?.accountNumber || "",
+      },
+    };
+
+    let htmlContent = "";
+    if (quotation?.template?.templateType === "classic") {
+      htmlContent = getClassicTemplate(
+        companyInfoForOrder,
+        customerInfoForOrder,
+        orderDetailsForOrder,
+        config,
+        true
+      );
+    } else if (quotation?.template?.templateType === "modern") {
+      htmlContent = getModernTemplate(
+        companyInfoForOrder,
+        customerInfoForOrder,
+        orderDetailsForOrder,
+        config,
+        true
+      );
+    } else if (quotation?.template?.templateType === "minimal") {
+      htmlContent = getMinimalTemplate(
+        companyInfoForOrder,
+        customerInfoForOrder,
+        orderDetailsForOrder,
+        config,
+        true
+      );
+    }
+
+    const pdfUrl = await uploadQuotationPDF(quotation.id, htmlContent);
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { pdfUrl },
+    });
+
+    const updatedQuotation = await prisma.order.findUnique({
+      where: { id: order.id },
+    });
+
+    response.data = { quotation: updatedQuotation };
 
     response.data = order;
     return sendResponse(res, response);
