@@ -15,16 +15,29 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootDispatch, RootState } from "@/store";
 import { getAllQuotations } from "@/store/slices/quotationSlice";
 import { ICreateQuotationPayload } from "@/models/quotation.model";
+import { PaginationControls } from "@/components/pagination/PaginationControlls";
 
 export default function QuotationsPage() {
   const dispatch: RootDispatch = useDispatch();
   const { quotations } = useSelector((state: RootState) => state.quotation);
+  const paginationData = useSelector(
+    (state: RootState) => state.quotation.quotationPagination
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  console.log("paginationData:", paginationData);
 
   useEffect(() => {
-    dispatch(getAllQuotations({ filter: filterStatus, page: 1, limit: 10 }));
-  }, [dispatch, filterStatus]);
+    dispatch(
+      getAllQuotations({
+        filter: filterStatus,
+        page: currentPage,
+        limit: paginationData?.limit,
+      })
+    );
+  }, [dispatch, filterStatus, currentPage]);
 
   const getStatusBadge = (quote: any) => {
     const now = new Date();
@@ -113,9 +126,7 @@ export default function QuotationsPage() {
                   <th className="text-left px-5 py-3.5 text-xs font-bold text-gray-600 uppercase tracking-wide">
                     Customer
                   </th>
-                  <th className="text-left px-5 py-3.5 text-xs font-bold text-gray-600 uppercase tracking-wide">
-                    Quotation Name
-                  </th>
+
                   <th className="text-left px-5 py-3.5 text-xs font-bold text-gray-600 uppercase tracking-wide">
                     Amount
                   </th>
@@ -155,11 +166,7 @@ export default function QuotationsPage() {
                           {quote?.customerName || "—"}
                         </div>
                       </td>
-                      <td className="px-5 py-4">
-                        <div className="text-sm text-gray-900">
-                          {quote?.customerInfo?.company || "—"}
-                        </div>
-                      </td>
+
                       <td className="px-5 py-4">
                         <div className="text-sm font-bold text-gray-900">
                           ₹{quote?.total}
@@ -200,6 +207,12 @@ export default function QuotationsPage() {
               </div>
             )}
           </div>
+
+          <PaginationControls
+            currentPage={currentPage}
+            totalPages={paginationData && paginationData.totalPages!}
+            setCurrentPage={setCurrentPage}
+          />
         </div>
       </div>
     </div>

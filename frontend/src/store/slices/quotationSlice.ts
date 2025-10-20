@@ -6,9 +6,10 @@ import { getQuotationsByLeadApi } from "@/api/quotation.api";
 interface QuotationState {
   quotations: ICreateQuotationPayload[];
   quotationPagination?: {
-    total: number;
-    page: number;
-    limit: number;
+  currentPage: number,
+    limit: number,
+    totalCount: number,
+    totalPages: number,
   };
   loading: {
     creatingQuotation: boolean;
@@ -21,9 +22,10 @@ interface QuotationState {
 const initialState: QuotationState = {
   quotations: [],
   quotationPagination: {
-    total: 0,
-    page: 1,
-    limit: 10,
+    currentPage: 0,
+    limit: 1,
+    totalCount: 10,
+    totalPages: 1,
   },
   loading: {
     creatingQuotation: false,
@@ -114,9 +116,10 @@ const quotationSlice = createSlice({
         state.loading.fetchingAllQuotations = false;
         state.quotations = action.payload.quotations;
         state.quotationPagination = {
-          total: action.payload.total,
-          page: action.payload.page,
-          limit: action.payload.limit,
+          totalCount: action.payload.pagination.totalCount,
+          totalPages: action.payload.pagination.totalPages,
+          currentPage: action.payload.pagination.currentPage,
+          limit: action.payload.pagination.limit,
         };
       })
       .addCase(getAllQuotations.rejected, (state, action) => {
