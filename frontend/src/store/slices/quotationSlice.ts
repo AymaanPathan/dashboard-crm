@@ -6,10 +6,10 @@ import { getQuotationsByLeadApi } from "@/api/quotation.api";
 interface QuotationState {
   quotations: ICreateQuotationPayload[];
   quotationPagination?: {
-  currentPage: number,
-    limit: number,
-    totalCount: number,
-    totalPages: number,
+    currentPage: number;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
   };
   loading: {
     creatingQuotation: boolean;
@@ -22,10 +22,10 @@ interface QuotationState {
 const initialState: QuotationState = {
   quotations: [],
   quotationPagination: {
-    currentPage: 0,
-    limit: 1,
-    totalCount: 10,
-    totalPages: 1,
+    currentPage: 1,
+    limit: 10,
+    totalCount: 0,
+    totalPages: 0,
   },
   loading: {
     creatingQuotation: false,
