@@ -16,6 +16,7 @@ import { RootDispatch, RootState } from "@/store";
 import { getAllQuotations } from "@/store/slices/quotationSlice";
 import { ICreateQuotationPayload } from "@/models/quotation.model";
 import { PaginationControls } from "@/components/pagination/PaginationControlls";
+import { formatDate } from "@/utils/formatDate.utils";
 
 export default function QuotationsPage() {
   const dispatch: RootDispatch = useDispatch();
@@ -70,14 +71,6 @@ export default function QuotationsPage() {
     );
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  };
 
   return (
     <div className="min-h-screen">
@@ -177,7 +170,7 @@ export default function QuotationsPage() {
                       </td>
                       <td className="px-5 py-4">
                         <div className="text-sm text-gray-900">
-                          {quote?.validUntil?.toLocaleString()}
+                          {formatDate(quote.validUntil!)}
                         </div>
                       </td>
                       <td className="px-5 py-4">{getStatusBadge(quote)}</td>
@@ -208,11 +201,14 @@ export default function QuotationsPage() {
             )}
           </div>
 
-          <PaginationControls
-            currentPage={currentPage}
-            totalPages={paginationData && paginationData.totalPages!}
-            setCurrentPage={setCurrentPage}
-          />
+          {paginationData &&
+            paginationData?.limit < paginationData?.totalCount && (
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={paginationData && paginationData.totalPages!}
+                setCurrentPage={setCurrentPage}
+              />
+            )}
         </div>
       </div>
     </div>
