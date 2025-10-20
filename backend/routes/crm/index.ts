@@ -9,6 +9,7 @@ import leadTaskRouter from "./leadTask/leadTaskRoute";
 import templateRouter from "./template/templateRoute";
 import quotationRouter from "./quotation/quotationRoute";
 import dashboardRouter from "./dashboard/dashboardRoutes";
+import orderRouter from "./order/orderRoute";
 
 const router = Router();
 router.use("/", authRouter);
@@ -21,5 +22,6 @@ router.use("/leadTask", leadTaskRouter);
 router.use("/template", templateRouter);
 router.use("/quotation", quotationRouter);
 router.use("/dashboard", dashboardRouter);
+router.use("/order", orderRouter);
 
 export default router;

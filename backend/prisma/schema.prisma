@@ -67,6 +67,8 @@ model Organization {
   leads                    Lead[]
     quotations               Quotation[]
   quotationTemplates       QuotationTemplate[]
+
+  Order Order[]
 }
 
 model LeadLog {
@@ -129,6 +131,7 @@ model Lead {
   logs LeadLog[]
   notes LeadNotes[]   
   quotations Quotation[]
+  Order Order[]
 }
 
 
@@ -230,4 +233,58 @@ model Quotation {
   isOrder          Boolean @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  orders           Order[]
+}
+
+
+enum OrderStatus {
+  pending
+  confirmed
+  processing
+  shipped
+  delivered
+  cancelled
+}
+
+model Order {
+  id             String   @id @default(uuid())
+  quotationId    String   @unique
+  quotation      Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  leadId         String?
+  lead           Lead? @relation(fields: [leadId], references: [id])
+
+  orderNumber    String
+  status         OrderStatus @default(pending)
+  totalAmount    Float
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  confirmedAt    DateTime?
+  deliveredAt    DateTime?
+  cancelledAt    DateTime?
+
+  payments       Payment[]
+}
+
+
+enum PaymentStatus {
+  pending
+  completed
+  failed
+  refunded
+}
+
+model Payment {
+  id             String   @id @default(uuid())
+  orderId        String
+  order          Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  paymentMethod  String
+  amount         Float
+  status         PaymentStatus @default(pending)
+  paymentProofUrl String?
+  transactionId  String?
+  paymentDate    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
