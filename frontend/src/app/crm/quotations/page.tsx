@@ -200,7 +200,7 @@ export default function QuotationsPage() {
 
     if (quote.isOrder) {
       return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-medium border border-emerald-200">
+        <span className="inline-flex items-center gap-1 px-2.5 py-1  text-emerald-700 rounded-lg text-xs font-medium ">
           <CheckCircle2 className="w-3 h-3" />
           Converted
         </span>
@@ -209,7 +209,7 @@ export default function QuotationsPage() {
 
     if (isExpired) {
       return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50 text-red-700 rounded-lg text-xs font-medium border border-red-200">
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 text-red-700 rounded-lg text-xs font-medium border ">
           <XCircle className="w-3 h-3" />
           Expired
         </span>
@@ -217,7 +217,7 @@ export default function QuotationsPage() {
     }
 
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-700 rounded-lg text-xs font-medium border border-amber-200">
+      <span className="inline-flex items-center gap-1 px-2.5 py-1  text-amber-700 rounded-lg text-xs font-medium ">
         <Clock className="w-3 h-3" />
         Pending
       </span>
