@@ -24,3 +24,18 @@ export const getQuotationsByLeadApi = async (leadId: string) => {
     throw error?.response?.data?.message;
   }
 };
+export const getAllQuotationsApi = async (
+  filter: string = "all",
+  page: number = 1,
+  limit: number = 10
+) => {
+  try {
+    const response = await axiosSetup.get("/quotation/getAllQuotations", {
+      params: { filter, page, limit },
+    });
+    return response.data.data;
+  } catch (error: any) {
+    console.error("Error fetching all quotations:", error);
+    throw error?.response?.data?.message || "Failed to fetch quotations";
+  }
+};

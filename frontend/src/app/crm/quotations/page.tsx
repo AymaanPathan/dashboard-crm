@@ -1,199 +1,32 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FileText,
   Search,
   Download,
   Eye,
   MoreVertical,
-  Plus,
-  RefreshCw,
   CheckCircle2,
   Clock,
   XCircle,
 } from "lucide-react";
-import {
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-
-// Mock data
-const mockQuotations = [
-  {
-    id: "1",
-    quotationName: "Website Development Quote",
-    quoteNumber: "QT-2025-001",
-    customerName: "Rajesh Kumar",
-    customerCompany: "Tech Solutions Pvt Ltd",
-    customerEmail: "rajesh@techsolutions.com",
-    customerPhone: "+91 98765 43210",
-    subtotal: 145000,
-    tax: 26100,
-    total: 171100,
-    validUntil: "2025-11-15",
-    isOrder: false,
-    createdAt: "2025-10-15T10:30:00Z",
-    items: [
-      { name: "Website Design", quantity: 1, rate: 75000 },
-      { name: "Development", quantity: 1, rate: 70000 },
-    ],
-  },
-  {
-    id: "2",
-    quotationName: "Mobile App Development",
-    quoteNumber: "QT-2025-002",
-    customerName: "Priya Sharma",
-    customerCompany: "Retail Innovations",
-    customerEmail: "priya@retailinno.com",
-    customerPhone: "+91 98765 43211",
-    subtotal: 285000,
-    tax: 51300,
-    total: 336300,
-    validUntil: "2025-11-20",
-    isOrder: true,
-    createdAt: "2025-10-16T14:20:00Z",
-    items: [
-      { name: "iOS App", quantity: 1, rate: 150000 },
-      { name: "Android App", quantity: 1, rate: 135000 },
-    ],
-  },
-  {
-    id: "3",
-    quotationName: "Digital Marketing Package",
-    quoteNumber: "QT-2025-003",
-    customerName: "Amit Patel",
-    customerCompany: "Fashion Hub",
-    customerEmail: "amit@fashionhub.com",
-    customerPhone: "+91 98765 43212",
-    subtotal: 95000,
-    tax: 17100,
-    total: 112100,
-    validUntil: "2025-10-25",
-    isOrder: false,
-    createdAt: "2025-10-18T09:15:00Z",
-    items: [
-      { name: "SEO Services", quantity: 3, rate: 25000 },
-      { name: "Social Media Management", quantity: 1, rate: 20000 },
-    ],
-  },
-  {
-    id: "4",
-    quotationName: "Cloud Infrastructure Setup",
-    quoteNumber: "QT-2025-004",
-    customerName: "Sneha Reddy",
-    customerCompany: "StartUp Ventures",
-    customerEmail: "sneha@startupventures.com",
-    customerPhone: "+91 98765 43213",
-    subtotal: 225000,
-    tax: 40500,
-    total: 265500,
-    validUntil: "2025-11-30",
-    isOrder: true,
-    createdAt: "2025-10-19T11:45:00Z",
-    items: [
-      { name: "AWS Setup", quantity: 1, rate: 125000 },
-      { name: "Security Configuration", quantity: 1, rate: 100000 },
-    ],
-  },
-  {
-    id: "5",
-    quotationName: "E-commerce Platform",
-    quoteNumber: "QT-2025-005",
-    customerName: "Vikram Singh",
-    customerCompany: "Organic Foods Ltd",
-    customerEmail: "vikram@organicfoods.com",
-    customerPhone: "+91 98765 43214",
-    subtotal: 375000,
-    tax: 67500,
-    total: 442500,
-    validUntil: "2025-11-10",
-    isOrder: false,
-    createdAt: "2025-10-12T16:30:00Z",
-    items: [
-      { name: "E-commerce Development", quantity: 1, rate: 250000 },
-      { name: "Payment Gateway Integration", quantity: 1, rate: 75000 },
-      { name: "Inventory Management", quantity: 1, rate: 50000 },
-    ],
-  },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { RootDispatch, RootState } from "@/store";
+import { getAllQuotations } from "@/store/slices/quotationSlice";
+import { ICreateQuotationPayload } from "@/models/quotation.model";
 
 export default function QuotationsPage() {
-  const [quotations] = useState(mockQuotations);
+  const dispatch: RootDispatch = useDispatch();
+  const { quotations } = useSelector((state: RootState) => state.quotation);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 500);
-  };
+  useEffect(() => {
+    dispatch(getAllQuotations({ filter: filterStatus, page: 1, limit: 10 }));
+  }, [dispatch, filterStatus]);
 
-  // Filter and search logic
-  const filteredQuotations = quotations.filter((quote) => {
-    const matchesSearch =
-      quote.quotationName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      quote.quoteNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      quote.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      quote.customerCompany?.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const now = new Date();
-    const validUntil = new Date(quote.validUntil);
-    const isExpired = validUntil < now;
-
-    if (filterStatus === "all") return matchesSearch;
-    if (filterStatus === "converted") return matchesSearch && quote.isOrder;
-    if (filterStatus === "pending")
-      return matchesSearch && !quote.isOrder && !isExpired;
-    if (filterStatus === "expired")
-      return matchesSearch && isExpired && !quote.isOrder;
-
-    return matchesSearch;
-  });
-
-  // Calculate stats
-  const stats = {
-    total: quotations.length,
-    converted: quotations.filter((q) => q.isOrder).length,
-    pending: quotations.filter((q) => {
-      const now = new Date();
-      const validUntil = new Date(q.validUntil);
-      return !q.isOrder && validUntil >= now;
-    }).length,
-    expired: quotations.filter((q) => {
-      const now = new Date();
-      const validUntil = new Date(q.validUntil);
-      return !q.isOrder && validUntil < now;
-    }).length,
-    totalValue: quotations.reduce((sum, q) => sum + q.total, 0),
-    convertedValue: quotations
-      .filter((q) => q.isOrder)
-      .reduce((sum, q) => sum + q.total, 0),
-  };
-
-  // Prepare chart data
-  const statusData = [
-    { name: "Converted", value: stats.converted, fill: "#10b981" },
-    { name: "Pending", value: stats.pending, fill: "#f59e0b" },
-    { name: "Expired", value: stats.expired, fill: "#ef4444" },
-  ];
-
-  const revenueData = [
-    { name: "Converted", value: Math.round(stats.convertedValue / 1000) },
-    {
-      name: "Pending & Expired",
-      value: Math.round((stats.totalValue - stats.convertedValue) / 1000),
-    },
-  ];
-
-  const getStatusBadge = (quote) => {
+  const getStatusBadge = (quote: any) => {
     const now = new Date();
     const validUntil = new Date(quote.validUntil);
     const isExpired = validUntil < now;
@@ -224,7 +57,7 @@ export default function QuotationsPage() {
     );
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-IN", {
       day: "numeric",
@@ -298,69 +131,69 @@ export default function QuotationsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredQuotations.map((quote, index) => (
-                  <tr
-                    key={quote.id}
-                    className={`border-b border-gray-200/30 hover:bg-white/40 transition-all ${
-                      index === filteredQuotations.length - 1
-                        ? "border-b-0"
-                        : ""
-                    }`}
-                  >
-                    <td className="px-5 py-4">
-                      <div className="text-sm font-semibold text-gray-900">
-                        {quote.quoteNumber}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {formatDate(quote.createdAt)}
-                      </div>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="text-sm font-semibold text-gray-900">
-                        {quote.customerName}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {quote.customerCompany || "—"}
-                      </div>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="text-sm text-gray-900">
-                        {quote.quotationName || "—"}
-                      </div>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="text-sm font-bold text-gray-900">
-                        ₹{(quote.total / 1000).toFixed(1)}K
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        +₹{(quote.tax / 1000).toFixed(1)}K tax
-                      </div>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="text-sm text-gray-900">
-                        {formatDate(quote.validUntil)}
-                      </div>
-                    </td>
-                    <td className="px-5 py-4">{getStatusBadge(quote)}</td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-2">
-                        <button className="p-1.5 bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg transition-all border border-gray-200/50 shadow-sm hover:shadow-md">
-                          <Eye className="w-4 h-4 text-gray-600" />
-                        </button>
-                        <button className="p-1.5 bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg transition-all border border-gray-200/50 shadow-sm hover:shadow-md">
-                          <Download className="w-4 h-4 text-gray-600" />
-                        </button>
-                        <button className="p-1.5 bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg transition-all border border-gray-200/50 shadow-sm hover:shadow-md">
-                          <MoreVertical className="w-4 h-4 text-gray-600" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {quotations.map(
+                  (quote: ICreateQuotationPayload, index: number) => (
+                    <tr
+                      key={quote?.id}
+                      className={`border-b border-gray-200/30 hover:bg-white/40 transition-all ${
+                        index === quotations?.length - 1 ? "border-b-0" : ""
+                      }`}
+                    >
+                      <td className="px-5 py-4">
+                        <div className="text-sm font-semibold text-gray-900">
+                          {quote?.quoteNumber}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {formatDate(quote.createdAt!)}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="text-sm font-semibold text-gray-900">
+                          {quote?.customerName}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {quote?.customerName || "—"}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="text-sm text-gray-900">
+                          {quote?.customerInfo?.company || "—"}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="text-sm font-bold text-gray-900">
+                          ₹{quote?.total}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {quote?.customerName || "—"}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="text-sm text-gray-900">
+                          {quote?.validUntil?.toLocaleString()}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">{getStatusBadge(quote)}</td>
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-2">
+                          <button className="p-1.5 bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg transition-all border border-gray-200/50 shadow-sm hover:shadow-md">
+                            <Eye className="w-4 h-4 text-gray-600" />
+                          </button>
+                          <button className="p-1.5 bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg transition-all border border-gray-200/50 shadow-sm hover:shadow-md">
+                            <Download className="w-4 h-4 text-gray-600" />
+                          </button>
+                          <button className="p-1.5 bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg transition-all border border-gray-200/50 shadow-sm hover:shadow-md">
+                            <MoreVertical className="w-4 h-4 text-gray-600" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                )}
               </tbody>
             </table>
 
-            {filteredQuotations.length === 0 && (
+            {quotations.length === 0 && (
               <div className="text-center py-16">
                 <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                 <p className="text-sm text-gray-500">No quotations found</p>

@@ -1,22 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { ICreateQuotationPayload } from "@/models/quotation.model";
-import { createQuotationApi } from "@/api/quotation.api";
+import { createQuotationApi, getAllQuotationsApi } from "@/api/quotation.api";
 import { getQuotationsByLeadApi } from "@/api/quotation.api";
 interface QuotationState {
   quotations: ICreateQuotationPayload[];
+  quotationPagination?: {
+    total: number;
+    page: number;
+    limit: number;
+  };
   loading: {
     creatingQuotation: boolean;
     fetchingQuotations: boolean;
+    fetchingAllQuotations: boolean;
   };
   error: string;
 }
 
 const initialState: QuotationState = {
   quotations: [],
+  quotationPagination: {
+    total: 0,
+    page: 1,
+    limit: 10,
+  },
   loading: {
     creatingQuotation: false,
     fetchingQuotations: false,
+    fetchingAllQuotations: false,
   },
   error: "",
 };
@@ -38,6 +50,24 @@ export const getQuotationsByLead = createAsyncThunk(
   async (leadId: string, { rejectWithValue }) => {
     try {
       const response = await getQuotationsByLeadApi(leadId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
+  }
+);
+export const getAllQuotations = createAsyncThunk(
+  "quotations/getAll",
+  async (
+    {
+      filter = "all",
+      page = 1,
+      limit = 10,
+    }: { filter?: string; page?: number; limit?: number },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await getAllQuotationsApi(filter, page, limit);
       return response;
     } catch (error: any) {
       return rejectWithValue(error);
@@ -75,6 +105,23 @@ const quotationSlice = createSlice({
       .addCase(getQuotationsByLead.rejected, (state, action) => {
         state.loading.fetchingQuotations = false;
         state.error = action.error.message || "Failed to fetch quotations";
+      })
+      .addCase(getAllQuotations.pending, (state) => {
+        state.loading.fetchingAllQuotations = true;
+        state.error = "";
+      })
+      .addCase(getAllQuotations.fulfilled, (state, action) => {
+        state.loading.fetchingAllQuotations = false;
+        state.quotations = action.payload.quotations;
+        state.quotationPagination = {
+          total: action.payload.total,
+          page: action.payload.page,
+          limit: action.payload.limit,
+        };
+      })
+      .addCase(getAllQuotations.rejected, (state, action) => {
+        state.loading.fetchingAllQuotations = false;
+        state.error = action.payload as string;
       });
   },
 });
