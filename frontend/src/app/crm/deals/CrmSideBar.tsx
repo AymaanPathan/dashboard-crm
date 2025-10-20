@@ -16,6 +16,7 @@ import {
   Settings,
   Bell,
   User,
+  Quote,
 } from "lucide-react";
 
 import { useSelector } from "react-redux";
@@ -115,11 +116,12 @@ const CrmNavbar: React.FC = () => {
           <div>
             <NavItem
               label="people"
-              icon={<User  className="h-4 w-4" />}
+              icon={<User className="h-4 w-4" />}
               isActive={getIsActive("people")}
               href="people"
             />
           </div>
+
           <div>
             <NavItem
               label="Tasks"
