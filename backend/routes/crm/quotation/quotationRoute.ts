@@ -14,4 +14,10 @@ quotationRouter.post(
   authenticate,
   quotationController.getQuotationsByLeadController
 );
+
+quotationRouter.get(
+  "/getAllQuotations",
+  authenticate,
+  quotationController.getAllQuotationsController
+);
 export default quotationRouter;
