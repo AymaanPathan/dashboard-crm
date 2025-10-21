@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axiosSetup from "@/utils/axiosSetup";
 
+// Get All Orders API
 export const getAllOrdersApi = async (
   filter: string = "all",
   page: number = 1,
@@ -15,5 +16,16 @@ export const getAllOrdersApi = async (
   } catch (error: any) {
     console.error("Error fetching all orders:", error);
     throw error?.response?.data?.message || "Failed to fetch orders";
+  }
+};
+
+// Confirm Order API
+export const confirmOrderApi = async (quotationId: string) => {
+  try {
+    const response = await axiosSetup.post("/order/confirm", { quotationId });
+    return response.data.data;
+  } catch (error: any) {
+    console.error("Error confirming order:", error);
+    throw error?.response?.data?.message || "Failed to confirm order";
   }
 };

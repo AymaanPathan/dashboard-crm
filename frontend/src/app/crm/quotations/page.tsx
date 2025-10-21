@@ -4,9 +4,7 @@ import React, { useEffect, useState } from "react";
 import {
   FileText,
   Search,
-  Download,
   Eye,
-  MoreVertical,
   CheckCircle2,
   Clock,
   XCircle,
@@ -17,10 +15,18 @@ import { getAllQuotations } from "@/store/slices/quotationSlice";
 import { ICreateQuotationPayload } from "@/models/quotation.model";
 import { PaginationControls } from "@/components/pagination/PaginationControlls";
 import { formatDate } from "@/utils/formatDate.utils";
+import { confirmOrder } from "@/store/slices/orderSlice";
 
 export default function QuotationsPage() {
   const dispatch: RootDispatch = useDispatch();
   const { quotations } = useSelector((state: RootState) => state.quotation);
+  const [currentQuotationId, setCurrentQuotationId] = useState<string | null>(
+    null
+  );
+  const confirmingOrder = useSelector(
+    (state: RootState) => state.order.loading.confirmingOrder
+  );
+
   const paginationData = useSelector(
     (state: RootState) => state.quotation.quotationPagination
   );
@@ -43,6 +49,27 @@ export default function QuotationsPage() {
   const handleViewQuotation = (pdfUrl: string) => {
     window.open(pdfUrl, "_blank");
   };
+
+  const handleConfirmOrder = async (quotationId: string) => {
+    try {
+      setCurrentQuotationId(quotationId);
+      await dispatch(confirmOrder(quotationId)).unwrap();
+
+      await dispatch(
+        getAllQuotations({
+          filter: filterStatus,
+          page: currentPage,
+          limit: paginationData?.limit,
+        })
+      );
+    } catch (error) {
+      console.error("Failed to confirm order:", error);
+    } finally {
+      setCurrentQuotationId(null);
+    }
+  };
+
+  console.log("confirmingOrder:", currentQuotationId);
 
   const getStatusBadge = (quote: any) => {
     const now = new Date();
@@ -187,10 +214,22 @@ export default function QuotationsPage() {
                           </button>
                           {!quote.isOrder && (
                             <button
-                              // onClick={() => handleConfirmQuotation(quote.id)}
-                              className="p-1.5 cursor-pointer bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg text-xs transition-all border border-gray-200/50 shadow-sm hover:shadow-md active:scale-95 active:shadow-sm"
+                              onClick={() => handleConfirmOrder(quote.id!)}
+                              disabled={
+                                confirmingOrder &&
+                                currentQuotationId === quote.id
+                              }
+                              className={`p-1.5 cursor-pointer bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg text-xs transition-all border border-gray-200/50 shadow-sm hover:shadow-md active:scale-95 active:shadow-sm ${
+                                confirmingOrder &&
+                                currentQuotationId === quote.id
+                                  ? "opacity-70 cursor-not-allowed"
+                                  : ""
+                              }`}
                             >
-                              Confirm
+                              {confirmingOrder &&
+                              currentQuotationId === quote.id
+                                ? "Confirming..."
+                                : "Confirm Order"}
                             </button>
                           )}
                         </div>

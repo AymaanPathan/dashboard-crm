@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getAllOrdersApi } from "@/api/order.api";
+import { confirmOrderApi, getAllOrdersApi } from "@/api/order.api";
 
 interface OrderState {
   orders: any[];
@@ -11,9 +11,9 @@ interface OrderState {
     totalPages: number;
   };
   loading: {
-    creatingOrder: boolean;
     fetchingOrders: boolean;
     fetchingAllOrders: boolean;
+    confirmingOrder: boolean;
   };
   error: string;
 }
@@ -27,13 +27,16 @@ const initialState: OrderState = {
     totalPages: 0,
   },
   loading: {
-    creatingOrder: false,
     fetchingOrders: false,
     fetchingAllOrders: false,
+    confirmingOrder: false,
   },
   error: "",
 };
 
+// --- Thunks ---
+
+// Get All Orders
 export const getAllOrders = createAsyncThunk(
   "orders/getAll",
   async (
@@ -47,6 +50,19 @@ export const getAllOrders = createAsyncThunk(
   ) => {
     try {
       const response = await getAllOrdersApi(filter, page, limit, search);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+// Confirm Order
+export const confirmOrder = createAsyncThunk(
+  "orders/confirm",
+  async (quotationId: string, { rejectWithValue }) => {
+    try {
+      const response = await confirmOrderApi(quotationId);
       return response;
     } catch (error: any) {
       return rejectWithValue(error);
@@ -77,6 +93,18 @@ const orderSlice = createSlice({
       })
       .addCase(getAllOrders.rejected, (state, action) => {
         state.loading.fetchingAllOrders = false;
+        state.error = action.payload as string;
+      })
+      .addCase(confirmOrder.pending, (state) => {
+        state.loading.confirmingOrder = true;
+        state.error = "";
+      })
+      .addCase(confirmOrder.fulfilled, (state, action) => {
+        state.loading.confirmingOrder = false;
+        state.orders.unshift(action.payload);
+      })
+      .addCase(confirmOrder.rejected, (state, action) => {
+        state.loading.confirmingOrder = false;
         state.error = action.payload as string;
       });
   },
