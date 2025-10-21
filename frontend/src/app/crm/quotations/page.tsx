@@ -28,7 +28,7 @@ export default function QuotationsPage() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
 
-  console.log("paginationData:", paginationData);
+  console.log("quotation:", quotations);
 
   useEffect(() => {
     dispatch(
@@ -39,6 +39,10 @@ export default function QuotationsPage() {
       })
     );
   }, [dispatch, filterStatus, currentPage]);
+
+  const handleViewQuotation = (pdfUrl: string) => {
+    window.open(pdfUrl, "_blank");
+  };
 
   const getStatusBadge = (quote: any) => {
     const now = new Date();
@@ -70,7 +74,6 @@ export default function QuotationsPage() {
       </span>
     );
   };
-
 
   return (
     <div className="min-h-screen">
@@ -176,15 +179,20 @@ export default function QuotationsPage() {
                       <td className="px-5 py-4">{getStatusBadge(quote)}</td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2">
-                          <button className="p-1.5 bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg transition-all border border-gray-200/50 shadow-sm hover:shadow-md">
+                          <button
+                            onClick={() => handleViewQuotation(quote.pdfUrl!)}
+                            className="p-1.5 cursor-pointer bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg transition-all border border-gray-200/50 shadow-sm hover:shadow-md active:scale-95 active:shadow-sm"
+                          >
                             <Eye className="w-4 h-4 text-gray-600" />
                           </button>
-                          <button className="p-1.5 bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg transition-all border border-gray-200/50 shadow-sm hover:shadow-md">
-                            <Download className="w-4 h-4 text-gray-600" />
-                          </button>
-                          <button className="p-1.5 bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg transition-all border border-gray-200/50 shadow-sm hover:shadow-md">
-                            <MoreVertical className="w-4 h-4 text-gray-600" />
-                          </button>
+                          {!quote.isOrder && (
+                            <button
+                              // onClick={() => handleConfirmQuotation(quote.id)}
+                              className="p-1.5 cursor-pointer bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg text-xs transition-all border border-gray-200/50 shadow-sm hover:shadow-md active:scale-95 active:shadow-sm"
+                            >
+                              Confirm
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -207,6 +215,7 @@ export default function QuotationsPage() {
                 currentPage={currentPage}
                 totalPages={paginationData && paginationData.totalPages!}
                 setCurrentPage={setCurrentPage}
+                limit={paginationData.limit}
               />
             )}
         </div>
