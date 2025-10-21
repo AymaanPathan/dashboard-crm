@@ -108,9 +108,9 @@ export default function QuotationsPage() {
         </div>
 
         {/* Quotations Table */}
-        <div className="bg-white/60 backdrop-blur-xl rounded-xl border border-gray-200/50 shadow-lg shadow-gray-900/5 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
+        <div className="bg-white/60 backdrop-blur-xl rounded-xl border border-gray-200/50 shadow-lg shadow-gray-900/5 ">
+          <div className="overflow-x-auto h-96">
+            <table className="w-full ">
               <thead>
                 <tr className="border-b border-gray-200/50 bg-gray-50/50">
                   <th className="text-left px-5 py-3.5 text-xs font-bold text-gray-600 uppercase tracking-wide">
