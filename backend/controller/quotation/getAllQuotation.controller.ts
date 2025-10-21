@@ -63,12 +63,13 @@ export const getAllQuotationsController = async (
       orderBy: { createdAt: "desc" },
     });
 
+    // --- Keep requested page as currentPage ---
     response.data = {
       quotations: result.items,
       pagination: {
         totalCount: result.totalCount,
         totalPages: result.totalPages,
-        currentPage: result.page,
+        currentPage: Number(page), // <-- changed here
         limit: result.limit,
       },
     };

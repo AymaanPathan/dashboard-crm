@@ -69,27 +69,19 @@ export default function QuotationsPage() {
     }
   };
 
+  const handleChangeStatus = (status: string) => {
+    setFilterStatus(status);
+    setCurrentPage(1);
+  };
+
   console.log("confirmingOrder:", currentQuotationId);
 
   const getStatusBadge = (quote: any) => {
-    const now = new Date();
-    const validUntil = new Date(quote.validUntil);
-    const isExpired = validUntil < now;
-
     if (quote.isOrder) {
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-1  text-emerald-700 rounded-lg text-xs font-medium ">
           <CheckCircle2 className="w-3 h-3" />
           Converted
-        </span>
-      );
-    }
-
-    if (isExpired) {
-      return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 text-red-700 rounded-lg text-xs font-medium border ">
-          <XCircle className="w-3 h-3" />
-          Expired
         </span>
       );
     }
@@ -109,10 +101,10 @@ export default function QuotationsPage() {
         <div className="bg-white/60 backdrop-blur-xl rounded-xl p-4  mb-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-800" />
               <input
                 type="text"
-                placeholder="Search quotations, customers, or companies..."
+                placeholder="Search quotations by customers"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300"
@@ -120,11 +112,11 @@ export default function QuotationsPage() {
             </div>
 
             <div className="flex items-center gap-2 bg-white/60 backdrop-blur-sm rounded-lg p-1 border border-gray-200/50">
-              {["all", "pending", "converted", "expired"].map((status) => (
+              {["all", "pending", "converted"].map((status) => (
                 <button
                   key={status}
-                  onClick={() => setFilterStatus(status)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded transition-all capitalize ${
+                  onClick={() => handleChangeStatus(status)}
+                  className={`px-3 cursor-pointer py-1.5 text-xs font-medium rounded-lg transition-all capitalize ${
                     filterStatus === status
                       ? "bg-gray-900/90 text-white shadow-md"
                       : "text-gray-600 hover:bg-white/80"
