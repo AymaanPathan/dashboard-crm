@@ -66,6 +66,7 @@ export const getAllOrdersController = async (req: Request, res: Response) => {
         },
         { lead: { name: { contains: search, mode: "insensitive" } } },
         { lead: { email: { contains: search, mode: "insensitive" } } },
+        { lead: { phone: { contains: search, mode: "insensitive" } } },
       ];
     }
 
@@ -81,7 +82,6 @@ export const getAllOrdersController = async (req: Request, res: Response) => {
             quoteNumber: true,
             quotationName: true,
             customerName: true,
-            phone: true,
           },
         },
         lead: {
@@ -89,6 +89,7 @@ export const getAllOrdersController = async (req: Request, res: Response) => {
             id: true,
             name: true,
             email: true,
+            phone: true,
           },
         },
         payments: true,
