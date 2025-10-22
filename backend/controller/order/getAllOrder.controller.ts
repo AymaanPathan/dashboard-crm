@@ -27,26 +27,49 @@ export const getAllOrdersController = async (req: Request, res: Response) => {
     // --- Filter setup ---
     const whereClause: any = { organizationId: companyId };
 
+    // If not admin, filter orders belonging to user’s leads
     if (role !== "admin") {
-      whereClause.leadId = { not: null }; // Optionally filter by user-specific leads if needed
+      whereClause.lead = { assignedToId: userId };
     }
 
+    // --- Apply status-based filters ---
     if (filter && filter !== "all") {
-      whereClause.status = filter;
+      switch (filter) {
+        case "pending":
+          whereClause.status = "pending";
+          break;
+        case "confirmed":
+          whereClause.status = "confirmed";
+          break;
+        case "delivered":
+          whereClause.status = "delivered";
+          break;
+        case "cancelled":
+          whereClause.status = "cancelled";
+          break;
+        default:
+          break;
+      }
     }
 
+    // --- Search ---
     if (search && typeof search === "string" && search.trim().length > 0) {
       whereClause.OR = [
         { orderNumber: { contains: search, mode: "insensitive" } },
         {
           quotation: { quoteNumber: { contains: search, mode: "insensitive" } },
         },
+        {
+          quotation: {
+            customerName: { contains: search, mode: "insensitive" },
+          },
+        },
         { lead: { name: { contains: search, mode: "insensitive" } } },
         { lead: { email: { contains: search, mode: "insensitive" } } },
       ];
     }
 
-    // --- Use reusable pagination helper ---
+    // --- Pagination and data fetch ---
     const result = await prismaPaginate(prisma.order, {
       page: Number(page),
       limit: Number(limit),
@@ -58,6 +81,7 @@ export const getAllOrdersController = async (req: Request, res: Response) => {
             quoteNumber: true,
             quotationName: true,
             customerName: true,
+            phone: true,
           },
         },
         lead: {
@@ -72,12 +96,13 @@ export const getAllOrdersController = async (req: Request, res: Response) => {
       orderBy: { createdAt: "desc" },
     });
 
+    // --- Response formatting ---
     response.data = {
       orders: result.items,
       pagination: {
         totalCount: result.totalCount,
         totalPages: result.totalPages,
-        currentPage: result.page,
+        currentPage: Number(page),
         limit: result.limit,
       },
     };

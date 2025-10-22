@@ -1,10 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CustomButton } from "@/components/reuseable/Buttons/Button";
 import { ReusableListPage } from "@/components/reuseable/Lists/ReusableList";
+import { RootDispatch, RootState } from "@/store";
+import { confirmOrder } from "@/store/slices/orderSlice";
+import { getAllQuotations } from "@/store/slices/quotationSlice";
 
 import { formatCurrency } from "@/utils/formatCurrency";
 import { Calendar, ExternalLink, CheckCircle2 } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const getQuotationStatusBadge = (isOrder: boolean) => {
   return isOrder
@@ -16,15 +20,44 @@ interface LeadQuotationProps {
   quotations: any[];
   openQuotationModal: () => void;
   openQuotationInNewTab: (url: string) => void;
-  onConfirmQuotation?: (quotation: any) => void;
 }
 
 export const LeadQuotationPage: React.FC<LeadQuotationProps> = ({
   quotations,
   openQuotationModal,
   openQuotationInNewTab,
-  onConfirmQuotation,
 }) => {
+  const [currentQuotationId, setCurrentQuotationId] = useState<string | null>(
+    null
+  );
+  const confirmingOrder = useSelector(
+    (state: RootState) => state.order.loading.confirmingOrder
+  );
+  const paginationData = useSelector(
+    (state: RootState) => state.quotation.quotationPagination
+  );
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const dispatch: RootDispatch = useDispatch();
+
+  const handleConfirmOrder = async (quotationId: string) => {
+    try {
+      setCurrentQuotationId(quotationId);
+      await dispatch(confirmOrder(quotationId)).unwrap();
+
+      await dispatch(
+        getAllQuotations({
+          filter: filterStatus,
+          page: currentPage,
+          limit: paginationData?.limit,
+        })
+      );
+    } catch (error) {
+      console.error("Failed to confirm order:", error);
+    } finally {
+      setCurrentQuotationId(null);
+    }
+  };
   const headers = [
     { label: "Quotation Details", key: "info" },
     { label: "Status", key: "status" },
@@ -33,7 +66,7 @@ export const LeadQuotationPage: React.FC<LeadQuotationProps> = ({
     { label: "Actions", key: "actions" },
   ];
 
-  const renderRow = (quotation: any, index: number) => (
+  const renderRow = (quotation: any) => (
     <>
       {/* Quotation Info */}
       <td className="px-5 py-4">
@@ -104,12 +137,14 @@ export const LeadQuotationPage: React.FC<LeadQuotationProps> = ({
           {/* Confirm Quotation */}
           {!quotation.isOrder && (
             <button
-              onClick={() => onConfirmQuotation?.(quotation)}
+              onClick={() => handleConfirmOrder(quotation.id)}
               className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-all duration-150 shadow-sm"
               title="Confirm Quotation"
             >
               <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
-              Confirm
+              {confirmingOrder && currentQuotationId === quotation.id
+                ? "Confirming..."
+                : "Confirm Order"}
             </button>
           )}
 
