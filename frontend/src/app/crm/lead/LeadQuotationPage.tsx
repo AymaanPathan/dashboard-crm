@@ -129,7 +129,7 @@ export const LeadQuotationPage: React.FC<LeadQuotationProps> = ({
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Content Section */}
       <div className="max-w-[1600px] mx-auto px-6 py-6">
         {quotations.length > 0 && (

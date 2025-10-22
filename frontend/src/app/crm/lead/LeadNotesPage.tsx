@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ReusableListPage } from "@/components/reuseable/Lists/ReusableList";
 import { ILeadNotes } from "@/models/lead.model";
-import { Edit3, FileText, Plus, Trash2, User } from "lucide-react";
+import { Edit3, Plus, Trash2, User } from "lucide-react";
 import React from "react";
 
 export interface LeadNote {
@@ -25,69 +25,105 @@ export const LeadNotesPage: React.FC<LeadNote> = ({
   handleEditNote,
   handleDeleteNote,
 }) => {
-  const columns = [
-    {
-      key: "content",
-      render: (note: ILeadNotes) => (
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-2">
-            <div>
-              <span className="text-sm font-medium text-gray-900">
-                {note.userName}
-              </span>
-              <span className="text-xs text-gray-400 ml-2">
-                {note?.createdAt?.toLocaleString() || ""}
-                {note.updatedAt !== note.createdAt && " · edited"}
-              </span>
-            </div>
-          </div>
-          <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-            {note.note}
-          </p>
-        </div>
-      ),
-    },
+  const headers = [
+    { label: "Note", key: "content" },
+    { label: "Date", key: "date" },
+    { label: "Actions", key: "actions" },
   ];
 
-  const actions = [];
+  const renderRow = (note: ILeadNotes, index: number) => (
+    <>
+      {/* Note Content with User Avatar */}
+      <td className="px-5 py-4">
+        <div className="flex items-start gap-3">
+          <div className="h-9 w-9 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+            <User className="h-4 w-4 text-gray-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-sm font-semibold text-gray-900">
+                {note.userName}
+              </span>
+              {note.updatedAt !== note.createdAt && (
+                <span className="text-xs text-gray-400">· edited</span>
+              )}
+            </div>
+            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+              {note.note}
+            </p>
+          </div>
+        </div>
+      </td>
 
-  if (handleEditNote) {
-    actions.push({
-      icon: Edit3,
-      onClick: handleEditNote,
-      label: "Edit note",
-    });
-  }
+      {/* Date */}
+      <td className="px-5 py-4 align-top">
+        <div className="text-sm text-gray-900">
+          {note?.createdAt
+            ? new Date(note.createdAt).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })
+            : "—"}
+        </div>
+        <div className="text-xs text-gray-500 mt-0.5">
+          {note?.createdAt
+            ? new Date(note.createdAt).toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : ""}
+        </div>
+      </td>
 
-  if (handleDeleteNote) {
-    actions.push({
-      icon: Trash2,
-      onClick: handleDeleteNote,
-      label: "Delete note",
-    });
-  }
+      {/* Actions */}
+      <td className="px-5 py-4 align-top">
+        <div className="flex items-center gap-2">
+          {handleEditNote && (
+            <button
+              onClick={() => handleEditNote(note)}
+              className="p-1.5 cursor-pointer bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg transition-all border border-gray-200/50 shadow-sm hover:shadow-md active:scale-95"
+              title="Edit note"
+            >
+              <Edit3 className="h-4 w-4 text-gray-600" />
+            </button>
+          )}
+          {handleDeleteNote && (
+            <button
+              onClick={() => handleDeleteNote(note)}
+              className="p-1.5 cursor-pointer bg-white/60 backdrop-blur-sm hover:bg-red-50 rounded-lg transition-all border border-gray-200/50 shadow-sm hover:shadow-md active:scale-95 group"
+              title="Delete note"
+            >
+              <Trash2 className="h-4 w-4 text-gray-600 group-hover:text-red-600" />
+            </button>
+          )}
+        </div>
+      </td>
+    </>
+  );
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen ">
       {/* Content Section */}
-      <div className="mx-auto px-6 py-8">
+      <div className="max-w-[1600px] mx-auto px-6 py-6">
         {/* Add Note Button */}
-        {leadNotes.length > 0 && (
+        {leadNotes.length > 0 && !isAddingNote && (
           <div className="mb-6">
             <button
               onClick={() => setIsAddingNote(true)}
-              className="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors inline-flex items-center gap-2"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-all duration-150 shadow-sm"
             >
               <Plus className="h-4 w-4" />
               Add Note
             </button>
           </div>
         )}
+
         {/* Add Note Input */}
         {isAddingNote && (
-          <div className="mb-6 bg-white border border-gray-200 rounded-lg p-5">
+          <div className="mb-6 bg-white/60 backdrop-blur-xl border border-gray-200/50 rounded-xl p-5 shadow-lg shadow-gray-900/5">
             <div className="flex items-start gap-3">
-              <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+              <div className="h-9 w-9 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
                 <User className="h-4 w-4 text-gray-600" />
               </div>
               <div className="flex-1">
@@ -95,7 +131,7 @@ export const LeadNotesPage: React.FC<LeadNote> = ({
                   value={newNote}
                   onChange={(e) => setNewNote(e.target.value)}
                   placeholder="Write a note..."
-                  className="w-full p-3 border border-gray-200 rounded-md resize-none focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
+                  className="w-full p-3 border border-gray-200/50 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300 text-sm bg-white/60 backdrop-blur-sm"
                   rows={4}
                   autoFocus
                 />
@@ -105,14 +141,14 @@ export const LeadNotesPage: React.FC<LeadNote> = ({
                       setIsAddingNote(false);
                       setNewNote("");
                     }}
-                    className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                    className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleAddNote}
                     disabled={!newNote.trim()}
-                    className="px-4 py-1.5 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 text-white text-sm font-medium rounded-md transition-colors"
+                    className="px-4 py-1.5 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
                   >
                     Save
                   </button>
@@ -121,38 +157,15 @@ export const LeadNotesPage: React.FC<LeadNote> = ({
             </div>
           </div>
         )}
+
         {/* Notes List */}
         <ReusableListPage
-          title="Lead Notes"
           data={leadNotes}
-          headers={columns.map((col: any) => ({
-            label: col.label,
-            key: col.key,
-            colSpan: col.colSpan || 3, // adjust based on your layout
-          }))}
-          renderRow={(note: ILeadNotes) => (
-            <>
-              {/* Example: Replace with your actual row rendering */}
-              <div className="col-span-1">
-                <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <User className="h-4 w-4 text-gray-600" />
-                </div>
-              </div>
-              <div className="col-span-4">
-                <p className="text-sm text-gray-900">{note.userName}</p>
-                <p className="text-xs text-gray-500">{note.note}</p>
-              </div>
-              <div className="col-span-3">
-                <p className="text-sm text-gray-700">{note.createdById}</p>
-              </div>
-              <div className="col-span-2 text-sm text-gray-500">
-                {note?.createdAt?.toLocaleString() || ""}
-              </div>
-            </>
-          )}
+          headers={headers}
+          renderRow={renderRow}
           onAddClick={() => setIsAddingNote(true)}
           emptyState={{
-            title: "No notes yet",
+            title: "No notes found",
             description: "Start documenting your interactions with this lead",
             actionText: "Create Note",
           }}
