@@ -65,11 +65,12 @@ export const getAllQuotations = createAsyncThunk(
       filter = "all",
       page = 1,
       limit = 10,
-    }: { filter?: string; page?: number; limit?: number },
+      search = "",
+    }: { filter?: string; page?: number; limit?: number; search?: string },
     { rejectWithValue }
   ) => {
     try {
-      const response = await getAllQuotationsApi(filter, page, limit);
+      const response = await getAllQuotationsApi(filter, page, limit, search);
       return response;
     } catch (error: any) {
       return rejectWithValue(error);

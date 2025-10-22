@@ -27,11 +27,12 @@ export const getQuotationsByLeadApi = async (leadId: string) => {
 export const getAllQuotationsApi = async (
   filter: string = "all",
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
+  search: string = ""
 ) => {
   try {
     const response = await axiosSetup.get("/quotation/getAllQuotations", {
-      params: { filter, page, limit },
+      params: { filter, page, limit, search },
     });
     return response.data.data;
   } catch (error: any) {

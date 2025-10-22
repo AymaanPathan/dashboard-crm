@@ -47,6 +47,19 @@ export interface ILeadLogs {
   action: string;
   details: string;
   timestamp: Date;
+  type:
+    | "status_change"
+    | "task"
+    | "communication"
+    | "note"
+    | "meeting"
+    | "other";
+  metadata?: {
+    from?: string;
+    to?: string;
+    taskTitle?: string;
+    duration?: string;
+  };
 }
 
 export interface Status {

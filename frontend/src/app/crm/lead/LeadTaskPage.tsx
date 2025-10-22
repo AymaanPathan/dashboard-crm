@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CustomButton } from "@/components/reuseable/Buttons/Button";
-import { ReusableList } from "@/components/reuseable/Lists/ReusableList";
+import { ReusableListPage } from "@/components/reuseable/Lists/ReusableList";
 import { LeadTask } from "@/models/leadTask.model";
 import {
   AlertCircle,
@@ -97,29 +98,73 @@ export const LeadTaskPage: React.FC<LeadTaskProps> = ({
             </CustomButton>
           </div>
         )}
-        <ReusableList
-          maxHeight="400px"
-          items={tasks}
-          columns={columns}
-          getItemIcon={(task) => getTaskStatusIcon(task?.status)}
+        <ReusableListPage
+          title="Tasks"
+          data={tasks}
+          headers={columns.map((col: any) => ({
+            label: col.label,
+            key: col.key,
+            colSpan: col.colSpan || 3, // adjust per layout
+          }))}
+          renderRow={(task: any) => (
+            <>
+              {/* Task Icon */}
+              <div className="col-span-1 flex items-center">
+                <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  {getTaskStatusIcon(task?.status)}
+                </div>
+              </div>
+
+              {/* Task Info */}
+              <div className="col-span-5">
+                <p className="text-sm font-medium text-gray-900">
+                  {task?.title}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {task?.description}
+                </p>
+              </div>
+
+              {/* Status */}
+              <div className="col-span-2">
+                <span
+                  className={`px-2 py-1 text-xs rounded-full capitalize ${
+                    task.status === "completed"
+                      ? "bg-green-100 text-green-700"
+                      : task.status === "in progress"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {task.status}
+                </span>
+              </div>
+
+              {/* Due Date */}
+              <div className="col-span-2 text-sm text-gray-500">
+                {task?.dueDate
+                  ? new Date(task.dueDate).toLocaleDateString()
+                  : "—"}
+              </div>
+
+              {/* Actions */}
+              <div className="col-span-2 flex justify-end">
+                <button
+                  onClick={() => console.log("More options", task)}
+                  className="p-2 hover:bg-gray-100 rounded-md transition-colors"
+                  title="More options"
+                >
+                  <MoreHorizontal className="h-4 w-4 text-gray-500" />
+                </button>
+              </div>
+            </>
+          )}
+          onAddClick={() => setShowAddTask(true)}
           emptyState={{
-            icon: CheckCircle2,
             title: "No tasks yet",
             description: "Create your first task to get started",
-            action: {
-              label: "Create Task",
-              onClick: () => setShowAddTask(true),
-            },
+            actionText: "Create Task",
           }}
-          actions={[
-            {
-              icon: MoreHorizontal,
-              onClick: (task) => console.log("More options", task),
-              label: "More options",
-            },
-          ]}
-          onItemClick={(task) => console.log("Clicked task", task)}
-          className="overflow-visible"
         />
       </div>
     </div>

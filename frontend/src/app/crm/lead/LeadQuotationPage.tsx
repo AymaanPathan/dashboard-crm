@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CustomButton } from "@/components/reuseable/Buttons/Button";
-import { ReusableList } from "@/components/reuseable/Lists/ReusableList";
+import { ReusableListPage } from "@/components/reuseable/Lists/ReusableList";
 
 import { formatCurrency } from "@/utils/formatCurrency";
 import { Calendar, ExternalLink, MoreHorizontal, Receipt } from "lucide-react";
@@ -113,42 +113,85 @@ export const LeadQuotationPage: React.FC<LeadQuotationProps> = ({
             </CustomButton>
           </div>
         )}
-        <ReusableList
-          maxHeight="400px"
-          items={quotations}
-          columns={columns}
-          getItemIcon={(quotation) => (
-            <Receipt className="h-4 w-4 text-gray-400" />
+        <ReusableListPage
+          title="Quotations"
+          data={quotations}
+          headers={columns.map((col: any) => ({
+            label: col.label,
+            key: col.key,
+            colSpan: col.colSpan || 3, // adjust per your design
+          }))}
+          renderRow={(quotation: any, index: number) => (
+            <>
+              {/* Icon */}
+              <div className="col-span-1 flex items-center">
+                <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Receipt className="h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+
+              {/* Quotation Info */}
+              <div className="col-span-4">
+                <p className="text-sm text-gray-900 font-medium">
+                  {quotation.title}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {quotation.customerName}
+                </p>
+              </div>
+
+              {/* Date */}
+              <div className="col-span-3 text-sm text-gray-600">
+                {new Date(quotation.createdAt).toLocaleDateString()}
+              </div>
+
+              {/* Status */}
+              <div className="col-span-2">
+                <span
+                  className={`px-2 py-1 text-xs rounded-full ${
+                    quotation.status === "approved"
+                      ? "bg-green-100 text-green-700"
+                      : quotation.status === "pending"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
+                >
+                  {quotation.status}
+                </span>
+              </div>
+
+              {/* Actions */}
+              <div className="col-span-2 flex justify-end gap-2">
+                {/* Open PDF */}
+                <button
+                  onClick={() =>
+                    quotation.pdfUrl && openQuotationInNewTab(quotation.pdfUrl)
+                  }
+                  className="p-2 hover:bg-gray-100 rounded-md transition-colors"
+                  title="Open PDF"
+                >
+                  <ExternalLink className="h-4 w-4 text-gray-500" />
+                </button>
+
+                {/* More options */}
+                <button
+                  onClick={() => console.log("More options", quotation)}
+                  className="p-2 hover:bg-gray-100 rounded-md transition-colors"
+                  title="More options"
+                >
+                  <MoreHorizontal className="h-4 w-4 text-gray-500" />
+                </button>
+              </div>
+            </>
           )}
+          onAddClick={openQuotationModal}
           emptyState={{
-            icon: Receipt,
             title: "No quotations yet",
             description: "Get started by creating your first quotation",
-            action: {
-              label: "Create Quotation",
-              onClick: openQuotationModal,
-            },
+            actionText: "Create Quotation",
           }}
-          actions={[
-            {
-              icon: ExternalLink,
-              onClick: (quotation) => {
-                if (quotation.pdfUrl) {
-                  openQuotationInNewTab(quotation.pdfUrl);
-                }
-              },
-              label: "Open PDF",
-            },
-            {
-              icon: MoreHorizontal,
-              onClick: (quotation) => console.log("More options", quotation),
-              label: "More options",
-            },
-          ]}
-          onItemClick={(quotation) =>
-            console.log("Clicked quotation", quotation)
-          }
         />
+        ;
       </div>
     </div>
   );

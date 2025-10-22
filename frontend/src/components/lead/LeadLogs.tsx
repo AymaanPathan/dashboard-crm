@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect } from "react";
 import {
@@ -13,29 +14,8 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { RootDispatch, RootState } from "@/store";
 import { getLeadLogs } from "@/store/slices/leadSlice";
-import { ReusableList } from "../reuseable/Lists/ReusableList";
-
-interface LogEntry {
-  id: string;
-  userId: string;
-  userName: string;
-  action: string;
-  details: string;
-  timestamp: string;
-  type:
-    | "status_change"
-    | "task"
-    | "communication"
-    | "note"
-    | "meeting"
-    | "other";
-  metadata?: {
-    from?: string;
-    to?: string;
-    taskTitle?: string;
-    duration?: string;
-  };
-}
+import { ReusableListPage } from "../reuseable/Lists/ReusableList";
+import { ILeadLogs } from "@/models/lead.model";
 
 interface LeadLogsProps {
   leadId?: string;
@@ -103,7 +83,7 @@ const LeadLogs: React.FC<LeadLogsProps> = ({ leadId, className = "" }) => {
     return logTime.toLocaleDateString();
   };
 
-  const renderMetadata = (log: LogEntry) => {
+  const renderMetadata = (log: ILeadLogs) => {
     if (!log.metadata) return null;
 
     const { metadata } = log;
@@ -150,7 +130,7 @@ const LeadLogs: React.FC<LeadLogsProps> = ({ leadId, className = "" }) => {
   const columns = [
     {
       key: "content",
-      render: (log: LogEntry) => (
+      render: (log: ILeadLogs) => (
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-1">
             <div className="flex items-center gap-2">
@@ -160,7 +140,7 @@ const LeadLogs: React.FC<LeadLogsProps> = ({ leadId, className = "" }) => {
               <span className="text-sm text-gray-600">{log.action}</span>
             </div>
             <span className="text-xs text-gray-500 flex-shrink-0 ml-2">
-              {formatRelativeTime(log.timestamp)}
+              {log.timestamp!.toLocaleString()}
             </span>
           </div>
 
@@ -186,22 +166,51 @@ const LeadLogs: React.FC<LeadLogsProps> = ({ leadId, className = "" }) => {
     <div className={`${leadLogs.length > 0 && `bg-white`} ${className}`}>
       <div className="h-full flex flex-col">
         <div className="flex-1 overflow-y-auto p-4">
-          <ReusableList
-            items={leadLogs}
-            columns={columns}
-            maxHeight="calc(100vh - 200px)"
+          <ReusableListPage
+            title="Lead Activity"
+            data={leadLogs as ILeadLogs[]}
+            headers={columns.map((col: any) => ({
+              label: col.label,
+              key: col.key,
+              colSpan: col.colSpan || 3,
+            }))}
+            renderRow={(log: ILeadLogs, index: number) => (
+              <>
+                {/* Log Icon */}
+                <div className="col-span-1 flex items-center">
+                  <div className="flex-shrink-0 h-10 w-10 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center">
+                    {getLogIcon(log.type)}
+                  </div>
+                </div>
+
+                {/* Log Info */}
+                <div className="col-span-6">
+                  <p className="text-sm text-gray-900">{log.action}</p>
+                  <p className="text-xs text-gray-500 truncate">
+                    {log.details}
+                  </p>
+                </div>
+
+                {/* User / Actor */}
+                <div className="col-span-2 text-sm text-gray-700">
+                  {log.userName || "—"}
+                </div>
+
+                {/* Timestamp */}
+                <div className="col-span-3 text-sm text-gray-500">
+                  {log.timestamp
+                    ? new Date(log.timestamp).toLocaleString()
+                    : "—"}
+                </div>
+              </>
+            )}
             emptyState={{
-              icon: Clock,
               title: "No activity yet",
               description: "Activity will appear here as actions are taken",
+              actionText: undefined, // no add button needed for logs
             }}
-            getItemIcon={(log: LogEntry) => (
-              <div className="flex-shrink-0 h-10 w-10 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center">
-                {getLogIcon(log.type)}
-              </div>
-            )}
-            className=""
           />
+          ;
         </div>
       </div>
     </div>

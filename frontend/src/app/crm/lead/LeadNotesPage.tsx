@@ -1,4 +1,5 @@
-import { ReusableList } from "@/components/reuseable/Lists/ReusableList";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ReusableListPage } from "@/components/reuseable/Lists/ReusableList";
 import { ILeadNotes } from "@/models/lead.model";
 import { Edit3, FileText, Plus, Trash2, User } from "lucide-react";
 import React from "react";
@@ -82,7 +83,6 @@ export const LeadNotesPage: React.FC<LeadNote> = ({
             </button>
           </div>
         )}
-
         {/* Add Note Input */}
         {isAddingNote && (
           <div className="mb-6 bg-white border border-gray-200 rounded-lg p-5">
@@ -121,27 +121,41 @@ export const LeadNotesPage: React.FC<LeadNote> = ({
             </div>
           </div>
         )}
-
         {/* Notes List */}
-        <ReusableList
-          items={leadNotes}
-          columns={columns}
+        <ReusableListPage
+          title="Lead Notes"
+          data={leadNotes}
+          headers={columns.map((col: any) => ({
+            label: col.label,
+            key: col.key,
+            colSpan: col.colSpan || 3, // adjust based on your layout
+          }))}
+          renderRow={(note: ILeadNotes) => (
+            <>
+              {/* Example: Replace with your actual row rendering */}
+              <div className="col-span-1">
+                <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <User className="h-4 w-4 text-gray-600" />
+                </div>
+              </div>
+              <div className="col-span-4">
+                <p className="text-sm text-gray-900">{note.userName}</p>
+                <p className="text-xs text-gray-500">{note.note}</p>
+              </div>
+              <div className="col-span-3">
+                <p className="text-sm text-gray-700">{note.createdById}</p>
+              </div>
+              <div className="col-span-2 text-sm text-gray-500">
+                {note?.createdAt?.toLocaleString() || ""}
+              </div>
+            </>
+          )}
+          onAddClick={() => setIsAddingNote(true)}
           emptyState={{
-            icon: FileText,
             title: "No notes yet",
             description: "Start documenting your interactions with this lead",
-            action: {
-              label: "Create Note",
-              onClick: () => setIsAddingNote(true),
-            },
+            actionText: "Create Note",
           }}
-          getItemIcon={(note: ILeadNotes) => (
-            <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <User className="h-4 w-4 text-gray-600" />
-            </div>
-          )}
-          actions={actions.length > 0 ? actions : undefined}
-          className="space-y-2"
         />
       </div>
     </div>

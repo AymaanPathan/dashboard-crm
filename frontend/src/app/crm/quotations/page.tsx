@@ -74,6 +74,37 @@ export default function QuotationsPage() {
     setCurrentPage(1);
   };
 
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      setCurrentPage(1); // reset to first page
+      dispatch(
+        getAllQuotations({
+          filter: filterStatus,
+          page: 1,
+          limit: paginationData?.limit,
+          search: searchQuery.trim()!,
+        })
+      );
+    }
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+
+    // If cleared, fetch all quotations again
+    if (value.trim() === "") {
+      setCurrentPage(1); // reset page
+      dispatch(
+        getAllQuotations({
+          filter: filterStatus,
+          page: 1,
+          limit: paginationData?.limit,
+        })
+      );
+    }
+  };
+
   console.log("confirmingOrder:", currentQuotationId);
 
   const getStatusBadge = (quote: any) => {
@@ -106,7 +137,8 @@ export default function QuotationsPage() {
                 type="text"
                 placeholder="Search quotations by customers"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearchChange}
+                onKeyDown={handleSearchKeyDown}
                 className="w-full pl-10 pr-4 py-2 bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300"
               />
             </div>

@@ -1,128 +1,108 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
+import { Plus } from "lucide-react";
 
-interface ListItemAction {
-  icon: React.ComponentType<{ className?: string }>;
-  onClick: (item: any) => void;
-  label?: string;
-}
-
-interface ListColumn {
+interface Header {
+  label: string;
   key: string;
-  label?: string;
-  render?: (item: any) => React.ReactNode;
-  width?: string;
-  className?: string;
+  colSpan: number;
 }
 
-interface ReusableListProps {
-  items: any[];
-  columns: ListColumn[];
-  emptyState?: {
-    icon: React.ComponentType<{ className?: string }>;
-    title: string;
-    description: string;
-    action?: {
-      label: string;
-      onClick: () => void;
-    };
-  };
-  onItemClick?: (item: any) => void;
-  actions?: ListItemAction[];
-  getItemIcon?: (item: any) => React.ReactNode;
-  className?: string;
-  maxHeight?: string;
+interface EmptyState {
+  title: string;
+  description: string;
+  actionText?: string;
 }
 
-export const ReusableList: React.FC<ReusableListProps> = ({
-  items,
-  columns,
+interface Props<T> {
+  title?: string;
+  data: T[];
+  headers: Header[];
+  renderRow: (item: T, index: number) => React.ReactNode;
+  onSearchChange?: (term: string) => void;
+  onSearchSubmit?: (term: string) => void;
+  onAddClick?: () => void;
+  addButtonLabel?: string;
+  emptyState?: EmptyState;
+  renderOptions?: () => React.ReactNode;
+}
+
+export function ReusableListPage<T>({
+  data,
+  headers,
+  renderRow,
+  onAddClick,
   emptyState,
-  onItemClick,
-  actions,
-  getItemIcon,
-  className = "",
-  maxHeight,
-}) => {
-  if (items?.length === 0 && emptyState) {
-    const EmptyIcon = emptyState.icon;
-    return (
-      <div className="flex items-center justify-center py-32">
-        <div className="text-center max-w-sm">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gray-50 mb-4">
-            <EmptyIcon className="w-5 h-5 text-gray-400" />
-          </div>
-          <h3 className="text-sm font-medium text-gray-900 mb-1.5">
-            {emptyState.title}
-          </h3>
-          <p className="text-sm text-gray-500 mb-5">{emptyState.description}</p>
-          {emptyState.action && (
-            <button
-              onClick={emptyState.action.onClick}
-              className="inline-flex items-center justify-center h-8 px-3 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-md transition-colors"
-            >
-              {emptyState.action.label}
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
+}: Props<T>) {
+  console.log("data", data);
   return (
-    <div className={`w-full ${className}`}>
-      <div
-        className="overflow-y-auto space-y-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400"
-        style={maxHeight ? { maxHeight } : undefined}
-      >
-        {items.map((item, index) => (
-          <div
-            key={item?.id || index}
-            onClick={() => onItemClick?.(item)}
-            className="group flex items-start gap-3 px-3 py-2.5 hover:bg-gray-50 transition-colors cursor-pointer border-b border-gray-100 last:border-b-0"
-          >
-            {getItemIcon && (
-              <div className="flex-shrink-0 flex items-center">
-                {getItemIcon(item)}
-              </div>
-            )}
-
-            <div className="flex-1 flex items-start gap-4 min-w-0">
-              {columns.map((column, colIndex) => (
-                <div
-                  key={colIndex}
-                  className={`${column.width || "flex-1"} ${
-                    column.className || ""
-                  } min-w-0 py-0.5`}
-                >
-                  {column.render ? column.render(item) : item[column.key]}
+    <div className="">
+      {/* Table */}
+      <div className="bg-white ">
+        {/* Header */}
+        {data && data.length > 0 && (
+          <div className="border-b border-gray-100 px-8 py-2">
+            <div className="grid grid-cols-12 gap-4 items-center">
+              {headers.map((header, idx) => (
+                <div key={idx} className={`col-span-${header.colSpan}`}>
+                  <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    {header.label}
+                  </span>
                 </div>
               ))}
             </div>
-
-            {actions && actions.length > 0 && (
-              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                {actions.map((action, actionIndex) => {
-                  const ActionIcon = action.icon;
-                  return (
-                    <button
-                      key={actionIndex}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        action.onClick(item);
-                      }}
-                      className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
-                      title={action.label}
-                    >
-                      <ActionIcon className="w-4 h-4" />
-                    </button>
-                  );
-                })}
-              </div>
-            )}
           </div>
-        ))}
+        )}
+
+        {/* Rows */}
+        <div className="divide-y divide-gray-50">
+          {data &&
+            data.map((item, idx) => (
+              <div
+                key={idx}
+                className="group hover:bg-gray-50 transition-all duration-150"
+              >
+                <div className="px-8 py-4">
+                  <div className="grid grid-cols-12 gap-4 items-center">
+                    {renderRow(item, idx)}
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
       </div>
+
+      {/* Empty State */}
+      {data && data.length === 0 && emptyState && (
+        <div className="text-center py-16 px-8">
+          <div className="w-24 h-24 mx-auto mb-6 rounded-xl flex items-center justify-center shadow-sm">
+            <svg
+              className="w-12 h-12 text-gray-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            {emptyState.title}
+          </h3>
+          <p className="text-gray-500 mb-6 max-w-sm mx-auto">
+            {emptyState.description}
+          </p>
+          <button
+            onClick={onAddClick}
+            className="inline-flex cursor-pointer items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            {emptyState.actionText}
+          </button>
+        </div>
+      )}
     </div>
   );
-};
+}
