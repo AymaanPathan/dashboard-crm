@@ -17,6 +17,7 @@ import {
   Bell,
   User,
   Quote,
+  CreditCard,
 } from "lucide-react";
 
 import { useSelector } from "react-redux";
@@ -161,10 +162,10 @@ const CrmNavbar: React.FC = () => {
 
           <div>
             <NavItem
-              label="Reports"
-              icon={<BarChart3 className="h-4 w-4" />}
-              isActive={getIsActive("reports")}
-              href="reports"
+              label="Payments"
+              icon={<CreditCard className="h-4 w-4" />}
+              isActive={getIsActive("payments")}
+              href="payments"
             />
           </div>
           <div>
