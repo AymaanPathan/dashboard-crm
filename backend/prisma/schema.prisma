@@ -274,17 +274,20 @@ enum PaymentStatus {
   failed
   refunded
 }
-
 model Payment {
-  id             String   @id @default(uuid())
-  orderId        String
-  order          Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  paymentMethod  String
-  amount         Float
-  status         PaymentStatus @default(pending)
-  paymentProofUrl String?
-  transactionId  String?
-  paymentDate    DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id               String          @id @default(uuid())
+  orderId          String
+  order            Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+totalAmount Float @default(0.0)
+  amountPaid       Float?
+  status           PaymentStatus   @default(pending)
+  method           String?
+  transactionId    String?       
+  paymentProofUrls String[]
+  note             String?
+  paidAt           DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([orderId])
 }

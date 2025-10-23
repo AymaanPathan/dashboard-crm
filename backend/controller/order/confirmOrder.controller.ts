@@ -8,7 +8,6 @@ import {
   ICustomerInfo,
 } from "../../models/template.model";
 import { uploadOrderPDF } from "../../utils/aws/uploadOrderPDF";
-import { uploadQuotationPDF } from "../../utils/aws/uploadQuotationPDF";
 import prisma from "../../utils/prisma";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
 import { Request, Response } from "express";
@@ -75,6 +74,14 @@ export const confirmQuotationAsOrder = async (req: Request, res: Response) => {
         status: "confirmed",
         totalAmount: quotation.total,
         confirmedAt: new Date(),
+      },
+    });
+
+    await prisma.payment.create({
+      data: {
+        orderId: order.id,
+        totalAmount: order.totalAmount,
+        status: "pending",
       },
     });
 
