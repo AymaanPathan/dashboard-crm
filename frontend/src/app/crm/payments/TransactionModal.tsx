@@ -19,7 +19,6 @@ interface TransactionModalProps {
 const TransactionModal: React.FC<TransactionModalProps> = ({
   selectedPayment,
   setSelectedPayment,
-  onAddTransaction,
 }) => {
   console.log("Selected Payment in Modal:", selectedPayment);
   return (

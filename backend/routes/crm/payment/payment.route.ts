@@ -20,4 +20,10 @@ paymentRouter.post(
   paymentController.approvePaymentTransactionController
 );
 
+paymentRouter.get(
+  "/:paymentId/transactions",
+  authenticate,
+  paymentController.getPaymentTransactionsController
+);
+
 export default paymentRouter;

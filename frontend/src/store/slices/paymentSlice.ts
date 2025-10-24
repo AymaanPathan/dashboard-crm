@@ -38,7 +38,7 @@ const initialState: PaymentState = {
 
 // --- Thunks ---
 
-// Get All Payments
+// Get All Payments with optional transaction pagination
 export const getAllPayments = createAsyncThunk(
   "payments/getAll",
   async (
@@ -47,11 +47,27 @@ export const getAllPayments = createAsyncThunk(
       page = 1,
       limit = 10,
       search = "",
-    }: { filter?: string; page?: number; limit?: number; search?: string },
+      transactionPage = 1,
+      transactionLimit = 5,
+    }: {
+      filter?: string;
+      page?: number;
+      limit?: number;
+      search?: string;
+      transactionPage?: number;
+      transactionLimit?: number;
+    },
     { rejectWithValue }
   ) => {
     try {
-      const response = await getAllPaymentsApi(filter, page, limit, search);
+      const response = await getAllPaymentsApi(
+        filter,
+        page,
+        limit,
+        search,
+        transactionPage,
+        transactionLimit
+      );
       return response;
     } catch (error: any) {
       return rejectWithValue(error);

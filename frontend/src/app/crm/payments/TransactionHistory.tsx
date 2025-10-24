@@ -23,12 +23,10 @@ interface Transaction {
 interface TransactionProps {
   selectedPayment: any;
   setSelectedPayment: (payment: null) => void;
-  setShowAddForm: (show: boolean) => void;
 }
 
 export default function TransactionHistory({
   selectedPayment,
-  setShowAddForm,
 }: TransactionProps) {
   const transactions = selectedPayment?.transactions || [];
 
@@ -92,12 +90,6 @@ export default function TransactionHistory({
           <p className="text-xs text-gray-500 mb-4">
             Start tracking by adding your first transaction
           </p>
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="px-3.5 py-2 bg-white border border-gray-200 text-gray-700 rounded-md hover:bg-gray-50 hover:border-gray-300 transition-all text-sm font-medium shadow-sm"
-          >
-            Add Transaction
-          </button>
         </div>
       </div>
     );
