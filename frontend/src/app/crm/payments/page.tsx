@@ -1,491 +1,508 @@
 "use client";
 import React, { useState } from "react";
 import {
-  Plus,
   Search,
-  MoreHorizontal,
-  Receipt,
+  Wallet,
   Clock,
   CheckCircle2,
   AlertCircle,
-  FileText,
+  Calendar,
+  TrendingUp,
+  CreditCard,
   X,
+  ArrowUpRight,
+  Building2,
+  FileText,
+  IndianRupee,
 } from "lucide-react";
 
-// Mock data matching your API structure
+// Mock data for demonstration
 const mockPayments = [
   {
-    id: "e646a408-88b7-40f4-9a25-e62515332a41",
-    orderId: "bd9aaea1-ddb1-4d3f-95d6-e0049bd8d9ec",
-    totalAmount: 14.16,
-    amountPaid: 0,
-    status: "pending",
-    note: null,
-    paidAt: null,
-    createdAt: "2025-10-23T07:15:47.950Z",
+    id: "1",
     order: {
-      orderNumber: "ORD-1761203747936",
+      orderNumber: "ORD-2024-1001",
       quotation: {
-        quoteNumber: "QTN-1001",
-        customerName: "John Doe",
-        customerPhone: "9876543210",
-      },
-      lead: {
-        name: "meta",
-        phone: "9638527412",
-        email: "meta@gmail.com",
+        customerName: "Acme Corporation",
+        quoteNumber: "QT-2024-501",
       },
     },
+    status: "completed",
+    amountPaid: 1500000,
+    totalAmount: 1500000,
+    createdAt: "2024-10-15T10:30:00Z",
+    transactions: [
+      {
+        id: "t1",
+        amount: 1500000,
+        method: "Wire Transfer",
+        date: "2024-10-15T10:30:00Z",
+        reference: "TXN-WR-001234",
+      },
+    ],
+  },
+  {
+    id: "2",
+    order: {
+      orderNumber: "ORD-2024-1002",
+      quotation: {
+        customerName: "TechStart Industries",
+        quoteNumber: "QT-2024-502",
+      },
+    },
+    status: "pending",
+    amountPaid: 0,
+    totalAmount: 850000,
+    createdAt: "2024-10-20T14:20:00Z",
     transactions: [],
   },
   {
-    id: "e646a408-88b7-40f4-9a25-e62515332a42",
-    orderId: "bd9aaea1-ddb1-4d3f-95d6-e0049bd8d9ec",
-    totalAmount: 25.5,
-    amountPaid: 25.5,
-    status: "completed",
-    note: "Full payment received",
-    paidAt: "2025-10-20T10:30:00.000Z",
-    createdAt: "2025-10-20T07:15:47.950Z",
+    id: "3",
     order: {
-      orderNumber: "ORD-1761203747937",
+      orderNumber: "ORD-2024-1003",
       quotation: {
-        quoteNumber: "QTN-1002",
-        customerName: "Jane Smith",
-        customerPhone: "9876543211",
-      },
-      lead: {
-        name: "google",
-        phone: "9638527413",
-        email: "jane@gmail.com",
+        customerName: "Global Solutions Ltd",
+        quoteNumber: "QT-2024-503",
       },
     },
+    status: "partial",
+    amountPaid: 500000,
+    totalAmount: 1200000,
+    createdAt: "2024-10-18T09:15:00Z",
     transactions: [
       {
-        id: "txn-001",
-        amount: 25.5,
-        transactionId: "TXN-2025-001234",
-        proofUrl: "https://example.com/proof.jpg",
-        createdAt: "2025-10-20T10:30:00.000Z",
+        id: "t2",
+        amount: 300000,
+        method: "Credit Card",
+        date: "2024-10-18T09:15:00Z",
+        reference: "TXN-CC-002341",
+      },
+      {
+        id: "t3",
+        amount: 200000,
+        method: "Bank Transfer",
+        date: "2024-10-22T11:45:00Z",
+        reference: "TXN-BT-002456",
+      },
+    ],
+  },
+  {
+    id: "4",
+    order: {
+      orderNumber: "ORD-2024-1004",
+      quotation: {
+        customerName: "Innovate Systems",
+        quoteNumber: "QT-2024-504",
+      },
+    },
+    status: "completed",
+    amountPaid: 2250000,
+    totalAmount: 2250000,
+    createdAt: "2024-10-12T16:00:00Z",
+    transactions: [
+      {
+        id: "t4",
+        amount: 2250000,
+        method: "Wire Transfer",
+        date: "2024-10-12T16:00:00Z",
+        reference: "TXN-WR-001890",
+      },
+    ],
+  },
+  {
+    id: "5",
+    order: {
+      orderNumber: "ORD-2024-1005",
+      quotation: {
+        customerName: "Digital Ventures",
+        quoteNumber: "QT-2024-505",
+      },
+    },
+    status: "partial",
+    amountPaid: 1000000,
+    totalAmount: 1800000,
+    createdAt: "2024-10-21T13:30:00Z",
+    transactions: [
+      {
+        id: "t5",
+        amount: 1000000,
+        method: "Credit Card",
+        date: "2024-10-21T13:30:00Z",
+        reference: "TXN-CC-003122",
       },
     ],
   },
 ];
 
 export default function PaymentManagement() {
-  const [payments, setPayments] = useState<typeof mockPayments[number][]>(mockPayments);
-  const [selectedPayment, setSelectedPayment] = useState<typeof mockPayments[number] | null>(null);
-  const [showAddPayment, setShowAddPayment] = useState(false);
+  const [payments] = useState(mockPayments);
   const [searchQuery, setSearchQuery] = useState("");
-  const [newTransaction, setNewTransaction] = useState<{
-    amount: string;
-    transactionId: string;
-    proofUrl: string;
-  }>({
-    amount: "",
-    transactionId: "",
-    proofUrl: "",
-  });
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [filterStatus, setFilterStatus] = useState("all");
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "completed":
-        return "text-emerald-700 bg-emerald-50";
-      case "pending":
-        return "text-amber-700 bg-amber-50";
-      case "partial":
-        return "text-blue-700 bg-blue-50";
-      default:
-        return "text-gray-700 bg-gray-50";
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle2 className="w-3.5 h-3.5" />;
-      case "pending":
-        return <Clock className="w-3.5 h-3.5" />;
-      case "partial":
-        return <AlertCircle className="w-3.5 h-3.5" />;
-      default:
-        return <Clock className="w-3.5 h-3.5" />;
-    }
-  };
-
-  const handleAddTransaction = (paymentId) => {
-    const payment = payments.find((p) => p.id === paymentId);
-    const newTxn = {
-      id: `txn-${Date.now()}`,
-      amount: parseFloat(newTransaction.amount),
-      transactionId: newTransaction.transactionId,
-      proofUrl: newTransaction.proofUrl,
-      createdAt: new Date().toISOString(),
-    };
-
-    const updatedPayments = payments.map((p) => {
-      if (p.id === paymentId) {
-        const newAmountPaid = p.amountPaid + newTxn.amount;
-        return {
-          ...p,
-          amountPaid: newAmountPaid,
-          status: newAmountPaid >= p.totalAmount ? "completed" : "partial",
-          transactions: [...p.transactions, newTxn],
-          paidAt:
-            newAmountPaid >= p.totalAmount
-              ? new Date().toISOString()
-              : p.paidAt,
-        };
-      }
-      return p;
-    });
-
-    setPayments(updatedPayments);
-    setSelectedPayment(updatedPayments.find((p) => p.id === paymentId));
-    setNewTransaction({ amount: "", transactionId: "", proofUrl: "" });
-    setShowAddPayment(false);
-  };
-
-  const filteredPayments = payments.filter(
-    (p) =>
-      p.order.quotation.customerName
+  const filteredPayments = payments.filter((payment) => {
+    const matchesSearch =
+      payment.order.quotation.customerName
         .toLowerCase()
         .includes(searchQuery.toLowerCase()) ||
-      p.order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.order.quotation.quoteNumber
+      payment.order.orderNumber
         .toLowerCase()
-        .includes(searchQuery.toLowerCase())
-  );
+        .includes(searchQuery.toLowerCase()) ||
+      payment.order.quotation.quoteNumber
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+
+    const matchesFilter =
+      filterStatus === "all" || payment.status === filterStatus;
+
+    return matchesSearch && matchesFilter;
+  });
+
+  const stats = {
+    total: payments.reduce((sum, p) => sum + p.totalAmount, 0),
+    paid: payments.reduce((sum, p) => sum + p.amountPaid, 0),
+    pending: payments.reduce(
+      (sum, p) => sum + (p.totalAmount - p.amountPaid),
+      0
+    ),
+    transactions: payments.reduce((sum, p) => sum + p.transactions.length, 0),
+  };
+
+  const formatINR = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const getStatusConfig = (status) => {
+    switch (status) {
+      case "completed":
+        return {
+          label: "Completed",
+          icon: CheckCircle2,
+        };
+      case "pending":
+        return {
+          label: "Pending",
+          icon: Clock,
+        };
+      case "partial":
+        return {
+          label: "Partial",
+          icon: AlertCircle,
+        };
+      default:
+        return {
+          label: status,
+          icon: Clock,
+        };
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900 mb-1">
-            Payments
-          </h1>
-          <p className="text-sm text-gray-500">
-            Manage and track all payment transactions
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+      {/* Background Pattern */}
+      <div className="fixed inset-0 opacity-[0.015] pointer-events-none">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, black 1px, transparent 0)`,
+            backgroundSize: "40px 40px",
+          }}
+        />
+      </div>
 
-        {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search by customer, order number, or quote..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm border-0 border-b border-gray-200 focus:border-gray-900 focus:outline-none transition-colors bg-transparent placeholder-gray-400"
-            />
+      <div className="relative max-w-7xl mx-auto px-6 py-6">
+        {/* Compact Header */}
+        <div className="mb-5">
+          <div className="backdrop-blur-xl bg-white/40 border border-white/60 rounded-2xl p-5 shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="backdrop-blur-xl bg-white/60 border border-white/80 rounded-xl p-2.5 shadow-[0_4px_12px_rgba(0,0,0,0.04)]">
+                  <Wallet className="w-5 h-5 text-gray-900" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-light text-gray-900 tracking-tight">
+                    Payment Management
+                  </h1>
+                  <p className="text-xs text-gray-500 font-light">
+                    Track and monitor transactions
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Compact Stats Grid */}
+            <div className="grid grid-cols-4 gap-3">
+              {[
+                {
+                  label: "Total Revenue",
+                  value: `₹${formatINR(stats.total)}`,
+                  icon: TrendingUp,
+                },
+                {
+                  label: "Amount Paid",
+                  value: `₹${formatINR(stats.paid)}`,
+                  icon: CheckCircle2,
+                },
+                {
+                  label: "Outstanding",
+                  value: `₹${formatINR(stats.pending)}`,
+                  icon: Clock,
+                },
+                {
+                  label: "Transactions",
+                  value: stats.transactions,
+                  icon: CreditCard,
+                },
+              ].map((stat, idx) => (
+                <div
+                  key={idx}
+                  className="backdrop-blur-xl bg-white/50 border border-white/70 rounded-xl p-3 shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all duration-300"
+                >
+                  <stat.icon className="w-3.5 h-3.5 text-gray-400 mb-2" />
+                  <div className="text-lg font-light text-gray-900 mb-0.5">
+                    {stat.value}
+                  </div>
+                  <div className="text-[10px] text-gray-500 font-light uppercase tracking-wide">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Payments List */}
-        <div className="space-y-1">
-          {filteredPayments.map((payment) => (
-            <div
-              key={payment.id}
-              onClick={() => setSelectedPayment(payment)}
-              className="group cursor-pointer border-b border-gray-100 hover:bg-gray-50 transition-colors"
-            >
-              <div className="px-4 py-3.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center">
-                      <Receipt className="w-5 h-5 text-gray-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-sm font-medium text-gray-900">
-                          {payment.order.quotation.customerName}
-                        </h3>
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                            payment.status
-                          )}`}
-                        >
-                          {getStatusIcon(payment.status)}
-                          {payment.status}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-gray-500">
-                        <span>{payment.order.orderNumber}</span>
-                        <span>•</span>
-                        <span>{payment.order.quotation.quoteNumber}</span>
-                        <span>•</span>
-                        <span>
-                          {new Date(payment.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900 mb-1">
-                      ${payment.amountPaid.toFixed(2)} / $
-                      {payment.totalAmount.toFixed(2)}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {payment.transactions.length} transaction
-                      {payment.transactions.length !== 1 ? "s" : ""}
-                    </div>
-                  </div>
-                </div>
-              </div>
+        {/* Compact Search and Filter Bar */}
+        <div className="mb-4 backdrop-blur-xl bg-white/40 border border-white/60 rounded-xl p-3 shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search customers, orders, quotes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 text-sm bg-white/60 border border-white/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 transition-all backdrop-blur-sm placeholder-gray-400 text-gray-900"
+              />
             </div>
-          ))}
+            <div className="flex items-center gap-2">
+              {["all", "completed", "pending", "partial"].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setFilterStatus(status)}
+                  className={`px-3 py-2 text-xs rounded-lg transition-all duration-300 backdrop-blur-xl ${
+                    filterStatus === status
+                      ? "bg-gray-900 text-white shadow-[0_4px_16px_rgba(0,0,0,0.2)]"
+                      : "bg-white/60 text-gray-600 border border-white/80 hover:bg-white/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+                  }`}
+                >
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Payment Detail Sidebar */}
-        {selectedPayment && (
-          <div className="fixed inset-y-0 right-0 w-96 bg-white border-l border-gray-200 shadow-2xl z-50 overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Payment Details
-                </h2>
-                <button
-                  onClick={() => setSelectedPayment(null)}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors"
-                >
-                  <X className="w-5 h-5 text-gray-500" />
-                </button>
-              </div>
-              <span
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                  selectedPayment.status
-                )}`}
+        {/* Compact Payments List */}
+        <div className="space-y-2">
+          {filteredPayments.map((payment) => {
+            const statusConfig = getStatusConfig(payment.status);
+            const StatusIcon = statusConfig.icon;
+            const progress = (payment.amountPaid / payment.totalAmount) * 100;
+
+            return (
+              <div
+                key={payment.id}
+                className="backdrop-blur-xl bg-white/40 border border-white/60 rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.1)] transition-all duration-300"
               >
-                {getStatusIcon(selectedPayment.status)}
-                {selectedPayment.status}
-              </span>
-            </div>
-
-            <div className="p-6 space-y-6">
-              {/* Customer Info */}
-              <div>
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                  Customer
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Name</span>
-                    <span className="text-gray-900 font-medium">
-                      {selectedPayment.order.quotation.customerName}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Phone</span>
-                    <span className="text-gray-900">
-                      {selectedPayment.order.quotation.customerPhone}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Email</span>
-                    <span className="text-gray-900">
-                      {selectedPayment.order.lead.email}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Order Info */}
-              <div>
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                  Order
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Order Number</span>
-                    <span className="text-gray-900 font-medium">
-                      {selectedPayment.order.orderNumber}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Quote Number</span>
-                    <span className="text-gray-900">
-                      {selectedPayment.order.quotation.quoteNumber}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Payment Summary */}
-              <div>
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                  Payment Summary
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Total Amount</span>
-                    <span className="text-gray-900 font-medium">
-                      ${selectedPayment.totalAmount.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Amount Paid</span>
-                    <span className="text-emerald-700 font-medium">
-                      ${selectedPayment.amountPaid.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between pt-2 border-t border-gray-200">
-                    <span className="text-gray-900 font-medium">Remaining</span>
-                    <span className="text-gray-900 font-semibold">
-                      $
-                      {(
-                        selectedPayment.totalAmount - selectedPayment.amountPaid
-                      ).toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Add Payment Button */}
-              {selectedPayment.status !== "completed" && !showAddPayment && (
-                <button
-                  onClick={() => setShowAddPayment(true)}
-                  className="w-full py-2 px-4 bg-gray-900 text-white text-sm font-medium rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Transaction
-                </button>
-              )}
-
-              {/* Add Payment Form */}
-              {showAddPayment && (
-                <div className="p-4 bg-gray-50 rounded-lg space-y-3">
-                  <h4 className="text-sm font-medium text-gray-900">
-                    New Transaction
-                  </h4>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1.5">
-                      Amount
-                    </label>
-                    <input
-                      type="number"
-                      value={newTransaction.amount}
-                      onChange={(e) =>
-                        setNewTransaction({
-                          ...newTransaction,
-                          amount: e.target.value,
-                        })
-                      }
-                      placeholder="0.00"
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-900 transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1.5">
-                      Transaction ID
-                    </label>
-                    <input
-                      type="text"
-                      value={newTransaction.transactionId}
-                      onChange={(e) =>
-                        setNewTransaction({
-                          ...newTransaction,
-                          transactionId: e.target.value,
-                        })
-                      }
-                      placeholder="TXN-XXX-XXXXX"
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-900 transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1.5">
-                      Proof URL
-                    </label>
-                    <input
-                      type="text"
-                      value={newTransaction.proofUrl}
-                      onChange={(e) =>
-                        setNewTransaction({
-                          ...newTransaction,
-                          proofUrl: e.target.value,
-                        })
-                      }
-                      placeholder="https://..."
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:border-gray-900 transition-colors"
-                    />
-                  </div>
-                  <div className="flex gap-2 pt-2">
-                    <button
-                      onClick={() => handleAddTransaction(selectedPayment.id)}
-                      className="flex-1 py-2 px-4 bg-gray-900 text-white text-sm font-medium rounded hover:bg-gray-800 transition-colors"
-                    >
-                      Add
-                    </button>
-                    <button
-                      onClick={() => setShowAddPayment(false)}
-                      className="flex-1 py-2 px-4 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded hover:bg-gray-50 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Transaction History */}
-              <div>
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                  Transaction History ({selectedPayment.transactions.length})
-                </h3>
-                <div className="space-y-2">
-                  {selectedPayment.transactions.length === 0 ? (
-                    <p className="text-sm text-gray-400 text-center py-4">
-                      No transactions yet
-                    </p>
-                  ) : (
-                    selectedPayment.transactions.map((txn) => (
-                      <div key={txn.id} className="p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded bg-emerald-100 flex items-center justify-center">
-                              <CheckCircle2 className="w-4 h-4 text-emerald-700" />
-                            </div>
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                ${txn.amount.toFixed(2)}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                {new Date(txn.createdAt).toLocaleString()}
-                              </div>
-                            </div>
-                          </div>
+                <div className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 flex-1">
+                      {/* Compact Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-sm font-medium text-gray-900">
+                            {payment.order.quotation.customerName}
+                          </h3>
                         </div>
-                        <div className="space-y-1 text-xs ml-10">
-                          <div className="flex items-center gap-2">
-                            <span className="text-gray-500">ID:</span>
-                            <span className="text-gray-900 font-mono">
-                              {txn.transactionId}
-                            </span>
-                          </div>
-                          {txn.proofUrl && (
-                            <div className="flex items-center gap-2">
-                              <FileText className="w-3 h-3 text-gray-400" />
-                              <a
-                                href={txn.proofUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:underline"
-                              >
-                                View Proof
-                              </a>
-                            </div>
-                          )}
+                        <div className="flex items-center gap-2 text-[11px] text-gray-500 font-light mb-2">
+                          <span className="flex items-center gap-1">
+                            <FileText className="w-3 h-3" />
+                            {payment.order.orderNumber}
+                          </span>
+                          <span className="w-0.5 h-0.5 rounded-full bg-gray-300" />
+                          <span>{payment.order.quotation.quoteNumber}</span>
+                          <span className="w-0.5 h-0.5 rounded-full bg-gray-300" />
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(payment.createdAt).toLocaleDateString(
+                              "en-IN",
+                              {
+                                day: "2-digit",
+                                month: "short",
+                                year: "2-digit",
+                              }
+                            )}
+                          </span>
+                        </div>
+
+                        {/* Compact Progress Bar */}
+                        <div className="h-1 bg-white/60 rounded-full overflow-hidden backdrop-blur-sm">
+                          <div
+                            className="h-full bg-gradient-to-r from-gray-900 to-gray-700 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(0,0,0,0.2)]"
+                            style={{ width: `${progress}%` }}
+                          />
                         </div>
                       </div>
-                    ))
-                  )}
+                    </div>
+
+                    {/* Compact Amount */}
+                    <div className="text-right ml-4">
+                      <div className="text-base font-medium text-gray-900 mb-0.5 flex items-center justify-end gap-1">
+                        <IndianRupee className="w-3.5 h-3.5" />
+                        {formatINR(payment.amountPaid)}
+                      </div>
+                      <div className="text-[11px] text-gray-500 font-light mb-1.5">
+                        of ₹{formatINR(payment.totalAmount)}
+                      </div>
+                      <button
+                        onClick={() => setSelectedPayment(payment)}
+                        className="inline-flex items-center gap-1 text-[10px] text-gray-900 backdrop-blur-xl bg-white/60 px-2 py-1 rounded-md border border-white/80 hover:bg-white/80 transition-all shadow-[0_2px_4px_rgba(0,0,0,0.04)]"
+                      >
+                        <CreditCard className="w-3 h-3" />
+                        {payment.transactions.length} txn
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            );
+          })}
+        </div>
+
+        {filteredPayments.length === 0 && (
+          <div className="backdrop-blur-xl bg-white/40 border border-white/60 rounded-xl p-8 text-center shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
+            <Search className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+            <h3 className="text-base font-light text-gray-900 mb-1">
+              No payments found
+            </h3>
+            <p className="text-xs text-gray-500 font-light">
+              Try adjusting your search or filter criteria
+            </p>
           </div>
         )}
       </div>
+
+      {/* Transaction Modal */}
+      {selectedPayment && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-6">
+          <div className="backdrop-blur-2xl bg-white/50 border border-white/70 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] w-full max-w-2xl max-h-[80vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-white/60">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,0.2)]">
+                    <Building2 className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-light text-gray-900">
+                      {selectedPayment.order.quotation.customerName}
+                    </h2>
+                    <p className="text-sm text-gray-600 font-light">
+                      {selectedPayment.order.orderNumber} •{" "}
+                      {selectedPayment.order.quotation.quoteNumber}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedPayment(null)}
+                  className="w-8 h-8 rounded-lg backdrop-blur-xl bg-white/60 border border-white/80 flex items-center justify-center hover:bg-white/80 transition-all shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+                >
+                  <X className="w-4 h-4 text-gray-600" />
+                </button>
+              </div>
+
+              {/* Payment Summary */}
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                <div className="backdrop-blur-xl bg-white/60 border border-white/80 rounded-xl p-3">
+                  <div className="text-xs text-gray-500 font-light mb-1">
+                    Amount Paid
+                  </div>
+                  <div className="text-xl font-light text-gray-900 flex items-center gap-1">
+                    <IndianRupee className="w-4 h-4" />
+                    {formatINR(selectedPayment.amountPaid)}
+                  </div>
+                </div>
+                <div className="backdrop-blur-xl bg-white/60 border border-white/80 rounded-xl p-3">
+                  <div className="text-xs text-gray-500 font-light mb-1">
+                    Total Amount
+                  </div>
+                  <div className="text-xl font-light text-gray-900 flex items-center gap-1">
+                    <IndianRupee className="w-4 h-4" />
+                    {formatINR(selectedPayment.totalAmount)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Transaction List */}
+            <div className="p-6 overflow-y-auto max-h-[calc(80vh-280px)]">
+              <h3 className="text-sm font-medium text-gray-900 mb-4 flex items-center gap-2">
+                <ArrowUpRight className="w-4 h-4" />
+                Transaction History
+              </h3>
+              {selectedPayment.transactions.length > 0 ? (
+                <div className="space-y-3">
+                  {selectedPayment.transactions.map((txn) => (
+                    <div
+                      key={txn.id}
+                      className="backdrop-blur-xl bg-white/60 border border-white/80 rounded-xl p-4 shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
+                            <CreditCard className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <div className="text-base font-medium text-gray-900 flex items-center gap-1">
+                              <IndianRupee className="w-3.5 h-3.5" />
+                              {formatINR(txn.amount)}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {txn.method}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs text-gray-600 mb-1 flex items-center gap-1 justify-end">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(txn.date).toLocaleDateString("en-IN", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </div>
+                          <div className="text-[10px] text-gray-400 font-mono backdrop-blur-sm bg-white/50 px-2 py-0.5 rounded">
+                            {txn.reference}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Clock className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-sm text-gray-500 font-light">
+                    No transactions recorded yet
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

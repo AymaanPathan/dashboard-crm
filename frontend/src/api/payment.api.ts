@@ -7,7 +7,7 @@ export const getAllPaymentsApi = async (
   search: string = ""
 ) => {
   try {
-    const response = await axiosSetup.get("/payment/getAllPayments", {
+    const response = await axiosSetup.get("/payment/all", {
       params: { filter, page, limit, search },
     });
     return response.data.data;

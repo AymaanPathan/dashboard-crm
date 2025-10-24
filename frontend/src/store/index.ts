@@ -10,6 +10,7 @@ import leadReducer from "./slices/leadSlice";
 import quotationReducer from "./slices/quotationSlice";
 import dashboardReducer from "./slices/dashboardSlice";
 import orderSlice from "./slices/orderSlice";
+import paymentReducer from "./slices/paymentSlice";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -22,6 +23,7 @@ export const store = configureStore({
     stages: stageReducer,
     quotation: quotationReducer,
     order: orderSlice,
+    payments: paymentReducer,
   },
 });
 
