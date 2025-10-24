@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getAllPaymentsApi } from "@/api/payment.api";
+import {
+  getAllPaymentsApi,
+  getPaymentTransactionsApi,
+} from "@/api/payment.api";
 
 // --- State Interface ---
 interface PaymentState {
@@ -11,12 +14,21 @@ interface PaymentState {
     totalCount: number;
     totalPages: number;
   };
+  selectedPaymentTransactions: any[];
+  transactionPagination?: {
+    currentPage: number;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
+  };
   loading: {
     fetchingAllPayments: boolean;
+    fetchingTransactions: boolean;
     addingPayment: boolean;
     confirmingPayment: boolean;
   };
   error: string;
+  transactionError: string;
 }
 
 // --- Initial State ---
@@ -28,17 +40,26 @@ const initialState: PaymentState = {
     totalCount: 0,
     totalPages: 0,
   },
+  selectedPaymentTransactions: [],
+  transactionPagination: {
+    currentPage: 1,
+    limit: 5,
+    totalCount: 0,
+    totalPages: 0,
+  },
   loading: {
     fetchingAllPayments: false,
+    fetchingTransactions: false,
     addingPayment: false,
     confirmingPayment: false,
   },
   error: "",
+  transactionError: "",
 };
 
 // --- Thunks ---
 
-// Get All Payments with optional transaction pagination
+// Get All Payments
 export const getAllPayments = createAsyncThunk(
   "payments/getAll",
   async (
@@ -47,27 +68,27 @@ export const getAllPayments = createAsyncThunk(
       page = 1,
       limit = 10,
       search = "",
-      transactionPage = 1,
-      transactionLimit = 5,
-    }: {
-      filter?: string;
-      page?: number;
-      limit?: number;
-      search?: string;
-      transactionPage?: number;
-      transactionLimit?: number;
-    },
+    }: { filter?: string; page?: number; limit?: number; search?: string },
     { rejectWithValue }
   ) => {
     try {
-      const response = await getAllPaymentsApi(
-        filter,
-        page,
-        limit,
-        search,
-        transactionPage,
-        transactionLimit
-      );
+      const response = await getAllPaymentsApi(filter, page, limit, search);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+// Get Transactions for a selected payment
+export const getPaymentTransactions = createAsyncThunk(
+  "payments/getTransactions",
+  async (
+    { paymentId, page = 1 }: { paymentId: string; page?: number },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await getPaymentTransactionsApi(paymentId, page);
       return response;
     } catch (error: any) {
       return rejectWithValue(error);
@@ -79,7 +100,18 @@ export const getAllPayments = createAsyncThunk(
 const paymentSlice = createSlice({
   name: "payments",
   initialState,
-  reducers: {},
+  reducers: {
+    clearTransactions(state) {
+      state.selectedPaymentTransactions = [];
+      state.transactionPagination = {
+        currentPage: 1,
+        limit: 5,
+        totalCount: 0,
+        totalPages: 0,
+      };
+      state.transactionError = "";
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Get All Payments
@@ -100,8 +132,29 @@ const paymentSlice = createSlice({
       .addCase(getAllPayments.rejected, (state, action) => {
         state.loading.fetchingAllPayments = false;
         state.error = action.payload as string;
+      })
+
+      // Get Payment Transactions
+      .addCase(getPaymentTransactions.pending, (state) => {
+        state.loading.fetchingTransactions = true;
+        state.transactionError = "";
+      })
+      .addCase(getPaymentTransactions.fulfilled, (state, action) => {
+        state.loading.fetchingTransactions = false;
+        state.selectedPaymentTransactions = action.payload.transactions;
+        state.transactionPagination = {
+          totalCount: action.payload.pagination.totalCount,
+          totalPages: action.payload.pagination.totalPages,
+          currentPage: action.payload.pagination.currentPage,
+          limit: action.payload.pagination.limit,
+        };
+      })
+      .addCase(getPaymentTransactions.rejected, (state, action) => {
+        state.loading.fetchingTransactions = false;
+        state.transactionError = action.payload as string;
       });
   },
 });
 
+export const { clearTransactions } = paymentSlice.actions;
 export default paymentSlice.reducer;

@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Building2, X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TransactionHistory from "./TransactionHistory";
+import { RootDispatch, RootState } from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { getPaymentTransactions } from "@/store/slices/paymentSlice";
 
 interface TransactionModalProps {
   selectedPayment: any;
@@ -20,7 +23,20 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
   selectedPayment,
   setSelectedPayment,
 }) => {
-  console.log("Selected Payment in Modal:", selectedPayment);
+  const dispatch: RootDispatch = useDispatch();
+  const pagination = useSelector(
+    (state: RootState) => state.payments.transactionPagination
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    dispatch(
+      getPaymentTransactions({
+        paymentId: selectedPayment.id,
+        page: currentPage,
+      })
+    );
+  }, [dispatch, selectedPayment.id, currentPage, pagination?.limit]);
   return (
     <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50 p-4">
       <div
@@ -54,7 +70,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
         </div>
 
         <TransactionHistory
-          selectedPayment={selectedPayment}
+          setCurrentPage={setCurrentPage}
           setSelectedPayment={setSelectedPayment}
         />
       </div>

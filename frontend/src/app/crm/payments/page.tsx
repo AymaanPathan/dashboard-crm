@@ -38,7 +38,6 @@ export default function PaymentManagement() {
     }
   };
 
-  // Fetch payments whenever filter, search, or page changes
   useEffect(() => {
     dispatch(
       getAllPayments({

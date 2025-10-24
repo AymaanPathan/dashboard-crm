@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  IndianRupee,
   Calendar,
   Clock,
   CheckCircle2,
@@ -8,6 +7,9 @@ import {
   FileText,
   ExternalLink,
 } from "lucide-react";
+import { PaginationControls } from "@/components/pagination/PaginationControlls";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 interface Transaction {
   amount: number;
@@ -21,15 +23,21 @@ interface Transaction {
 }
 
 interface TransactionProps {
-  selectedPayment: any;
   setSelectedPayment: (payment: null) => void;
+  setCurrentPage?: React.Dispatch<React.SetStateAction<number>>;
+  currentPage?: number;
 }
 
 export default function TransactionHistory({
-  selectedPayment,
+  setCurrentPage,
+  currentPage,
 }: TransactionProps) {
-  const transactions = selectedPayment?.transactions || [];
-
+  const transactions = useSelector(
+    (state: RootState) => state.payments.selectedPaymentTransactions
+  );
+  const pagination = useSelector(
+    (state: RootState) => state.payments.transactionPagination
+  );
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
       case "completed":
@@ -96,11 +104,11 @@ export default function TransactionHistory({
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200/80 shadow-sm">
+    <div className="bg-white rounded-lg border border-gray-200/80 shadow-sm flex flex-col max-h-[500px]">
       {/* Header */}
 
       {/* Transactions List */}
-      <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
+      <div className="divide-y divide-gray-100 overflow-y-auto flex-1">
         {transactions.map((txn: Transaction, index: number) => (
           <div
             key={index}
@@ -178,6 +186,16 @@ export default function TransactionHistory({
           </div>
         ))}
       </div>
+      {pagination && pagination.totalPages > 1 && setCurrentPage && (
+        <div className="border-t border-gray-200 p-4 flex justify-center">
+          <PaginationControls
+            currentPage={currentPage}
+            totalPages={pagination.totalPages}
+            setCurrentPage={setCurrentPage}
+            limit={pagination.limit}
+          />
+        </div>
+      )}
     </div>
   );
 }
