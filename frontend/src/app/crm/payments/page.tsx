@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import {
   Search,
-  Wallet,
   Clock,
   CheckCircle2,
   AlertCircle,
@@ -10,7 +9,6 @@ import {
   TrendingUp,
   CreditCard,
   X,
-  ArrowUpRight,
   Building2,
   FileText,
   IndianRupee,
@@ -200,112 +198,50 @@ export default function PaymentManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      {/* Background Pattern */}
-      <div className="fixed inset-0 opacity-[0.015] pointer-events-none">
+    <div className="min-h-screen bg-white">
+      {/* Subtle Background */}
+      <div className="fixed inset-0 opacity-[0.02] pointer-events-none">
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, black 1px, transparent 0)`,
-            backgroundSize: "40px 40px",
+            backgroundImage: `radial-gradient(circle at 1px 1px, #000 1px, transparent 0)`,
+            backgroundSize: "24px 24px",
           }}
         />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6 py-6">
-        {/* Compact Header */}
-        <div className="mb-5">
-          <div className="backdrop-blur-xl bg-white/40 border border-white/60 rounded-2xl p-5 shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="backdrop-blur-xl bg-white/60 border border-white/80 rounded-xl p-2.5 shadow-[0_4px_12px_rgba(0,0,0,0.04)]">
-                  <Wallet className="w-5 h-5 text-gray-900" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-light text-gray-900 tracking-tight">
-                    Payment Management
-                  </h1>
-                  <p className="text-xs text-gray-500 font-light">
-                    Track and monitor transactions
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Compact Stats Grid */}
-            <div className="grid grid-cols-4 gap-3">
-              {[
-                {
-                  label: "Total Revenue",
-                  value: `₹${formatINR(stats.total)}`,
-                  icon: TrendingUp,
-                },
-                {
-                  label: "Amount Paid",
-                  value: `₹${formatINR(stats.paid)}`,
-                  icon: CheckCircle2,
-                },
-                {
-                  label: "Outstanding",
-                  value: `₹${formatINR(stats.pending)}`,
-                  icon: Clock,
-                },
-                {
-                  label: "Transactions",
-                  value: stats.transactions,
-                  icon: CreditCard,
-                },
-              ].map((stat, idx) => (
-                <div
-                  key={idx}
-                  className="backdrop-blur-xl bg-white/50 border border-white/70 rounded-xl p-3 shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all duration-300"
-                >
-                  <stat.icon className="w-3.5 h-3.5 text-gray-400 mb-2" />
-                  <div className="text-lg font-light text-gray-900 mb-0.5">
-                    {stat.value}
-                  </div>
-                  <div className="text-[10px] text-gray-500 font-light uppercase tracking-wide">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
+      <div className="relative max-w-6xl mx-auto px-8 py-12">
+        {/* Clean Search and Filter Bar */}
+        <div className="mb-6 flex items-center gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by customer, order, or quote number..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-gray-900 transition-colors placeholder-gray-400 text-gray-900"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            {["all", "completed", "pending", "partial"].map((status) => (
+              <button
+                key={status}
+                onClick={() => setFilterStatus(status)}
+                className={`px-4 py-2.5 text-xs font-medium rounded-lg transition-colors ${
+                  filterStatus === status
+                    ? "bg-gray-900 text-white"
+                    : "bg-white text-gray-600 border border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Compact Search and Filter Bar */}
-        <div className="mb-4 backdrop-blur-xl bg-white/40 border border-white/60 rounded-xl p-3 shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
-          <div className="flex items-center gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search customers, orders, quotes..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-sm bg-white/60 border border-white/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900/10 transition-all backdrop-blur-sm placeholder-gray-400 text-gray-900"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              {["all", "completed", "pending", "partial"].map((status) => (
-                <button
-                  key={status}
-                  onClick={() => setFilterStatus(status)}
-                  className={`px-3 py-2 text-xs rounded-lg transition-all duration-300 backdrop-blur-xl ${
-                    filterStatus === status
-                      ? "bg-gray-900 text-white shadow-[0_4px_16px_rgba(0,0,0,0.2)]"
-                      : "bg-white/60 text-gray-600 border border-white/80 hover:bg-white/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
-                  }`}
-                >
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Compact Payments List */}
-        <div className="space-y-2">
+        {/* Clean Payments List */}
+        <div className="space-y-3">
           {filteredPayments.map((payment) => {
             const statusConfig = getStatusConfig(payment.status);
             const StatusIcon = statusConfig.icon;
@@ -314,64 +250,81 @@ export default function PaymentManagement() {
             return (
               <div
                 key={payment.id}
-                className="backdrop-blur-xl bg-white/40 border border-white/60 rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.1)] transition-all duration-300"
+                className="bg-white border border-gray-100 rounded-lg hover:border-gray-200 transition-colors group"
               >
-                <div className="p-4">
+                <div className="p-5">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 flex-1">
-                      {/* Compact Info */}
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-sm font-medium text-gray-900">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-base font-medium text-gray-900">
                             {payment.order.quotation.customerName}
                           </h3>
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium ${
+                              payment.status === "completed"
+                                ? "bg-gray-100 text-gray-700"
+                                : payment.status === "pending"
+                                ? "bg-gray-50 text-gray-600"
+                                : "bg-gray-50 text-gray-600"
+                            }`}
+                          >
+                            <StatusIcon className="w-3 h-3" />
+                            {statusConfig.label}
+                          </span>
                         </div>
-                        <div className="flex items-center gap-2 text-[11px] text-gray-500 font-light mb-2">
-                          <span className="flex items-center gap-1">
-                            <FileText className="w-3 h-3" />
+                        <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                          <span className="flex items-center gap-1.5">
+                            <FileText className="w-3.5 h-3.5" />
                             {payment.order.orderNumber}
                           </span>
-                          <span className="w-0.5 h-0.5 rounded-full bg-gray-300" />
+                          <span className="text-gray-300">•</span>
                           <span>{payment.order.quotation.quoteNumber}</span>
-                          <span className="w-0.5 h-0.5 rounded-full bg-gray-300" />
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
+                          <span className="text-gray-300">•</span>
+                          <span className="flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5" />
                             {new Date(payment.createdAt).toLocaleDateString(
                               "en-IN",
                               {
-                                day: "2-digit",
+                                day: "numeric",
                                 month: "short",
-                                year: "2-digit",
+                                year: "numeric",
                               }
                             )}
                           </span>
                         </div>
 
-                        {/* Compact Progress Bar */}
-                        <div className="h-1 bg-white/60 rounded-full overflow-hidden backdrop-blur-sm">
-                          <div
-                            className="h-full bg-gradient-to-r from-gray-900 to-gray-700 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(0,0,0,0.2)]"
-                            style={{ width: `${progress}%` }}
-                          />
+                        {/* Clean Progress Bar */}
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gray-900 rounded-full transition-all duration-500"
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                          <span className="text-xs text-gray-500 font-medium min-w-[3rem] text-right">
+                            {Math.round(progress)}%
+                          </span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Compact Amount */}
-                    <div className="text-right ml-4">
-                      <div className="text-base font-medium text-gray-900 mb-0.5 flex items-center justify-end gap-1">
-                        <IndianRupee className="w-3.5 h-3.5" />
+                    {/* Amount Section */}
+                    <div className="text-right ml-8 flex flex-col items-end gap-2">
+                      <div className="text-xl font-medium text-gray-900 flex items-center gap-1">
+                        <IndianRupee className="w-4 h-4" />
                         {formatINR(payment.amountPaid)}
                       </div>
-                      <div className="text-[11px] text-gray-500 font-light mb-1.5">
+                      <div className="text-xs text-gray-500">
                         of ₹{formatINR(payment.totalAmount)}
                       </div>
                       <button
                         onClick={() => setSelectedPayment(payment)}
-                        className="inline-flex items-center gap-1 text-[10px] text-gray-900 backdrop-blur-xl bg-white/60 px-2 py-1 rounded-md border border-white/80 hover:bg-white/80 transition-all shadow-[0_2px_4px_rgba(0,0,0,0.04)]"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 bg-gray-50 px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors"
                       >
-                        <CreditCard className="w-3 h-3" />
-                        {payment.transactions.length} txn
+                        <CreditCard className="w-3.5 h-3.5" />
+                        {payment.transactions.length} transaction
+                        {payment.transactions.length !== 1 ? "s" : ""}
                       </button>
                     </div>
                   </div>
@@ -382,12 +335,12 @@ export default function PaymentManagement() {
         </div>
 
         {filteredPayments.length === 0 && (
-          <div className="backdrop-blur-xl bg-white/40 border border-white/60 rounded-xl p-8 text-center shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
-            <Search className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-            <h3 className="text-base font-light text-gray-900 mb-1">
+          <div className="bg-white border border-gray-100 rounded-lg p-12 text-center">
+            <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-base font-medium text-gray-900 mb-2">
               No payments found
             </h3>
-            <p className="text-xs text-gray-500 font-light">
+            <p className="text-sm text-gray-500">
               Try adjusting your search or filter criteria
             </p>
           </div>
@@ -396,20 +349,23 @@ export default function PaymentManagement() {
 
       {/* Transaction Modal */}
       {selectedPayment && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-6">
-          <div className="backdrop-blur-2xl bg-white/50 border border-white/70 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] w-full max-w-2xl max-h-[80vh] overflow-hidden">
+        <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50 p-4">
+          <div
+            className="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Modal Header */}
-            <div className="p-6 border-b border-white/60">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,0.2)]">
-                    <Building2 className="w-6 h-6 text-white" />
+            <div className="p-6 border-b border-gray-100">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-gray-900 flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-light text-gray-900">
+                    <h2 className="text-xl font-medium text-gray-900 mb-1">
                       {selectedPayment.order.quotation.customerName}
                     </h2>
-                    <p className="text-sm text-gray-600 font-light">
+                    <p className="text-sm text-gray-500">
                       {selectedPayment.order.orderNumber} •{" "}
                       {selectedPayment.order.quotation.quoteNumber}
                     </p>
@@ -417,74 +373,94 @@ export default function PaymentManagement() {
                 </div>
                 <button
                   onClick={() => setSelectedPayment(null)}
-                  className="w-8 h-8 rounded-lg backdrop-blur-xl bg-white/60 border border-white/80 flex items-center justify-center hover:bg-white/80 transition-all shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+                  className="w-8 h-8 rounded-md bg-gray-50 flex items-center justify-center hover:bg-gray-100 transition-colors"
                 >
                   <X className="w-4 h-4 text-gray-600" />
                 </button>
               </div>
 
               {/* Payment Summary */}
-              <div className="grid grid-cols-2 gap-3 mt-4">
-                <div className="backdrop-blur-xl bg-white/60 border border-white/80 rounded-xl p-3">
-                  <div className="text-xs text-gray-500 font-light mb-1">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">
                     Amount Paid
                   </div>
-                  <div className="text-xl font-light text-gray-900 flex items-center gap-1">
+                  <div className="text-xl font-medium text-gray-900 flex items-center gap-1">
                     <IndianRupee className="w-4 h-4" />
                     {formatINR(selectedPayment.amountPaid)}
                   </div>
                 </div>
-                <div className="backdrop-blur-xl bg-white/60 border border-white/80 rounded-xl p-3">
-                  <div className="text-xs text-gray-500 font-light mb-1">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">
                     Total Amount
                   </div>
-                  <div className="text-xl font-light text-gray-900 flex items-center gap-1">
+                  <div className="text-xl font-medium text-gray-900 flex items-center gap-1">
                     <IndianRupee className="w-4 h-4" />
                     {formatINR(selectedPayment.totalAmount)}
+                  </div>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">
+                    Balance
+                  </div>
+                  <div className="text-xl font-medium text-gray-900 flex items-center gap-1">
+                    <IndianRupee className="w-4 h-4" />
+                    {formatINR(
+                      selectedPayment.totalAmount - selectedPayment.amountPaid
+                    )}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Transaction List */}
-            <div className="p-6 overflow-y-auto max-h-[calc(80vh-280px)]">
+            {/* Transaction History */}
+            <div className="p-6 overflow-y-auto max-h-[calc(85vh-280px)]">
               <h3 className="text-sm font-medium text-gray-900 mb-4 flex items-center gap-2">
-                <ArrowUpRight className="w-4 h-4" />
                 Transaction History
               </h3>
               {selectedPayment.transactions.length > 0 ? (
-                <div className="space-y-3">
-                  {selectedPayment.transactions.map((txn) => (
+                <div className="space-y-0 border border-gray-100 rounded-lg overflow-hidden">
+                  {selectedPayment.transactions.map((txn, idx) => (
                     <div
                       key={txn.id}
-                      className="backdrop-blur-xl bg-white/60 border border-white/80 rounded-xl p-4 shadow-[0_4px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all"
+                      className={`p-4 hover:bg-gray-50 transition-colors ${
+                        idx !== selectedPayment.transactions.length - 1
+                          ? "border-b border-gray-100"
+                          : ""
+                      }`}
                     >
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
-                            <CreditCard className="w-5 h-5 text-white" />
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                            <CreditCard className="w-5 h-5 text-gray-600" />
                           </div>
                           <div>
-                            <div className="text-base font-medium text-gray-900 flex items-center gap-1">
+                            <div className="text-base font-medium text-gray-900 flex items-center gap-1 mb-1">
                               <IndianRupee className="w-3.5 h-3.5" />
                               {formatINR(txn.amount)}
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-sm text-gray-600 mb-1">
                               {txn.method}
+                            </div>
+                            <div className="text-xs text-gray-400 font-mono">
+                              {txn.reference}
                             </div>
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-xs text-gray-600 mb-1 flex items-center gap-1 justify-end">
-                            <Calendar className="w-3 h-3" />
+                          <div className="text-sm text-gray-600 mb-1 flex items-center gap-1.5 justify-end">
+                            <Calendar className="w-3.5 h-3.5" />
                             {new Date(txn.date).toLocaleDateString("en-IN", {
-                              day: "2-digit",
+                              day: "numeric",
                               month: "short",
                               year: "numeric",
                             })}
                           </div>
-                          <div className="text-[10px] text-gray-400 font-mono backdrop-blur-sm bg-white/50 px-2 py-0.5 rounded">
-                            {txn.reference}
+                          <div className="text-xs text-gray-400">
+                            {new Date(txn.date).toLocaleTimeString("en-IN", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
                           </div>
                         </div>
                       </div>
@@ -492,9 +468,9 @@ export default function PaymentManagement() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12">
+                <div className="text-center py-16 bg-gray-50 rounded-lg">
                   <Clock className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-sm text-gray-500 font-light">
+                  <p className="text-sm text-gray-500">
                     No transactions recorded yet
                   </p>
                 </div>
