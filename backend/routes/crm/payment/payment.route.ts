@@ -9,5 +9,15 @@ paymentRouter.get(
   isAdmin,
   paymentController.getAllPaymentsController
 );
+paymentRouter.post(
+  "/add",
+  authenticate,
+  paymentController.addPaymentTransactionController
+);
+paymentRouter.post(
+  "/approve",
+  authenticate,
+  paymentController.approvePaymentTransactionController
+);
 
 export default paymentRouter;

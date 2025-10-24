@@ -37,6 +37,7 @@ model user {
   assignedLeads Lead[] @relation("LeadAssignedTo")
   leadsCreated  Lead[]   @relation("LeadCreatedBy")
   myTasks Task[] @relation("UserCreatedTasks")
+  verifiedPayments   Payment[]      @relation("PaymentVerifiedBy")
 }
 model Stage {
   id             String        @id @default(uuid())
@@ -48,6 +49,7 @@ model Stage {
   leads          Lead[]        @relation("LeadStage")
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+  
 }
 
 model Organization {
@@ -278,9 +280,9 @@ model Payment {
   id             String               @id @default(uuid())
   orderId        String
   order          Order                @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  totalAmount    Float                @default(0.0)
-  amountPaid     Float                @default(0.0)
-  status         PaymentStatus        @default(pending)
+  totalAmount    Float?                @default(0.0)
+  amountPaid     Float?                @default(0.0)
+  status         PaymentStatus?        @default(pending)
   note           String?
   paidAt         DateTime?
   createdAt      DateTime             @default(now())
@@ -288,6 +290,9 @@ model Payment {
 
   transactions   PaymentTransaction[] 
   @@index([orderId])
+  verifiedById    String?
+  verifiedBy      user?   @relation("PaymentVerifiedBy", fields: [verifiedById], references: [id])
+  verifiedAt     DateTime?
 }
 
 model PaymentTransaction {
