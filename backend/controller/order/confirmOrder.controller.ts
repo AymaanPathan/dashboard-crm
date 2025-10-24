@@ -89,6 +89,37 @@ export const confirmQuotationAsOrder = async (req: Request, res: Response) => {
       where: { id: quotationId },
       data: { isOrder: true },
     });
+
+    if (quotation.leadId && organizationId) {
+      const closedStage = await prisma.stage.findFirst({
+        where: {
+          organizationId,
+          name: {
+            equals: "Closed",
+            mode: "insensitive",
+          },
+        },
+      });
+
+      if (closedStage) {
+        await prisma.lead.update({
+          where: { id: quotation.leadId },
+          data: { stageId: closedStage.id },
+        });
+
+        await prisma.leadLog.create({
+          data: {
+            leadId: quotation.leadId,
+            userId: req.user?.id!,
+            userName: req.user?.username!,
+            action: "Lead moved to Closed",
+            type: "status_change",
+            details: `Lead automatically moved to Closed after order confirmation.`,
+          },
+        });
+      }
+    }
+
     const companyInfoForOrder: CompanyInfo = {
       website: quotation?.template?.website!,
       gstin: quotation?.template?.gstin!,
