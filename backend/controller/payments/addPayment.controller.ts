@@ -102,6 +102,8 @@ export const addPaymentTransactionController = async (
         method,
         status: "pending", // MUST be verified by accountant
         paidAt: paidAt ? new Date(paidAt) : new Date(),
+        verifiedAt: new Date(),
+        verifiedById: userId,
       },
     });
 

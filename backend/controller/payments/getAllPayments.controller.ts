@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import prisma from "../../utils/prisma";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
 import { prismaPaginate } from "../../utils/paginate";
-
 export const getAllPaymentsController = async (req: Request, res: Response) => {
   const response: ResponseModel = {
     statusCode: 200,
@@ -22,14 +21,20 @@ export const getAllPaymentsController = async (req: Request, res: Response) => {
       return sendResponse(res, response);
     }
 
-    const { page = 1, limit = 10, search = "", filter = "all" } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      search = "",
+      filter = "all",
+      transactionPage = 1,
+      transactionLimit = 5,
+    } = req.query;
 
     // --- Base filter ---
     const whereClause: any = {
       order: { organizationId: companyId },
     };
 
-    // --- Restrict non-admins to their assigned leads only ---
     if (role !== "admin") {
       whereClause.order = {
         ...whereClause.order,
@@ -37,7 +42,6 @@ export const getAllPaymentsController = async (req: Request, res: Response) => {
       };
     }
 
-    // --- Apply payment status filters ---
     if (filter && filter !== "all") {
       switch (filter) {
         case "pending":
@@ -52,19 +56,12 @@ export const getAllPaymentsController = async (req: Request, res: Response) => {
         case "refunded":
           whereClause.status = "refunded";
           break;
-        default:
-          break;
       }
     }
 
-    // --- Search across customer/order fields ---
     if (search && typeof search === "string" && search.trim().length > 0) {
       whereClause.OR = [
-        {
-          order: {
-            orderNumber: { contains: search, mode: "insensitive" },
-          },
-        },
+        { order: { orderNumber: { contains: search, mode: "insensitive" } } },
         {
           order: {
             quotation: {
@@ -80,23 +77,15 @@ export const getAllPaymentsController = async (req: Request, res: Response) => {
           },
         },
         {
-          order: {
-            lead: {
-              name: { contains: search, mode: "insensitive" },
-            },
-          },
+          order: { lead: { name: { contains: search, mode: "insensitive" } } },
         },
         {
-          order: {
-            lead: {
-              phone: { contains: search, mode: "insensitive" },
-            },
-          },
+          order: { lead: { phone: { contains: search, mode: "insensitive" } } },
         },
       ];
     }
 
-    // --- Fetch paginated results ---
+    // --- Paginate payments ---
     const result = await prismaPaginate(prisma.payment, {
       page: Number(page),
       limit: Number(limit),
@@ -125,24 +114,41 @@ export const getAllPaymentsController = async (req: Request, res: Response) => {
             },
           },
         },
-        transactions: {
-          select: {
-            id: true,
-            amount: true,
-            transactionId: true,
-            method: true,
-            paymentProofUrl: true,
-            status: true,
-            paidAt: true,
-          },
-        },
       },
       orderBy: { createdAt: "desc" },
     });
 
-    // --- Response ---
+    // --- Fetch paginated transactions per payment ---
+    const paymentsWithTransactions = await Promise.all(
+      result.items.map(async (payment: any) => {
+        const transactions = await prisma.paymentTransaction.findMany({
+          where: { paymentId: payment.id },
+          include: {
+            verifiedBy: { select: { id: true, username: true } },
+          },
+          orderBy: { paidAt: "desc" },
+          skip: (Number(transactionPage) - 1) * Number(transactionLimit),
+          take: Number(transactionLimit),
+        });
+
+        const totalTransactions = await prisma.paymentTransaction.count({
+          where: { paymentId: payment.id },
+        });
+
+        return Object.assign({}, payment as any, {
+          transactions,
+          transactionPagination: {
+            totalCount: totalTransactions,
+            totalPages: Math.ceil(totalTransactions / Number(transactionLimit)),
+            currentPage: Number(transactionPage),
+            limit: Number(transactionLimit),
+          },
+        });
+      })
+    );
+
     response.data = {
-      payments: result.items,
+      payments: paymentsWithTransactions,
       pagination: {
         totalCount: result.totalCount,
         totalPages: result.totalPages,

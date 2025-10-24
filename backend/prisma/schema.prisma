@@ -38,6 +38,8 @@ model user {
   leadsCreated  Lead[]   @relation("LeadCreatedBy")
   myTasks Task[] @relation("UserCreatedTasks")
   verifiedPayments   Payment[]      @relation("PaymentVerifiedBy")
+
+  PaymentTransaction PaymentTransaction[] @relation("PaymentVerifiedBy")
 }
 model Stage {
   id             String        @id @default(uuid())
@@ -291,8 +293,8 @@ model Payment {
   transactions   PaymentTransaction[] 
   @@index([orderId])
   verifiedById    String?
-  verifiedBy      user?   @relation("PaymentVerifiedBy", fields: [verifiedById], references: [id])
-  verifiedAt     DateTime?
+
+  user user[] @relation("PaymentVerifiedBy")
 }
 
 model PaymentTransaction {
@@ -307,4 +309,7 @@ model PaymentTransaction {
   status           PaymentStatus @default(pending)
   paidAt           DateTime?  
   createdAt        DateTime      @default(now())
+  verifiedById     String?
+  verifiedBy      user?   @relation("PaymentVerifiedBy", fields: [verifiedById], references: [id])
+  verifiedAt     DateTime?
 }

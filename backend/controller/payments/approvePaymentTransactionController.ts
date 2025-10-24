@@ -55,6 +55,8 @@ export const approvePaymentTransactionController = async (
       data: {
         status: "completed",
         paidAt: new Date(),
+        verifiedById: userId,
+        verifiedAt: new Date(),
       },
     });
 
@@ -65,8 +67,6 @@ export const approvePaymentTransactionController = async (
         amountPaid: {
           increment: transaction.amount,
         },
-        verifiedById: userId,
-        verifiedAt: new Date(),
       },
     });
 
