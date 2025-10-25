@@ -11,6 +11,7 @@ import quotationRouter from "./quotation/quotationRoute";
 import dashboardRouter from "./dashboard/dashboardRoutes";
 import orderRouter from "./order/orderRoute";
 import paymentRouter from "./payment/payment.route";
+import revenueRouter from "./revenue/revenue.route";
 
 const router = Router();
 router.use("/", authRouter);
@@ -25,5 +26,6 @@ router.use("/quotation", quotationRouter);
 router.use("/dashboard", dashboardRouter);
 router.use("/order", orderRouter);
 router.use("/payment", paymentRouter);
+router.use("/revenue", revenueRouter);
 
 export default router;
