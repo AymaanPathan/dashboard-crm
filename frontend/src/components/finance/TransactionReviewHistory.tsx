@@ -11,9 +11,9 @@ import {
   X,
   Loader2,
 } from "lucide-react";
+import { PaginationControls } from "@/components/pagination/PaginationControlls";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { ScrollPagination } from "../pagination/scrollPagination";
 
 interface TransactionProps {
   setSelectedPayment: (payment: null) => void;
@@ -21,17 +21,13 @@ interface TransactionProps {
   currentPage?: number;
   onApprove: any;
   onReject: any;
-  isLoadingMore?: boolean;
-  onLoadMore?: () => void;
 }
 
 export default function TransactionReview({
   setCurrentPage,
-  currentPage = 1,
+  currentPage,
   onApprove,
   onReject,
-  isLoadingMore = false,
-  onLoadMore,
 }: TransactionProps) {
   const [processingTxn, setProcessingTxn] = useState<string | null>(null);
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(
@@ -49,13 +45,13 @@ export default function TransactionReview({
     switch (status.toLowerCase()) {
       case "completed":
       case "success":
-        return <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={2} />;
+        return <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />;
       case "pending":
-        return <Clock className="h-3.5 w-3.5" strokeWidth={2} />;
+        return <Clock className="h-3.5 w-3.5 text-black" />;
       case "failed":
-        return <AlertCircle className="h-3.5 w-3.5" strokeWidth={2} />;
+        return <AlertCircle className="h-3.5 w-3.5 text-red-600" />;
       default:
-        return <FileText className="h-3.5 w-3.5" strokeWidth={2} />;
+        return <FileText className="h-3.5 w-3.5 text-gray-600" />;
     }
   };
 
@@ -111,15 +107,15 @@ export default function TransactionReview({
 
   if (transactions.length === 0) {
     return (
-      <div className="bg-white h-full flex items-center justify-center">
-        <div className="text-center px-6 py-12">
-          <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-gray-50 flex items-center justify-center">
-            <Clock className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+      <div className="bg-white rounded-lg border border-gray-200/80 shadow-sm">
+        <div className="p-16 text-center">
+          <div className="w-10 h-10 mx-auto mb-3 rounded-lg bg-gray-50 flex items-center justify-center">
+            <Clock className="w-5 h-5 text-gray-400" />
           </div>
-          <p className="text-sm text-gray-900 font-medium mb-1">
-            No pending reviews
-          </p>
-          <p className="text-xs text-gray-500">
+          <h4 className="text-sm font-medium text-gray-700 mb-1">
+            No transactions to review
+          </h4>
+          <p className="text-xs text-gray-500 mb-4">
             All transactions have been processed
           </p>
         </div>
@@ -128,14 +124,8 @@ export default function TransactionReview({
   }
 
   return (
-    <div className="flex flex-col h-72 bg-white">
-      <div
-        className="flex-1 overflow-y-auto"
-        style={{
-          scrollbarWidth: "thin",
-          scrollbarColor: "#d1d5db #f3f4f6",
-        }}
-      >
+    <div className="flex flex-col h-full bg-white">
+      <div className="flex-1 overflow-y-auto">
         <div className="px-8 py-6 space-y-8">
           {transactions.map((txn, index) => {
             const isProcessing = processingTxn === txn.transactionId;
@@ -273,18 +263,19 @@ export default function TransactionReview({
             );
           })}
         </div>
-
-        {/* Scroll Pagination */}
-        {transactionPagination && onLoadMore && (
-          <ScrollPagination
-            currentPage={currentPage}
-            totalPages={transactionPagination.totalPages!}
-            isLoading={isLoadingMore}
-            onLoadMore={onLoadMore}
-            hasMore={currentPage < transactionPagination.totalPages!}
-          />
-        )}
       </div>
+
+      {transactionPagination &&
+        transactionPagination.limit < transactionPagination.totalCount && (
+          <div className="border-t border-gray-100 px-8 py-4 flex justify-center bg-white">
+            <PaginationControls
+              currentPage={currentPage || 1}
+              limit={transactionPagination.limit}
+              setCurrentPage={setCurrentPage}
+              totalPages={transactionPagination.totalPages}
+            />
+          </div>
+        )}
     </div>
   );
 }

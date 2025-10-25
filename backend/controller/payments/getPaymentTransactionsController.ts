@@ -16,7 +16,7 @@ export const getPaymentTransactionsController = async (
 
   try {
     const { paymentId } = req.params;
-    const { page = 1, limit = 4 } = req.query;
+    const { page = 1, limit = 1 } = req.query;
 
     if (!paymentId) {
       response.statusCode = 400;
