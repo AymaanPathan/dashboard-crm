@@ -4,6 +4,7 @@ import {
   getAllPaymentsApi,
   getPaymentTransactionsApi,
   approvePaymentTransactionApi,
+  rejectPaymentTransactionApi,
 } from "@/api/payment.api";
 
 // --- State Interface ---
@@ -27,7 +28,8 @@ interface PaymentState {
     fetchingTransactions: boolean;
     addingPayment: boolean;
     confirmingPayment: boolean;
-    approvingTransaction: boolean; // ✅ added
+    approvingTransaction: boolean;
+    rejectingTransaction: boolean;
   };
   error: string;
   transactionError: string;
@@ -54,7 +56,8 @@ const initialState: PaymentState = {
     fetchingTransactions: false,
     addingPayment: false,
     confirmingPayment: false,
-    approvingTransaction: false, // ✅ added
+    approvingTransaction: false,
+    rejectingTransaction: false,
   },
   error: "",
   transactionError: "",
@@ -105,6 +108,18 @@ export const approvePaymentTransaction = createAsyncThunk(
   async (transactionId: string, { rejectWithValue }) => {
     try {
       const response = await approvePaymentTransactionApi(transactionId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const rejectPaymentTransaction = createAsyncThunk(
+  "payments/rejectTransaction",
+  async (transactionId: string, { rejectWithValue }) => {
+    try {
+      const response = await rejectPaymentTransactionApi(transactionId);
       return response;
     } catch (error: any) {
       return rejectWithValue(error);
@@ -193,6 +208,28 @@ const paymentSlice = createSlice({
       })
       .addCase(approvePaymentTransaction.rejected, (state, action) => {
         state.loading.approvingTransaction = false;
+        state.error = action.payload as string;
+      })
+      .addCase(rejectPaymentTransaction.pending, (state) => {
+        state.loading.rejectingTransaction = true;
+      })
+      .addCase(rejectPaymentTransaction.fulfilled, (state, action) => {
+        state.loading.rejectingTransaction = false;
+
+        const updatedTransaction = action.payload.transaction;
+        const updatedPayment = action.payload.payment;
+
+        state.selectedPaymentTransactions =
+          state.selectedPaymentTransactions.map((txn) =>
+            txn.id === updatedTransaction.id ? updatedTransaction : txn
+          );
+
+        state.payments = state.payments.map((pmt) =>
+          pmt.id === updatedPayment.id ? updatedPayment : pmt
+        );
+      })
+      .addCase(rejectPaymentTransaction.rejected, (state, action) => {
+        state.loading.rejectingTransaction = false;
         state.error = action.payload as string;
       });
   },

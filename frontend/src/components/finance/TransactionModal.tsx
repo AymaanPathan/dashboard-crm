@@ -28,39 +28,14 @@ const FinanceTransactionModal: React.FC<TransactionModalProps> = ({
     (state: RootState) => state.payments.transactionPagination
   );
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-
   useEffect(() => {
-    // Reset to page 1 when modal opens with new payment
-    setCurrentPage(1);
-  }, [selectedPayment.id]);
-
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      if (currentPage === 1) {
-        // Initial load
-        await dispatch(
-          getPaymentTransactions({
-            paymentId: selectedPayment.id,
-            page: currentPage,
-          })
-        );
-      } else {
-        // Scroll pagination load
-        setIsLoadingMore(true);
-        await dispatch(
-          getPaymentTransactions({
-            paymentId: selectedPayment.id,
-            page: currentPage,
-          })
-        );
-        setIsLoadingMore(false);
-      }
-    };
-
-    fetchTransactions();
-  }, [dispatch, selectedPayment.id, currentPage]);
-
+    dispatch(
+      getPaymentTransactions({
+        paymentId: selectedPayment.id,
+        page: currentPage,
+      })
+    );
+  }, [dispatch, selectedPayment.id, currentPage, pagination?.limit]);
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div

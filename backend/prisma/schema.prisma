@@ -277,6 +277,7 @@ enum PaymentStatus {
   completed
   failed
   refunded
+  rejected
 }
 model Payment {
   id             String               @id @default(uuid())

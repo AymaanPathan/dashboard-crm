@@ -47,3 +47,15 @@ export const approvePaymentTransactionApi = async (transactionId: string) => {
     throw error?.response?.data?.message || "Failed to approve transaction";
   }
 };
+
+export const rejectPaymentTransactionApi = async (transactionId: string) => {
+  try {
+    const response = await axiosSetup.post("/payment/reject", {
+      transactionId,
+    });
+    return response.data.data;
+  } catch (error: any) {
+    console.error("Error approving payment transaction:", error);
+    throw error?.response?.data?.message || "Failed to approve transaction";
+  }
+};

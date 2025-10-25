@@ -19,6 +19,11 @@ paymentRouter.post(
   authenticate,
   paymentController.approvePaymentTransactionController
 );
+paymentRouter.post(
+  "/reject",
+  authenticate,
+  paymentController.rejectPaymentTransactionController
+);
 
 paymentRouter.get(
   "/:paymentId/transactions",

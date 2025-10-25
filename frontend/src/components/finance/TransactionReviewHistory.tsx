@@ -19,6 +19,7 @@ import {
   approvePaymentTransaction,
   getAllPayments,
   getPaymentTransactions,
+  rejectPaymentTransaction,
 } from "@/store/slices/paymentSlice";
 
 interface TransactionProps {
@@ -108,15 +109,19 @@ export default function TransactionReview({
     }
   };
 
-  // (Optional) Reject handler — add later if backend supports it
   const handleReject = async (transactionId: string) => {
     setProcessingTxn(transactionId);
     setActionType("reject");
-    // You can add reject dispatch here later
-    setTimeout(() => {
+    try {
+      await dispatch(rejectPaymentTransaction(transactionId)).unwrap();
+      await dispatch(getPaymentTransactions({ paymentId, page: currentPage }));
+      await dispatch(getAllPayments({ page: 1 }));
+    } catch (err) {
+      console.error("Error approving transaction:", err);
+    } finally {
       setProcessingTxn(null);
       setActionType(null);
-    }, 1000);
+    }
   };
 
   if (transactions.length === 0) {
