@@ -18,6 +18,7 @@ import {
   User,
   Quote,
   CreditCard,
+  DollarSign,
 } from "lucide-react";
 
 import { useSelector } from "react-redux";
@@ -166,6 +167,14 @@ const CrmNavbar: React.FC = () => {
               icon={<CreditCard className="h-4 w-4" />}
               isActive={getIsActive("payments")}
               href="payments"
+            />
+          </div>
+          <div>
+            <NavItem
+              label="finance"
+              icon={<DollarSign className="h-4 w-4" />}
+              isActive={getIsActive("finance")}
+              href="finance"
             />
           </div>
           <div>
