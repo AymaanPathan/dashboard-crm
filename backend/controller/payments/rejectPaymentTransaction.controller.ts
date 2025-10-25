@@ -66,7 +66,7 @@ export const rejectPaymentTransactionController = async (
     response.data = { transaction: updatedTransaction };
     return sendResponse(res, response);
   } catch (error) {
-    console.error("❌ Error rejecting payment:", error);
+    console.log("rejected payment error:", error);
     response.statusCode = 500;
     response.message = "Server error while rejecting payment";
     return sendResponse(res, response);

@@ -221,11 +221,11 @@ const paymentSlice = createSlice({
 
         state.selectedPaymentTransactions =
           state.selectedPaymentTransactions.map((txn) =>
-            txn.id === updatedTransaction.id ? updatedTransaction : txn
+            txn.id === updatedTransaction?.id ? updatedTransaction : txn
           );
 
         state.payments = state.payments.map((pmt) =>
-          pmt.id === updatedPayment.id ? updatedPayment : pmt
+          pmt.id === updatedPayment?.id ? updatedPayment : pmt
         );
       })
       .addCase(rejectPaymentTransaction.rejected, (state, action) => {
