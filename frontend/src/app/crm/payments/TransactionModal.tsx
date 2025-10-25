@@ -38,23 +38,22 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
     );
   }, [dispatch, selectedPayment.id, currentPage, pagination?.limit]);
   return (
-    <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center p-4">
       <div
-        className="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden"
+        className=" backdrop-blur-xl rounded-xl border border-gray-200/50 shadow-lg shadow-gray-900/5 w-full max-w-3xl max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal Header */}
-        <div className="p-3 border-b border-gray-200">
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-gray-900 flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-white" />
+        <div className="px-5 py-4 border-b border-gray-200/50">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-gray-900/90 backdrop-blur-sm flex items-center justify-center flex-shrink-0 shadow-md">
+                <Building2 className="w-4 h-4 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-medium text-gray-900 mb-1">
+                <h2 className="text-sm font-semibold text-gray-900">
                   {selectedPayment.order.quotation.customerName}
                 </h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-xs text-gray-500 mt-0.5">
                   {selectedPayment.order.orderNumber} •{" "}
                   {selectedPayment.order.quotation.quoteNumber}
                 </p>
@@ -62,16 +61,16 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
             </div>
             <button
               onClick={() => setSelectedPayment(null)}
-              className="w-8 h-8 rounded-md bg-gray-50 flex items-center justify-center hover:bg-gray-100 transition-colors"
+              className="p-1.5 cursor-pointer bg-white/60 backdrop-blur-sm hover:bg-white/80 rounded-lg transition-all border border-gray-200/50 shadow-sm"
             >
-              <X className="w-4 h-4 text-gray-600" />
+              <X className="w-4 h-4 text-gray-400" />
             </button>
           </div>
         </div>
-
         <TransactionHistory
-          setCurrentPage={setCurrentPage}
           setSelectedPayment={setSelectedPayment}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
         />
       </div>
     </div>

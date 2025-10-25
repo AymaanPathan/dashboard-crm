@@ -11,17 +11,6 @@ import { PaginationControls } from "@/components/pagination/PaginationControlls"
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 
-interface Transaction {
-  amount: number;
-  transactionId: string;
-  paymentProofUrl?: string;
-  status: string;
-  paidAt: string;
-  verifiedBy?: {
-    username: string;
-  };
-}
-
 interface TransactionProps {
   setSelectedPayment: (payment: null) => void;
   setCurrentPage?: React.Dispatch<React.SetStateAction<number>>;
@@ -32,12 +21,13 @@ export default function TransactionHistory({
   setCurrentPage,
   currentPage,
 }: TransactionProps) {
+  const transactionPagination = useSelector(
+    (state: RootState) => state.payments.transactionPagination
+  );
   const transactions = useSelector(
     (state: RootState) => state.payments.selectedPaymentTransactions
   );
-  const pagination = useSelector(
-    (state: RootState) => state.payments.transactionPagination
-  );
+
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
       case "completed":
@@ -80,11 +70,6 @@ export default function TransactionHistory({
     }).format(amount);
   };
 
-  const totalAmount = transactions.reduce(
-    (sum: number, txn: Transaction) => sum + txn.amount,
-    0
-  );
-
   if (transactions.length === 0) {
     return (
       <div className="bg-white rounded-lg border border-gray-200/80 shadow-sm">
@@ -104,98 +89,97 @@ export default function TransactionHistory({
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200/80 shadow-sm flex flex-col max-h-[500px]">
-      {/* Header */}
-
-      {/* Transactions List */}
-      <div className="divide-y divide-gray-100 overflow-y-auto flex-1">
-        {transactions.map((txn: Transaction, index: number) => (
-          <div
-            key={index}
-            className="px-6 py-4 hover:bg-gray-50/50 transition-colors group"
-          >
-            <div className="flex items-start gap-4">
-              {/* Icon */}
-              <div className="w-8 h-8 rounded-md bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:shadow transition-shadow">
-                {getStatusIcon(txn.status)}
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                {/* Top Row */}
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <div className="text-sm font-medium text-gray-900 mb-0.5">
-                      ₹{formatCurrency(txn.amount)}
+    <>
+      <div className="flex-1 overflow-y-auto px-5 py-4">
+        <div className="space-y-2.5">
+          {transactions.map((txn, index) => {
+            console.log(txn, "txn");
+            return (
+              <div
+                key={index}
+                className="group p-3.5   bg-white/80 rounded-lg border border-gray-200/50 transition-all shadow-sm cursor-pointer"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg  backdrop-blur-sm border border-gray-200/50 flex items-center justify-center shadow-sm">
+                    {getStatusIcon(txn.status)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <div className="text-sm font-semibold text-gray-900">
+                          ₹{formatCurrency(txn.amount)}
+                        </div>
+                        <div className="text-xs text-gray-500 font-mono mt-0.5">
+                          {txn.transactionId}
+                        </div>
+                      </div>
+                      <div className="text-xs font-medium text-gray-400">
+                        {formatRelativeTime(txn.paidAt)}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                      <span className="font-mono">{txn.transactionId}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          <span>
+                            {new Date(txn.paidAt).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </span>
+                        </div>
+                        <span>•</span>
+                        <span>
+                          {new Date(txn.paidAt).toLocaleTimeString("en-US", {
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                        <span>•</span>
+                        <span className="capitalize font-medium">
+                          {txn.status}
+                        </span>
+                        {txn.verifiedBy && (
+                          <>
+                            <span>•</span>
+                            <span>by {txn.verifiedBy.username}</span>
+                          </>
+                        )}
+                      </div>
+                      {txn.paymentProofUrl && (
+                        <a
+                          href={txn.paymentProofUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <FileText className="w-3 h-3" />
+                          <span>View proof</span>
+                          <ExternalLink className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </a>
+                      )}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {txn.status === "completed" && txn.verifiedBy && (
-                      <span className="px-2 py-0.5 text-xs font-medium bg-gray-50 border border-gray-200 rounded text-gray-700">
-                        Verified by: {txn.verifiedBy.username}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Bottom Row */}
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-3 h-3" />
-                    <span>
-                      {new Date(txn.paidAt).toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </span>
-                    <span>•</span>
-                    <span>
-                      {new Date(txn.paidAt).toLocaleTimeString("en-IN", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                    <span>•</span>
-                    <span className="capitalize">{txn.status}</span>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <span className="text-gray-400">
-                      {formatRelativeTime(txn.paidAt)}
-                    </span>
-                    {txn.paymentProofUrl && (
-                      <a
-                        href={txn.paymentProofUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-gray-700 hover:text-gray-900 font-medium transition-colors"
-                      >
-                        <FileText className="w-3 h-3" />
-                        <span>View proof</span>
-                        <ExternalLink className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </a>
-                    )}
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        ))}
-      </div>
-      {pagination && pagination.totalPages > 1 && setCurrentPage && (
-        <div className="border-t border-gray-200 p-4 flex justify-center">
-          <PaginationControls
-            currentPage={currentPage}
-            totalPages={pagination.totalPages}
-            setCurrentPage={setCurrentPage}
-            limit={pagination.limit}
-          />
+            );
+          })}
         </div>
-      )}
-    </div>
+      </div>
+      <div className="border-t border-gray-200/50 px-5 py-4 flex justify-center bg-white/30 backdrop-blur-sm">
+        {transactionPagination &&
+          transactionPagination?.limit < transactionPagination?.totalCount && (
+            <div className="mt-4">
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={transactionPagination.totalPages!}
+                setCurrentPage={setCurrentPage}
+                limit={transactionPagination.limit}
+              />
+            </div>
+          )}
+      </div>
+    </>
   );
 }

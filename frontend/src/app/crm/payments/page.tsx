@@ -155,14 +155,17 @@ export default function PaymentManagement() {
       </div>
 
       {/* Pagination */}
-      {paymentPagination && (
-        <PaginationControls
-          currentPage={currentPage}
-          totalPages={paymentPagination.totalPages}
-          setCurrentPage={setCurrentPage}
-          limit={limit}
-        />
-      )}
+      {paymentPagination &&
+        paymentPagination?.limit < paymentPagination?.totalCount && (
+          <div className="mt-4">
+            <PaginationControls
+              currentPage={currentPage}
+              totalPages={paymentPagination.totalPages!}
+              setCurrentPage={setCurrentPage}
+              limit={paymentPagination.limit}
+            />
+          </div>
+        )}
 
       {/* Transaction Modal */}
       {selectedPayment && (

@@ -78,12 +78,12 @@ export default function Dashboard() {
 
   useEffect(() => {
     const socket = connectSocket();
-    socket.on("lead:created", (data: any) => {
+    socket?.on("lead:created", (data: any) => {
       if (data) {
         dispatch(getLeadStatus());
       }
     });
-    socket.on("task:updated", (data: any) => {
+    socket?.on("task:updated", (data: any) => {
       if (data) {
         dispatch(getTaskStatus());
       }
