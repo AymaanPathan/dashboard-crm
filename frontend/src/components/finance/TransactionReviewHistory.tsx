@@ -2,7 +2,6 @@
 "use client";
 import React, { useState } from "react";
 import {
-  Calendar,
   Clock,
   CheckCircle2,
   AlertCircle,
@@ -147,8 +146,9 @@ export default function TransactionReview({
       <div className="flex-1 overflow-y-auto">
         <div className="px-8 py-6 space-y-8">
           {transactions.map((txn, index) => {
-            const isProcessing = processingTxn === txn.transactionId || loading;
-            const isPending = txn.status.toLowerCase() === "pending";
+            const isProcessing =
+              processingTxn === txn?.transactionId || loading;
+            const isPending = txn?.status?.toLowerCase() === "pending";
 
             return (
               <div key={index} className="relative">
@@ -161,7 +161,7 @@ export default function TransactionReview({
                   {/* Timeline dot */}
                   <div className="relative flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center">
-                      {getStatusIcon(txn.status)}
+                      {getStatusIcon(txn?.status)}
                     </div>
                   </div>
 
@@ -171,14 +171,14 @@ export default function TransactionReview({
                     <div className="flex items-start justify-between gap-4 mb-3">
                       <div>
                         <div className="text-lg font-semibold text-gray-900 tracking-tight mb-1">
-                          ₹{formatCurrency(txn.amount)}
+                          ₹{formatCurrency(txn?.amount)}
                         </div>
                         <div className="text-xs text-gray-400 font-mono tracking-wide">
-                          {txn.transactionId}
+                          {txn?.transactionId}
                         </div>
                       </div>
                       <div className="text-xs text-gray-500 whitespace-nowrap">
-                        {formatRelativeTime(txn.paidAt)}
+                        {formatRelativeTime(txn?.paidAt)}
                       </div>
                     </div>
 
@@ -187,7 +187,7 @@ export default function TransactionReview({
                       <div className="flex items-center gap-2">
                         <span className="text-gray-500 w-16">Date</span>
                         <span className="text-gray-900 font-medium">
-                          {new Date(txn.paidAt).toLocaleDateString("en-US", {
+                          {new Date(txn?.paidAt).toLocaleDateString("en-US", {
                             month: "short",
                             day: "numeric",
                             year: "numeric",
@@ -197,7 +197,7 @@ export default function TransactionReview({
                       <div className="flex items-center gap-2">
                         <span className="text-gray-500 w-16">Time</span>
                         <span className="text-gray-900 font-medium">
-                          {new Date(txn.paidAt).toLocaleTimeString("en-US", {
+                          {new Date(txn?.paidAt).toLocaleTimeString("en-US", {
                             hour: "numeric",
                             minute: "2-digit",
                           })}
@@ -206,14 +206,14 @@ export default function TransactionReview({
                       <div className="flex items-center gap-2">
                         <span className="text-gray-500 w-16">Status</span>
                         <span className="text-gray-900 font-medium capitalize">
-                          {txn.status}
+                          {txn?.status}
                         </span>
                       </div>
-                      {txn.verifiedBy && (
+                      {txn?.verifiedBy && (
                         <div className="flex items-center gap-2">
                           <span className="text-gray-500 w-16">Verified</span>
                           <span className="text-gray-900 font-medium">
-                            {txn.verifiedBy.username}
+                            {txn?.verifiedBy?.username}
                           </span>
                         </div>
                       )}
@@ -221,9 +221,9 @@ export default function TransactionReview({
 
                     {/* Actions */}
                     <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                      {txn.paymentProofUrl ? (
+                      {txn?.paymentProofUrl ? (
                         <a
-                          href={txn.paymentProofUrl}
+                          href={txn?.paymentProofUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 text-xs text-gray-600 hover:text-gray-900 transition-colors group"
@@ -243,7 +243,7 @@ export default function TransactionReview({
                       {isPending && (
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => handleReject(txn.transactionId)}
+                            onClick={() => handleReject(txn?.id)}
                             disabled={isProcessing}
                             className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                           >
@@ -259,7 +259,7 @@ export default function TransactionReview({
                           </button>
 
                           <button
-                            onClick={() => handleApprove(txn.id)}
+                            onClick={() => handleApprove(txn?.id)}
                             disabled={isProcessing}
                             className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-white bg-gray-900 border border-gray-900 rounded-lg hover:bg-gray-800 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                           >
