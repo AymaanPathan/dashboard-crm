@@ -61,12 +61,6 @@ const FinanceTransactionModal: React.FC<TransactionModalProps> = ({
     fetchTransactions();
   }, [dispatch, selectedPayment.id, currentPage]);
 
-  const handleLoadMore = () => {
-    if (!isLoadingMore && pagination && currentPage < pagination.totalPages) {
-      setCurrentPage((prev) => prev + 1);
-    }
-  };
-
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div
@@ -101,13 +95,9 @@ const FinanceTransactionModal: React.FC<TransactionModalProps> = ({
 
         {/* Transaction Review with Scroll Pagination */}
         <TransactionReview
-          setSelectedPayment={setSelectedPayment}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
-          onApprove={() => console.log("approve")}
-          onReject={() => console.log("reject")}
-          isLoadingMore={isLoadingMore}
-          onLoadMore={handleLoadMore}
+          paymentId={selectedPayment.id}
         />
       </div>
     </div>

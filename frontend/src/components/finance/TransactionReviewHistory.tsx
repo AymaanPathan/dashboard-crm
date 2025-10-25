@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 import React, { useState } from "react";
 import {
   Calendar,
@@ -12,23 +13,27 @@ import {
   Loader2,
 } from "lucide-react";
 import { PaginationControls } from "@/components/pagination/PaginationControlls";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, RootDispatch } from "@/store";
+import {
+  approvePaymentTransaction,
+  getAllPayments,
+  getPaymentTransactions,
+} from "@/store/slices/paymentSlice";
 
 interface TransactionProps {
-  setSelectedPayment: (payment: null) => void;
+  paymentId: string;
   setCurrentPage?: React.Dispatch<React.SetStateAction<number>>;
   currentPage?: number;
-  onApprove: any;
-  onReject: any;
 }
 
 export default function TransactionReview({
+  paymentId,
   setCurrentPage,
-  currentPage,
-  onApprove,
-  onReject,
+  currentPage = 1,
 }: TransactionProps) {
+  const dispatch = useDispatch<RootDispatch>();
+
   const [processingTxn, setProcessingTxn] = useState<string | null>(null);
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(
     null
@@ -39,6 +44,9 @@ export default function TransactionReview({
   );
   const transactions = useSelector(
     (state: RootState) => state.payments.selectedPaymentTransactions
+  );
+  const loading = useSelector(
+    (state: RootState) => state.payments.loading.approvingTransaction
   );
 
   const getStatusIcon = (status: string) => {
@@ -83,26 +91,32 @@ export default function TransactionReview({
     }).format(amount);
   };
 
+  // ✅ Approve handler (with Redux dispatch)
   const handleApprove = async (transactionId: string) => {
     setProcessingTxn(transactionId);
     setActionType("approve");
+
     try {
-      await onApprove(transactionId);
+      await dispatch(approvePaymentTransaction(transactionId)).unwrap();
+      await dispatch(getPaymentTransactions({ paymentId, page: currentPage }));
+      await dispatch(getAllPayments({ page: 1 }));
+    } catch (err) {
+      console.error("Error approving transaction:", err);
     } finally {
       setProcessingTxn(null);
       setActionType(null);
     }
   };
 
+  // (Optional) Reject handler — add later if backend supports it
   const handleReject = async (transactionId: string) => {
     setProcessingTxn(transactionId);
     setActionType("reject");
-    try {
-      await onReject(transactionId);
-    } finally {
+    // You can add reject dispatch here later
+    setTimeout(() => {
       setProcessingTxn(null);
       setActionType(null);
-    }
+    }, 1000);
   };
 
   if (transactions.length === 0) {
@@ -128,7 +142,7 @@ export default function TransactionReview({
       <div className="flex-1 overflow-y-auto">
         <div className="px-8 py-6 space-y-8">
           {transactions.map((txn, index) => {
-            const isProcessing = processingTxn === txn.transactionId;
+            const isProcessing = processingTxn === txn.transactionId || loading;
             const isPending = txn.status.toLowerCase() === "pending";
 
             return (
@@ -139,9 +153,9 @@ export default function TransactionReview({
                 )}
 
                 <div className="flex gap-5">
-                  {/* Timeline dot with icon */}
+                  {/* Timeline dot */}
                   <div className="relative flex-shrink-0">
-                    <div className="w-8 h-8 rounded-full bg-white border-2 border-gray-900 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center">
                       {getStatusIcon(txn.status)}
                     </div>
                   </div>
@@ -163,7 +177,7 @@ export default function TransactionReview({
                       </div>
                     </div>
 
-                    {/* Details grid */}
+                    {/* Details */}
                     <div className="grid grid-cols-2 gap-x-6 gap-y-2 mb-4 text-xs">
                       <div className="flex items-center gap-2">
                         <span className="text-gray-500 w-16">Date</span>
@@ -240,7 +254,7 @@ export default function TransactionReview({
                           </button>
 
                           <button
-                            onClick={() => handleApprove(txn.transactionId)}
+                            onClick={() => handleApprove(txn.id)}
                             disabled={isProcessing}
                             className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium text-white bg-gray-900 border border-gray-900 rounded-lg hover:bg-gray-800 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                           >

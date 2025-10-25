@@ -18,7 +18,7 @@ export const getAllPaymentsApi = async (
 };
 export const getPaymentTransactionsApi = async (
   paymentId: string,
-  page: number = 1,
+  page: number = 1
 ) => {
   try {
     const response = await axiosSetup.get(
@@ -34,5 +34,16 @@ export const getPaymentTransactionsApi = async (
       error
     );
     throw error?.response?.data?.message || "Failed to fetch transactions";
+  }
+};
+export const approvePaymentTransactionApi = async (transactionId: string) => {
+  try {
+    const response = await axiosSetup.post("/payment/approve", {
+      transactionId,
+    });
+    return response.data.data;
+  } catch (error: any) {
+    console.error("Error approving payment transaction:", error);
+    throw error?.response?.data?.message || "Failed to approve transaction";
   }
 };

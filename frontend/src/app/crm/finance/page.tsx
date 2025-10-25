@@ -74,7 +74,7 @@ export default function PaymentManagement() {
                   : "bg-white text-gray-600 border border-gray-200 hover:border-gray-300"
               }`}
             >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
+              {status?.charAt(0)?.toUpperCase() + status?.slice(1)}
             </button>
           ))}
         </div>
@@ -83,14 +83,14 @@ export default function PaymentManagement() {
       {/* Payments List */}
       <div className="space-y-3">
         {payments.map((payment) => {
-          const statusConfig = getStatusConfig(payment.status);
+          const statusConfig = getStatusConfig(payment?.status);
           const StatusIcon = statusConfig.icon;
-          const progress = (payment.amountPaid / payment.totalAmount) * 100;
+          const progress = (payment?.amountPaid / payment?.totalAmount) * 100;
 
           return (
             <div
               onClick={() => setSelectedPayment(payment)}
-              key={payment.id}
+              key={payment?.id}
               className="bg-white cursor-pointer border border-gray-100 rounded-lg hover:border-gray-200 transition-colors group"
             >
               <div className="p-5">
@@ -99,30 +99,30 @@ export default function PaymentManagement() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-base font-medium text-gray-900">
-                          {payment.order.quotation.customerName}
+                          {payment?.order?.quotation?.customerName}
                         </h3>
                         <span
                           className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium ${
-                            payment.status === "completed"
+                            payment?.status === "completed"
                               ? "bg-gray-100 text-gray-700"
                               : "bg-gray-50 text-gray-600"
                           }`}
                         >
                           <StatusIcon className="w-3 h-3" />
-                          {statusConfig.label}
+                          {statusConfig?.label}
                         </span>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
                         <span className="flex items-center gap-1.5">
                           <FileText className="w-3.5 h-3.5" />
-                          {payment.order.orderNumber}
+                          {payment?.order?.orderNumber}
                         </span>
                         <span className="text-gray-300">•</span>
-                        <span>{payment.order.quotation.quoteNumber}</span>
+                        <span>{payment?.order?.quotation?.quoteNumber}</span>
                         <span className="text-gray-300">•</span>
                         <span className="flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5" />
-                          {new Date(payment.createdAt).toLocaleDateString(
+                          {new Date(payment?.createdAt).toLocaleDateString(
                             "en-IN",
                             {
                               day: "numeric",

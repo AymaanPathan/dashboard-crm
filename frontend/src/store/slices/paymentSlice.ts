@@ -3,6 +3,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
   getAllPaymentsApi,
   getPaymentTransactionsApi,
+  approvePaymentTransactionApi,
 } from "@/api/payment.api";
 
 // --- State Interface ---
@@ -26,6 +27,7 @@ interface PaymentState {
     fetchingTransactions: boolean;
     addingPayment: boolean;
     confirmingPayment: boolean;
+    approvingTransaction: boolean; // ✅ added
   };
   error: string;
   transactionError: string;
@@ -52,6 +54,7 @@ const initialState: PaymentState = {
     fetchingTransactions: false,
     addingPayment: false,
     confirmingPayment: false,
+    approvingTransaction: false, // ✅ added
   },
   error: "",
   transactionError: "",
@@ -59,7 +62,7 @@ const initialState: PaymentState = {
 
 // --- Thunks ---
 
-// Get All Payments
+// ✅ Get All Payments
 export const getAllPayments = createAsyncThunk(
   "payments/getAll",
   async (
@@ -80,7 +83,7 @@ export const getAllPayments = createAsyncThunk(
   }
 );
 
-// Get Transactions for a selected payment
+// ✅ Get Transactions for a selected payment
 export const getPaymentTransactions = createAsyncThunk(
   "payments/getTransactions",
   async (
@@ -89,6 +92,19 @@ export const getPaymentTransactions = createAsyncThunk(
   ) => {
     try {
       const response = await getPaymentTransactionsApi(paymentId, page);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+// ✅ Approve a specific payment transaction
+export const approvePaymentTransaction = createAsyncThunk(
+  "payments/approveTransaction",
+  async (transactionId: string, { rejectWithValue }) => {
+    try {
+      const response = await approvePaymentTransactionApi(transactionId);
       return response;
     } catch (error: any) {
       return rejectWithValue(error);
@@ -114,7 +130,7 @@ const paymentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Get All Payments
+      // --- Get All Payments ---
       .addCase(getAllPayments.pending, (state) => {
         state.loading.fetchingAllPayments = true;
         state.error = "";
@@ -134,7 +150,7 @@ const paymentSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      // Get Payment Transactions
+      // --- Get Payment Transactions ---
       .addCase(getPaymentTransactions.pending, (state) => {
         state.loading.fetchingTransactions = true;
         state.transactionError = "";
@@ -152,6 +168,32 @@ const paymentSlice = createSlice({
       .addCase(getPaymentTransactions.rejected, (state, action) => {
         state.loading.fetchingTransactions = false;
         state.transactionError = action.payload as string;
+      })
+
+      // --- Approve Payment Transaction ---
+      .addCase(approvePaymentTransaction.pending, (state) => {
+        state.loading.approvingTransaction = true;
+      })
+      .addCase(approvePaymentTransaction.fulfilled, (state, action) => {
+        state.loading.approvingTransaction = false;
+
+        const updatedTransaction = action.payload.transaction;
+        const updatedPayment = action.payload.payment;
+
+        // ✅ Update the transaction in state
+        state.selectedPaymentTransactions =
+          state.selectedPaymentTransactions.map((txn) =>
+            txn.id === updatedTransaction.id ? updatedTransaction : txn
+          );
+
+        // ✅ Update related payment (if present in list)
+        state.payments = state.payments.map((pmt) =>
+          pmt.id === updatedPayment.id ? updatedPayment : pmt
+        );
+      })
+      .addCase(approvePaymentTransaction.rejected, (state, action) => {
+        state.loading.approvingTransaction = false;
+        state.error = action.payload as string;
       });
   },
 });
