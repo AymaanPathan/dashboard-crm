@@ -13,110 +13,109 @@ export const getRevenueController = async (req: Request, res: Response) => {
 
   try {
     const companyId = req?.user?.currentOrganizationId;
-    const role = req?.user?.role;
-    const userId = req?.user?.id;
-    const { range = "1Y" } = req.query;
-
     if (!companyId) {
       response.statusCode = 400;
       response.message = "Company ID missing";
       return sendResponse(res, response);
     }
 
-    // --- Date range calculation ---
-    let startDate: Date;
-    const endDate = new Date();
+    const role = req?.user?.role;
+    const userId = req?.user?.id;
 
-    switch (range) {
-      case "1D":
-        startDate = dayjs().subtract(1, "day").toDate();
-        break;
-      case "1W":
-        startDate = dayjs().subtract(1, "week").toDate();
-        break;
-      case "1M":
-        startDate = dayjs().subtract(1, "month").toDate();
-        break;
-      case "6M":
-        startDate = dayjs().subtract(6, "month").toDate();
-        break;
-      case "1Y":
-        startDate = dayjs().subtract(1, "year").toDate();
-        break;
-      case "ALL":
-      default:
-        startDate = dayjs("2000-01-01").toDate(); // practically everything
-    }
+    const { range = "1Y" } = req.query;
 
-    // --- Base where clause ---
-    const whereClause: any = {
+    // Base filter for completed payments
+    const baseFilter: any = {
       status: "completed",
-      paidAt: { gte: startDate, lte: endDate },
-      payment: {
-        order: { organizationId: companyId },
-      },
+      payment: { order: { organizationId: companyId } },
     };
 
-    // --- Restrict non-admins if needed ---
     if (role !== "admin") {
-      whereClause.payment.order.lead = {
-        assignedToId: userId,
-      };
+      baseFilter.payment.order.lead = { assignedToId: userId };
     }
 
-    // --- Group revenue by month ---
-    const monthlyRevenue = await prisma.paymentTransaction.groupBy({
-      by: ["paidAt"],
-      where: whereClause,
-      _sum: { amount: true },
+    // Get all completed payments
+    const payments = await prisma.paymentTransaction.findMany({
+      where: baseFilter,
+      select: { amount: true, paidAt: true },
       orderBy: { paidAt: "asc" },
     });
 
-    // --- Aggregate into month-year format ---
-    const chartDataMap = new Map<string, number>();
-    for (const record of monthlyRevenue) {
-      const monthKey = dayjs(record.paidAt).format("MMM");
-      const prevValue = chartDataMap.get(monthKey) || 0;
-      chartDataMap.set(monthKey, prevValue + (record._sum.amount || 0));
+    let chartData: { label: string; value: number }[] = [];
+
+    const now = dayjs();
+
+    if (range === "1M") {
+      const startOfMonth = now.startOf("month");
+      const endOfMonth = now.endOf("month");
+
+      const monthPayments = payments.filter((p) => {
+        const date = dayjs(p.paidAt);
+        return (
+          date.isAfter(startOfMonth.subtract(1, "day")) &&
+          date.isBefore(endOfMonth.add(1, "day"))
+        );
+      });
+
+      const dayMap = new Map<number, number>();
+      monthPayments.forEach((p) => {
+        const day = dayjs(p.paidAt).date();
+        dayMap.set(day, (dayMap.get(day) || 0) + (p.amount || 0));
+      });
+
+      chartData = Array.from({ length: endOfMonth.date() }, (_, i) => ({
+        label: `${i + 1}`,
+        value: dayMap.get(i + 1) || 0,
+      }));
+    } else if (range === "6M") {
+      const sixMonthsAgo = now.subtract(6, "month");
+
+      const monthMap = new Map<string, number>();
+      payments.forEach((p) => {
+        const date = dayjs(p.paidAt);
+        if (date.isAfter(sixMonthsAgo)) {
+          const key = date.format("MMM");
+          monthMap.set(key, (monthMap.get(key) || 0) + (p.amount || 0));
+        }
+      });
+
+      chartData = Array.from({ length: 6 }, (_, i) => {
+        const month = now.subtract(5 - i, "month");
+        const key = month.format("MMM");
+        return { label: key, value: monthMap.get(key) || 0 };
+      });
+    } else if (range === "1Y") {
+      const yearStart = now.startOf("year");
+      const yearEnd = now.endOf("year");
+
+      const monthMap = new Map<number, number>();
+      payments.forEach((p) => {
+        const date = dayjs(p.paidAt);
+        if (
+          date.isAfter(yearStart.subtract(1, "day")) &&
+          date.isBefore(yearEnd.add(1, "day"))
+        ) {
+          const month = date.month(); // 0-11
+          monthMap.set(month, (monthMap.get(month) || 0) + (p.amount || 0));
+        }
+      });
+
+      chartData = Array.from({ length: 12 }, (_, i) => ({
+        label: dayjs().month(i).format("MMM"),
+        value: monthMap.get(i) || 0,
+      }));
+    } else {
+      response.statusCode = 400;
+      response.message = "Invalid range. Use 1M, 6M, or 1Y.";
+      return sendResponse(res, response);
     }
 
-    const chartData = Array.from(chartDataMap.entries()).map(
-      ([month, value]) => ({ month, value })
-    );
+    const totalRevenue = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
 
-    // --- Compute total & previous period comparison ---
-    const totalRevenue = chartData.reduce((sum, d) => sum + d.value, 0);
-
-    // Previous period (for growth %)
-    const previousStart = dayjs(startDate)
-      .subtract(dayjs(endDate).diff(startDate, "day"), "day")
-      .toDate();
-
-    const previousRevenueAgg = await prisma.paymentTransaction.aggregate({
-      where: {
-        status: "completed",
-        paidAt: { gte: previousStart, lt: startDate },
-        payment: { order: { organizationId: companyId } },
-      },
-      _sum: { amount: true },
-    });
-
-    const previousRevenue = previousRevenueAgg._sum.amount || 0;
-    const growthPercent =
-      previousRevenue > 0
-        ? ((totalRevenue - previousRevenue) / previousRevenue) * 100
-        : 100;
-
-    response.data = {
-      chartData,
-      totalRevenue,
-      previousRevenue,
-      growthPercent: Number(growthPercent.toFixed(2)),
-    };
-
+    response.data = { chartData, totalRevenue, range };
     return sendResponse(res, response);
   } catch (error) {
-    console.error("❌ Error in getRevenueController:", error);
+    console.error("Error in getRevenueController:", error);
     response.statusCode = 500;
     response.message = "Server error while fetching revenue";
     return sendResponse(res, response);

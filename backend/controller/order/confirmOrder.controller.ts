@@ -55,19 +55,10 @@ export const confirmQuotationAsOrder = async (req: Request, res: Response) => {
 
     const orderNumber = `ORD-${Date.now()}`;
 
-    const existingOrder = await prisma.order.findUnique({
-      where: { quotationId },
-    });
-
-    if (existingOrder) {
-      response.statusCode = 400;
-      response.message = "Order already exists for this quotation";
-      return sendResponse(res, response);
-    }
 
     const order = await prisma.order.create({
       data: {
-        quotationId,
+        quotationId: quotationId!,
         organizationId,
         leadId: quotation.leadId,
         orderNumber,
