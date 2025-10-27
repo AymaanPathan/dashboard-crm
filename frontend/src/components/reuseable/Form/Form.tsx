@@ -21,7 +21,6 @@ export const FormModal: React.FC<FormModalProps> = ({
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Handle escape key press
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isOpen) {
@@ -31,14 +30,15 @@ export const FormModal: React.FC<FormModalProps> = ({
 
     if (isOpen) {
       document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
     };
   }, [isOpen, onClose]);
 
-  // Handle outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -61,34 +61,39 @@ export const FormModal: React.FC<FormModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
       <div
         ref={modalRef}
-        className="relative w-full max-w-3xl  overflow-hidden bg-white shadow-2xl rounded-2xl"
+        className="relative w-full max-w-xl mx-4 overflow-hidden bg-white shadow-2xl rounded-xl border border-gray-200/60 animate-in fade-in zoom-in-95 duration-200"
       >
         <div className="flex flex-col max-h-[85vh]">
-          <div className="flex items-start justify-between px-6 pt-8 pb-2 border-b border-gray-100">
-            <h2 className="text-3xl font-semibold text-gray-500">{title}</h2>
-            <button onClick={onClose} className="flex items-center gap-2 group">
-              <span className="text-xs text-gray-400 border border-gray-300 rounded px-1.5 py-0.5 font-mono group-hover:border-gray-400 transition-colors">
-                ESC
-              </span>
+          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-900 tracking-tight">
+              {title}
+            </h2>
+            <button
+              onClick={onClose}
+              className="p-1.5 hover:bg-gray-100 rounded-md transition-all duration-200 group"
+            >
+              <X className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-6 py-6">{children}</div>
+          <div className="flex-1 overflow-y-auto px-6 py-6 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+            {children}
+          </div>
         </div>
 
-        <div className="sticky bottom-0 bg-white border-t border-gray-100 px-8 py-4 flex items-center justify-end gap-3">
+        <div className="sticky bottom-0 bg-white/80 backdrop-blur-lg border-t border-gray-100 px-6 py-4 flex items-center justify-end gap-2.5">
           <button
             onClick={onClose}
-            className="px-5 cursor-pointer py-2 text-[15px] text-gray-600 hover:bg-gray-50 rounded-lg transition-all"
+            className="px-4 cursor-pointer py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200"
           >
             Cancel
           </button>
           <button
             onClick={onSubmit}
-            className="px-5 py-2 cursor-pointer text-[15px] bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-all"
+            className="px-4 py-2 cursor-pointer text-sm font-medium bg-black hover:bg-gray-900 text-white rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
           >
             {submitLabel}
           </button>
@@ -110,14 +115,14 @@ export const FormSection: React.FC<FormSectionProps> = ({
   children,
 }) => {
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2.5 mb-4">
-        {icon}
-        <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-          {title}
-        </h3>
+    <div className="space-y-4 mb-8">
+      <div className="flex items-center gap-2.5 pb-2">
+        <div className="text-gray-900 w-4 h-4 flex items-center justify-center">
+          {icon}
+        </div>
+        <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
       </div>
-      {children}
+      <div className="space-y-4">{children}</div>
     </div>
   );
 };
@@ -145,10 +150,12 @@ export const FormField: React.FC<FormFieldProps> = ({
 }) => {
   return (
     <div className="space-y-2">
-      <label className="block text-sm text-gray-700">{label}</label>
-      <div className="relative">
+      <label className="block text-sm font-medium text-gray-900">{label}</label>
+      <div className="relative group">
         {icon && (
-          <div className="absolute left-0 top-1/2 -translate-y-1/2">{icon}</div>
+          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-gray-600 transition-colors">
+            {icon}
+          </div>
         )}
         <input
           type={type}
@@ -157,15 +164,15 @@ export const FormField: React.FC<FormFieldProps> = ({
           onChange={onChange}
           placeholder={placeholder}
           className={`w-full ${
-            icon ? "pl-6" : "px-0"
-          } py-2.5 text-[15px] bg-transparent border-0 border-b transition-colors focus:outline-none placeholder:text-gray-400 ${
+            icon ? "pl-10 pr-4" : "px-4"
+          } py-2.5 text-sm bg-white border rounded-lg transition-all duration-200 focus:outline-none placeholder:text-gray-400 ${
             error
-              ? "border-red-300 focus:border-red-500"
-              : "border-gray-200 focus:border-gray-900"
+              ? "border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-50"
+              : "border-gray-200 hover:border-gray-300 focus:border-black focus:ring-4 focus:ring-gray-50"
           }`}
         />
       </div>
-      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+      {error && <p className="text-xs text-red-600 font-medium">{error}</p>}
     </div>
   );
 };
@@ -189,19 +196,18 @@ export const FormTextarea: React.FC<FormTextareaProps> = ({
 }) => {
   return (
     <div className="space-y-2">
-      <label className="block text-sm text-gray-700">{label}</label>
+      <label className="block text-sm font-medium text-gray-900">{label}</label>
       <textarea
         name={name}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
         rows={rows}
-        className="w-full px-0 py-2.5 text-[15px] bg-transparent border-0 border-b border-gray-200 transition-colors focus:outline-none focus:border-gray-900 resize-none placeholder:text-gray-400"
+        className="w-full px-4 py-2.5 text-sm bg-white border border-gray-200 hover:border-gray-300 rounded-lg transition-all duration-200 focus:outline-none focus:border-black focus:ring-4 focus:ring-gray-50 resize-none placeholder:text-gray-400"
       />
     </div>
   );
 };
-
 
 interface FormSelectProps {
   label: string;
@@ -226,7 +232,6 @@ export const FormSelect: React.FC<FormSelectProps> = ({
 }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -243,34 +248,34 @@ export const FormSelect: React.FC<FormSelectProps> = ({
 
   return (
     <div className="space-y-2" ref={dropdownRef}>
-      <label className="block text-sm font-medium text-gray-900 mb-2">
-        {label}
-      </label>
+      <label className="block text-sm font-medium text-gray-900">{label}</label>
       <div className="relative">
         <button
           type="button"
           onClick={onToggle}
-          className={`w-full h-11 px-4 text-sm text-left bg-white border rounded-lg transition-colors focus:outline-none flex items-center justify-between ${
+          className={`w-full h-11 px-4 text-sm text-left bg-white border rounded-lg transition-all duration-200 focus:outline-none flex items-center justify-between ${
             error
-              ? "border-red-300 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-              : "border-gray-200 focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+              ? "border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-50"
+              : "border-gray-200 hover:border-gray-300 focus:border-black focus:ring-4 focus:ring-gray-50"
           }`}
         >
-          <span className={value ? "text-gray-900" : "text-gray-400"}>
+          <span
+            className={value ? "text-gray-900 font-medium" : "text-gray-400"}
+          >
             {value
               ? options.find((opt) => opt.value === value)?.label
               : placeholder}
           </span>
           <ChevronDown
-            className={`w-4 h-4 text-gray-400 transition-transform ${
+            className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
               isOpen ? "rotate-180" : ""
             }`}
           />
         </button>
 
         {isOpen && (
-          <div className="absolute z-50  w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-32 overflow-auto">
-            {options.map((option) => (
+          <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-auto animate-in fade-in slide-in-from-top-2 duration-200">
+            {options.map((option, index) => (
               <button
                 key={option.value}
                 type="button"
@@ -278,8 +283,12 @@ export const FormSelect: React.FC<FormSelectProps> = ({
                   onChange(option.value);
                   onToggle();
                 }}
-                className={`w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 transition-colors first:rounded-t-lg last:rounded-b-lg ${
-                  value === option.value ? "bg-gray-50 font-medium" : ""
+                className={`w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 transition-colors ${
+                  index === 0 ? "rounded-t-lg" : ""
+                } ${index === options.length - 1 ? "rounded-b-lg" : ""} ${
+                  value === option.value
+                    ? "bg-gray-50 font-semibold text-gray-900"
+                    : "text-gray-700"
                 }`}
               >
                 {option.label}
@@ -288,11 +297,14 @@ export const FormSelect: React.FC<FormSelectProps> = ({
           </div>
         )}
 
-        {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+        {error && (
+          <p className="text-xs text-red-600 font-medium mt-1">{error}</p>
+        )}
       </div>
     </div>
   );
 };
+
 interface FormCheckboxProps {
   label: string;
   name: string;
@@ -309,19 +321,22 @@ export const FormCheckbox: React.FC<FormCheckboxProps> = ({
   error,
 }) => {
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-start space-x-3 group cursor-pointer">
       <input
         id={name}
         name={name}
         type="checkbox"
         checked={checked}
         onChange={onChange}
-        className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900 cursor-pointer"
+        className="w-4 h-4 mt-0.5 text-black border-gray-300 rounded focus:ring-4 focus:ring-gray-100 cursor-pointer transition-all"
       />
-      <label htmlFor={name} className="text-sm text-gray-700 cursor-pointer">
+      <label
+        htmlFor={name}
+        className="text-sm text-gray-700 cursor-pointer select-none"
+      >
         {label}
       </label>
-      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+      {error && <p className="text-xs text-red-600 font-medium">{error}</p>}
     </div>
   );
 };

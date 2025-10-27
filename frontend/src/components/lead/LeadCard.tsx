@@ -106,11 +106,6 @@ export const LeadCard: React.FC<{
           <h3 className="font-medium text-gray-900 text-xs truncate">
             {leadData.name}
           </h3>
-          {leadData.company && (
-            <p className="text-[10px] text-gray-500 truncate">
-              {leadData.company}
-            </p>
-          )}
         </div>
 
         <div className="flex items-center gap-1 ml-2 flex-shrink-0">
