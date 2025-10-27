@@ -21,14 +21,10 @@ export const getTaskStatsApi = async () => {
   }
 };
 
-interface RevenueParams {
-  range: "1M" | "6M" | "1Y";
-}
-
-export const getRevenueApi = async (params: RevenueParams) => {
+export const getRevenueApi = async (range: string) => {
   try {
     const response = await axiosSetup.get("/revenue/get", {
-      params, // only { range } is required
+      params: { range },
     });
     return response.data.data;
   } catch (error: any) {

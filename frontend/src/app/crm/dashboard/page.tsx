@@ -24,14 +24,13 @@ import { TaskStatsComponent } from "@/components/dashboard/TaskStats";
 import { LeadDistributionComponent } from "@/components/dashboard/LeadDistribution";
 import { TodayScheduleComponent } from "@/components/dashboard/todaySchedule";
 
-type TimeFilter = "1D" | "1W" | "1M" | "6M" | "1Y" | "ALL";
-
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<"type" | "source" | "stage">(
     "type"
   );
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState<TimeFilter>("1Y");
+  const [selectedFilter, setSelectedFilter] = useState<string>("1M");
+  console.log("Selected Filter:", selectedFilter);
   const revenueData = useSelector(
     (state: RootState) => state.dashboard.revenueData
   );
@@ -45,8 +44,7 @@ export default function Dashboard() {
     (state: RootState) => state.dashboard.taskStats
   );
 
-  // Handle filter change
-  const handleFilterChange = (filter: TimeFilter) => {
+  const handleFilterChange = (filter: string) => {
     setSelectedFilter(filter);
   };
 
@@ -62,12 +60,8 @@ export default function Dashboard() {
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(
-      getRevenueStatus({
-        range: "1Y",
-      })
-    );
-  }, [dispatch]);
+    dispatch(getRevenueStatus(selectedFilter));
+  }, [dispatch, selectedFilter]);
 
   useEffect(() => {
     const socket = connectSocket();
@@ -148,7 +142,7 @@ export default function Dashboard() {
                 </p>
               </div>
               <div className="flex items-center gap-1 bg-white/60 backdrop-blur-sm rounded-lg p-1 border border-gray-200/50 shadow-sm">
-                {(["1M", "6M", "1Y"] as TimeFilter[])?.map((filter) => (
+                {(["1M", "6M", "1Y"] as any)?.map((filter: any) => (
                   <button
                     key={filter}
                     onClick={() => handleFilterChange(filter)}

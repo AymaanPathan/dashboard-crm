@@ -43,15 +43,11 @@ export const getTaskStatus = createAsyncThunk(
   }
 );
 
-interface RevenueParams {
-  range: "1M" | "6M" | "1Y";
-}
-
 export const getRevenueStatus = createAsyncThunk(
   "dashboard/getRevenueStatus",
-  async (params: RevenueParams, { rejectWithValue }) => {
+  async (range: string, { rejectWithValue }) => {
     try {
-      const response = await getRevenueApi(params);
+      const response = await getRevenueApi(range);
       return response;
     } catch (error: unknown) {
       return rejectWithValue(error);
