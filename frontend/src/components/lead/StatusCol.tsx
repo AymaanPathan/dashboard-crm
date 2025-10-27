@@ -69,26 +69,24 @@ export const StatusColumn: React.FC<{ stage: any }> = ({ stage }) => {
   return (
     <div
       ref={drop as any}
-      className={`bg-gray-50/30 h-screen rounded-md flex flex-col transition-all duration-200 hadow-sm ${
-        isOver && canDrop
-          ? "bg-gray-100/50 ring-2 ring-gray-400/50 border-gray-400 shadow-md"
-          : ""
-      } w-[220px] sm:w-[240px]`}
+      className={`bg-white h-screen flex flex-col transition-all duration-300 ease-out ${
+        isOver && canDrop ? "bg-gray-50/40 ring-1 ring-gray-900/5" : ""
+      } w-[260px]`}
     >
       {/* Header */}
-      <div className="px-3 pt-2.5 pb-2 flex-shrink-0 border-b border-gray-200/60 bg-white/80 backdrop-blur-sm rounded-t-lg">
+      <div className="px-4 pt-4 pb-3 flex-shrink-0 border-b border-gray-100">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-semibold text-gray-800 tracking-tight">
+          <h3 className="text-sm font-medium text-gray-900">
             {stage.stageName}
           </h3>
-          <span className="text-[10px] text-gray-500 font-medium bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200/60">
+          <span className="text-xs text-gray-500 font-normal">
             {stage.leads?.length || 0}
           </span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-2 py-2 space-y-1.5 overflow-y-auto scrollbar-custom scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
+      <div className="flex-1 px-3 py-3 space-y-2 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-200 hover:scrollbar-thumb-gray-300">
         {stage.leads?.map((lead: any, index: number) => {
           return (
             <div key={`${lead.id}-${index}`}>
@@ -104,14 +102,14 @@ export const StatusColumn: React.FC<{ stage: any }> = ({ stage }) => {
         })}
 
         {isOver && canDrop && (
-          <div className="border-2 border-dashed border-gray-400 bg-gray-100/50 rounded-lg py-6 text-center text-xs text-gray-700 font-medium transition-all">
-            Drop lead here
+          <div className="border border-dashed border-gray-300 bg-gray-50/50 rounded-md py-8 text-center text-sm text-gray-400 font-normal transition-all duration-200">
+            Drop here
           </div>
         )}
 
         {(!stage.leads || stage.leads.length === 0) && !isOver && (
-          <div className="py-12 text-center text-xs text-gray-400 font-normal">
-            No leads yet
+          <div className="py-16 text-center text-sm text-gray-400 font-normal">
+            No leads
           </div>
         )}
       </div>

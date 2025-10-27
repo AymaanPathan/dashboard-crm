@@ -120,13 +120,13 @@ const LeadDetailsPage = () => {
   return (
     <div className=" bg-white flex overflow-hidden">
       {/* Sidebar */}
-      <SidebarDetail
+      {/* <SidebarDetail
         currentLead={currentLead}
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
         quickActions={quickActions}
         key={currentLead.id}
-      />
+      /> */}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
