@@ -3,7 +3,7 @@ import prisma from "../../utils/prisma";
 import { sendResponse, ResponseModel } from "../../utils/response.utils";
 import { sendOTPEmail } from "../../utils/sendEmail";
 import { generateOTP } from "../../utils/generateOtp";
-import redis from "../../redis/redis.config";
+import { getRedisClient } from "../../redis/redis.config";
 
 export const resendOtp = async (req: Request, res: Response) => {
   const response: ResponseModel = {
@@ -16,7 +16,7 @@ export const resendOtp = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
     const key = `resend_otp:${email}`;
-    const exists = await redis.get(key);
+    const exists = await getRedisClient().get(key);
 
     if (exists) {
       response.statusCode = 429;
@@ -46,9 +46,9 @@ export const resendOtp = async (req: Request, res: Response) => {
       data: { otp, otpExpiry: expiry },
     });
 
-   const reses =  await sendOTPEmail(email, otp);
+    const reses = await sendOTPEmail(email, otp);
     console.log("OTP email send result RESEND_______q:", reses);
-    await redis.set(key, "1", "EX", 60);
+    await getRedisClient().set(key, "1", "EX", 60);
 
     return sendResponse(res, response);
   } catch (error: any) {

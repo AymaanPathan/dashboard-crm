@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   getLeadStatsApi,
   getRevenueApi,
@@ -6,21 +7,10 @@ import {
 import { LeadStats, TaskStats } from "@/models/lead.model";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-interface RevenueChartData {
-  label: string;
-  value: number;
-}
-
-interface RevenueData {
-  chartData: RevenueChartData[];
-  totalRevenue: number;
-  range: "1M" | "6M" | "1Y";
-}
-
 const initialState = {
   leadStats: {} as LeadStats,
   taskStats: {} as TaskStats,
-  revenueData: {} as RevenueData,
+  revenueData: {} as any,
   loadingState: {
     getLeadStatsLoading: false,
     getTaskStatsLoading: false,
@@ -106,6 +96,7 @@ const dashboardSlice = createSlice({
       })
       .addCase(getRevenueStatus.fulfilled, (state, action) => {
         state.loadingState.getRevenueLoading = false;
+        console.log("Revenue data fetched:", action.payload);
         state.revenueData = action.payload;
       })
       .addCase(getRevenueStatus.rejected, (state) => {

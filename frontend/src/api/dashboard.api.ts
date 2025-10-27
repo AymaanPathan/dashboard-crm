@@ -30,7 +30,7 @@ export const getRevenueApi = async (params: RevenueParams) => {
     const response = await axiosSetup.get("/revenue/get", {
       params, // only { range } is required
     });
-    return response.data;
+    return response.data.data;
   } catch (error: any) {
     console.error("Error fetching Revenue Data:", error);
     throw error.response?.data?.message || error.message;
