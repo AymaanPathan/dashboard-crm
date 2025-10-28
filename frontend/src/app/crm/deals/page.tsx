@@ -24,8 +24,10 @@ import { IStage } from "@/models/stage.model";
 import { IUser } from "@/models/user.model";
 import { CustomButton } from "@/components/reuseable/Buttons/Button";
 import ErrorToast from "@/assets/toast/ErrorToast";
+import { KanbanListView } from "@/components/lead/LeadListView";
 
 const LeadsDashboard: React.FC = () => {
+  const [isListView, setIsListView] = useState(false);
   const [isAddLeadOptionsOpen, setIsAddLeadOptionsOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<
     LeadFilters["leadType"] | null
@@ -156,6 +158,15 @@ const LeadsDashboard: React.FC = () => {
                 >
                   Add New
                 </CustomButton>
+                <CustomButton
+                  onClick={() => setIsListView(true)}
+                  variant="primary"
+                  icon={<Plus className="h-3.5 w-3.5" />}
+                  className="h-9 text-xs"
+                  style={{ background: "var(--color-text)" }}
+                >
+                  List View
+                </CustomButton>
               </div>
             </div>
           </div>
@@ -180,20 +191,28 @@ const LeadsDashboard: React.FC = () => {
           />
 
           {/* Kanban Board */}
+          {/* Kanban Board or List View */}
           <div className="px-6 py-4">
-            <div
-              className="flex gap-4 overflow-x-auto pb-4"
-              style={{
-                scrollbarWidth: "thin",
-                scrollbarColor: "#d1d5db transparent",
-              }}
-            >
-              {kanbanData?.map((stage: any, index: number) => (
-                <div key={index} className="flex-shrink-0">
-                  <StatusColumn stage={stage} />
-                </div>
-              ))}
-            </div>
+            {isListView ? (
+              <>
+                {/* Replace this with your actual list view component */}
+                <KanbanListView />
+              </>
+            ) : (
+              <div
+                className="flex gap-4 overflow-x-auto pb-4"
+                style={{
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "#d1d5db transparent",
+                }}
+              >
+                {kanbanData?.map((stage: any, index: number) => (
+                  <div key={index} className="flex-shrink-0">
+                    <StatusColumn stage={stage} />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </DndProvider>
