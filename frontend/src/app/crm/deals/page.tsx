@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Plus, Search, Filter, ArrowUpDown, Grid3x3 } from "lucide-react";
+import { Plus, Search,  Grid3x3, List } from "lucide-react";
 
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,30 +17,17 @@ import { fetchStages } from "@/store/slices/stagesSlice";
 import { AddLeadOptionsModal } from "@/components/lead/AddLeadOptionsModal";
 import { ExcelUploadModal } from "@/components/lead/ExcelUploadModal";
 import { getTodayLeadTasksSlice } from "@/store/slices/leadTaskSlice";
-import { DropdownMenuForArray } from "@/components/dropdown/DropdownForArray";
 import { LeadFilters } from "@/models/lead.model";
-import { DropdownMenuForArrayOfObjects } from "@/components/dropdown/DropdownForArrayOfObj";
-import { IStage } from "@/models/stage.model";
-import { IUser } from "@/models/user.model";
-import { CustomButton } from "@/components/reuseable/Buttons/Button";
 import ErrorToast from "@/assets/toast/ErrorToast";
 import { KanbanListView } from "@/components/lead/LeadListView";
 
 const LeadsDashboard: React.FC = () => {
   const [isListView, setIsListView] = useState(false);
   const [isAddLeadOptionsOpen, setIsAddLeadOptionsOpen] = useState(false);
-  const [selectedType, setSelectedType] = useState<
-    LeadFilters["leadType"] | null
-  >(null);
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStage, setSelectedStage] = useState<IStage | null>(null);
   const [isAddLeadFormOpen, setIsAddLeadFormOpen] = useState(false);
   const [isExcelUploadOpen, setIsExcelUploadOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
-  const usersByRole = useSelector((state: RootState) => state.user.teamMembers);
-
-  const leadTypes = ["All", "Hot", "Cold", "Warm"];
-  const stages = useSelector((state: RootState) => state.stages.stages);
 
   const handleSelectForm = () => {
     setIsAddLeadOptionsOpen(false);
@@ -75,43 +62,11 @@ const LeadsDashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    const filters: LeadFilters = {
-      leadType:
-        selectedType && selectedType !== "All"
-          ? (selectedType.toLowerCase() as LeadFilters["leadType"])
-          : undefined,
-      stageId:
-        selectedStage && selectedStage.name !== "All"
-          ? selectedStage.id
-          : undefined,
-      assignedToId: selectedUser?.id,
-      search: undefined,
-    };
-
-    fetchKanbanData(filters);
+    fetchKanbanData({});
     dispatch(getUserByRoleSlice());
     dispatch(fetchStages());
     dispatch(getTodayLeadTasksSlice());
-  }, [dispatch, selectedStage, selectedType, selectedUser, searchTerm]);
-
-  const handleSearchChange = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" || searchTerm.trim() === "") {
-      const filters: LeadFilters = {
-        leadType:
-          selectedType && selectedType !== "All"
-            ? (selectedType.toLowerCase() as LeadFilters["leadType"])
-            : undefined,
-        stageId:
-          selectedStage && selectedStage.name !== "All"
-            ? selectedStage.id
-            : undefined,
-        assignedToId: selectedUser?.id,
-        search: searchTerm.trim() === "" ? undefined : searchTerm.trim(),
-      };
-
-      dispatch(fetchLeadForKanban({ filters }));
-    }
-  };
+  }, [dispatch, searchTerm]);
 
   if (!currentOrg) {
     return (
@@ -129,44 +84,62 @@ const LeadsDashboard: React.FC = () => {
       <DndProvider backend={HTML5Backend}>
         <div className="min-h-screen">
           {/* Top Bar */}
-          <div className="bg-white border-b border-gray-200 px-6 py-3">
+          <div className="bg-white/80 backdrop-blur-md border-b border-gray-200/60 px-6 py-3 sticky top-0 z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <h1 className="text-lg font-semibold text-gray-900">Deals</h1>
+                <h1 className="text-[15px] font-semibold text-gray-900">
+                  Deals
+                </h1>
               </div>
 
               {/* Right Side Actions */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5">
+                {/* Search */}
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
                   <input
-                    onKeyDown={handleSearchChange}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     type="text"
-                    placeholder="Search something..."
-                    className="w-64 h-9 pl-9 pr-4 text-xs bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400"
+                    placeholder="Search deals..."
+                    className="w-64 h-8 pl-9 pr-3 text-[13px] bg-white/60 backdrop-blur-sm border border-gray-200/60 rounded-lg focus:outline-none focus:bg-white focus:border-gray-300 transition-all placeholder:text-gray-400"
                   />
                 </div>
 
-                <CustomButton
+                {/* Add Button */}
+                <button
                   onClick={() => setIsAddLeadOptionsOpen(true)}
-                  variant="primary"
-                  icon={<Plus className="h-3.5 w-3.5" />}
-                  className="h-9 text-xs"
-                  style={{ background: "var(--color-text)" }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-all shadow-sm"
                 >
-                  Add New
-                </CustomButton>
-                <CustomButton
-                  onClick={() => setIsListView(true)}
-                  variant="primary"
-                  icon={<Plus className="h-3.5 w-3.5" />}
-                  className="h-9 text-xs"
-                  style={{ background: "var(--color-text)" }}
-                >
-                  List View
-                </CustomButton>
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>New deal</span>
+                </button>
+
+                {/* View Toggles */}
+                <div className="flex items-center gap-1 bg-gray-100/60 backdrop-blur-sm p-0.5 rounded-lg border border-gray-200/40">
+                  <button
+                    onClick={() => setIsListView(true)}
+                    className={`inline-flex cursor-pointer items-center gap-1.5 px-2.5 py-1 text-[12px] font-medium rounded-md transition-all ${
+                      isListView
+                        ? "bg-white text-gray-900 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    <List className="w-3.5 h-3.5" />
+                    <span>List</span>
+                  </button>
+                  <button
+                    onClick={() => setIsListView(false)}
+                    className={`inline-flex cursor-pointer items-center gap-1.5 px-2.5 py-1 text-[12px] font-medium rounded-md transition-all ${
+                      !isListView
+                        ? "bg-white text-gray-900 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    <Grid3x3 className="w-3.5 h-3.5" />
+                    <span>Board</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -147,15 +147,7 @@ const PeopleDashboard: React.FC = () => {
             <div className="text-2xl font-semibold text-gray-900 mb-1">22</div>
             <p className="text-xs text-gray-400">91.7% of total</p>
           </div>
-          <div className="rounded-lg bg-gray-50 p-5 hover:bg-gray-100 transition-colors">
-            <div className="text-xs font-medium text-gray-500 mb-2">
-              Departments
-            </div>
-            <div className="text-2xl font-semibold text-gray-900 mb-1">6</div>
-            <p className="text-xs text-gray-400">
-              Engineering, Sales, Marketing
-            </p>
-          </div>
+
           <div className="rounded-lg bg-gray-50 p-5 hover:bg-gray-100 transition-colors">
             <div className="text-xs font-medium text-gray-500 mb-2">
               New This Month
@@ -179,9 +171,7 @@ const PeopleDashboard: React.FC = () => {
                   <th className="h-11 px-4 text-left text-xs font-medium text-gray-500">
                     Role
                   </th>
-                  <th className="h-11 px-4 text-left text-xs font-medium text-gray-500">
-                    Department
-                  </th>
+
                   <th className="h-11 px-4 text-left text-xs font-medium text-gray-500">
                     Status
                   </th>
@@ -194,11 +184,11 @@ const PeopleDashboard: React.FC = () => {
                 {users?.map((employee: IUser, index: number) => (
                   <tr
                     key={index}
-                    className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                    className="border-b border-gray-100 bg-gray-50 transition-colors"
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-gray-900 flex items-center justify-center text-white text-sm font-medium">
+                        <div className="h-8 shadow-2xl w-8 rounded-full bg-white  flex items-center justify-center text-black text-sm font-medium">
                           {employee?.username?.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -217,10 +207,6 @@ const PeopleDashboard: React.FC = () => {
                           <Mail className="mr-1.5 h-3 w-3 text-gray-400" />
                           {employee.email}
                         </div>
-                        <div className="flex items-center text-xs text-gray-400">
-                          <Phone className="mr-1.5 h-3 w-3 text-gray-400" />
-                          {employee.email}
-                        </div>
                       </div>
                     </td>
                     <td className="px-4 py-3">
@@ -228,17 +214,7 @@ const PeopleDashboard: React.FC = () => {
                         {employee.role}
                       </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-normal ${
-                          employee.isVerified
-                            ? "bg-gray-900 text-white"
-                            : "bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        {employee.isVerified ? "Verified" : "Unverified"}
-                      </span>
-                    </td>
+
                     <td className="px-4 py-3">
                       <button className="h-7 w-7 rounded-md hover:bg-gray-100 inline-flex items-center justify-center transition-colors">
                         <MoreVertical className="h-4 w-4 text-gray-400" />

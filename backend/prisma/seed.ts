@@ -4,7 +4,77 @@ import dayjs from "dayjs";
 const prisma = new PrismaClient();
 
 async function main() {
+  // 🎯 SEED SAMPLE LEADS
+  console.log("👥 Creating sample leads...");
+
   const orgId = "245081ff-b919-4823-bf0c-6545371f7b3c";
+
+  const sources = [
+    "Website",
+    "Referral",
+    "LinkedIn",
+    "Cold Call",
+    "Email Campaign",
+    "Walk-in",
+  ];
+  const leadTypes = ["Hot", "Warm", "Cold"];
+  const companies = [
+    "SolarTech Pvt Ltd",
+    "GreenEdge Solutions",
+    "EcoLite Energy",
+    "BrightFuture Solar",
+    "SunSmart Systems",
+    "EcoGen Power",
+    "RayVibe Technologies",
+    "HelioWorks India",
+    "PhotonEdge Pvt Ltd",
+    "Solarify Innovations",
+    "EcoSolar Labs",
+    "LightBeam Energy",
+    "SunRise Panels",
+    "NovaVolt Systems",
+    "RadiantEdge Pvt Ltd",
+    "Solvio Energy",
+    "Voltura Technologies",
+    "EcoPrime Solar",
+    "BlueSky Energy",
+    "Helios India",
+  ];
+
+  const leads = await Promise.all(
+    Array.from({ length: 20 }).map(async (_, i) => {
+      const name = `Lead ${i + 1}`;
+      const email = `lead${i + 1}@example.com`;
+      const phone = `91${Math.floor(7000000000 + Math.random() * 999999999)
+        .toString()
+        .slice(0, 10)}`;
+      const company = companies[i % companies.length];
+      const source = sources[Math.floor(Math.random() * sources.length)];
+      const leadType = leadTypes[Math.floor(Math.random() * leadTypes.length)];
+
+      return prisma.lead.create({
+        data: {
+          name,
+          email,
+          phone,
+          company,
+          source,
+          leadType,
+          contactPersonName: `Contact ${i + 1}`,
+          organizationId: orgId,
+          requirements: "Looking for 10kW rooftop solar setup",
+          address: {
+            city: "Vadodara",
+            state: "Gujarat",
+            country: "India",
+          },
+        },
+      });
+    })
+  );
+
+  console.log(`✅ Created ${leads.length} leads successfully!`);
+
   const verifiedById = "33681452-dd88-496b-9254-e67d9635f99e";
 
   console.log("🚀 Starting comprehensive seed...");
@@ -18,7 +88,7 @@ async function main() {
           organizationId: orgId,
           totalAmount: 5000 + i * 1500,
           status: "confirmed",
-          quotationId: "dab51e5d-1d06-4af7-9cce-3b70e3c5cdb1",
+          quotationId: "d3ef445e-77c7-4ca8-9c73-50b4188d3149",
         },
       });
     })
