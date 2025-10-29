@@ -6,9 +6,10 @@ import {
   Filter,
   MoreVertical,
   Mail,
-  Phone,
   User,
   Briefcase,
+  TrendingUp,
+  TrendingDown,
 } from "lucide-react";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,6 +26,7 @@ import {
   FormSection,
   FormSelect,
 } from "@/components/reuseable/Form/Form";
+import { ReusableListPage } from "@/components/reuseable/Lists/ReusableList";
 
 const PeopleDashboard: React.FC = () => {
   const dispatch: RootDispatch = useDispatch();
@@ -32,8 +34,8 @@ const PeopleDashboard: React.FC = () => {
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
   const [isManagerDropdownOpen, setIsManagerDropdownOpen] = useState(false);
   const users = useSelector((state: RootState) => state.user.users);
-  const analytics = useSelector((state: RootState) => state.user.analytics);
   const myManagers = useSelector((state: RootState) => state.user.myManagers);
+  const analytics = useSelector((state: RootState) => state.user.analytics);
 
   const [formData, setFormData] = useState<IUser>({
     username: "",
@@ -109,137 +111,155 @@ const PeopleDashboard: React.FC = () => {
 
   return (
     <div className="flex-1 bg-white min-h-screen">
-      <div className="mx-auto px-12 py-8">
-        <div className="mb-8">
+      <div className="mx-auto px-8 py-6 max-w-7xl">
+        <div className="mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-[15px] w-[15px] text-gray-400" />
                 <input
                   placeholder="Search people..."
-                  className="h-9 w-80 rounded-md bg-gray-50 border-0 px-3 pl-9 text-sm text-gray-900 placeholder:text-gray-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-gray-300 transition-all"
+                  className="h-[38px] w-[300px] rounded-lg bg-white/60 backdrop-blur-xl border border-gray-200/60 px-3.5 pl-10 text-[13px] text-gray-900 placeholder:text-gray-400 focus:bg-white focus:outline-none focus:border-gray-300/80 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.02)] transition-all duration-150"
                 />
               </div>
-              <button className="h-9 px-3 rounded-md text-sm font-normal text-gray-600 bg-gray-50 hover:bg-gray-100 transition-colors inline-flex items-center gap-1.5">
-                <Filter className="h-4 w-4" />
+              <button className="h-[38px] px-4 rounded-lg text-[13px] font-medium text-gray-900 bg-white/60 backdrop-blur-xl hover:bg-white border border-gray-200/60 hover:border-gray-300/80 transition-all duration-150 inline-flex items-center gap-2">
+                <Filter className="h-[14px] w-[14px]" />
                 Filter
               </button>
             </div>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="h-9 px-4 rounded-md text-sm font-normal text-white bg-gray-900 hover:bg-gray-800 transition-colors inline-flex items-center gap-1.5"
+              className="h-8 px-4 rounded-md text-xs font-medium text-white bg-black border border-black hover:bg-gray-900 transition-all duration-150 inline-flex items-center gap-1.5"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-3.5 w-3.5" />
               Add People
             </button>
           </div>
         </div>
 
-        <div className="grid gap-3 grid-cols-4 mb-6">
-          <div className="rounded-lg bg-gray-50 p-5 hover:bg-gray-100 transition-colors">
-            <div className="text-xs font-medium text-gray-500 mb-2">
-              Total People
+        <div className="grid gap-5 grid-cols-3 mb-10">
+          <div className="rounded-xl bg-white/80 backdrop-blur-2xl border border-gray-200/40 p-7 hover:shadow-[0_4px_24px_rgba(0,0,0,0.06)] transition-all duration-300">
+            <div className="text-[12px] font-semibold text-gray-500 mb-3 uppercase tracking-wider">
+              Total people
             </div>
-            <div className="text-2xl font-semibold text-gray-900 mb-1">
+            <div className="text-[36px] font-bold text-black mb-2 tracking-tight">
               {analytics.totalPeople}
             </div>
-            <p className="text-xs text-gray-400">
-              {analytics.addedLastMonth} from last month
-            </p>
-          </div>
-          <div className="rounded-lg bg-gray-50 p-5 hover:bg-gray-100 transition-colors">
-            <div className="text-xs font-medium text-gray-500 mb-2">Active</div>
-            <div className="text-2xl font-semibold text-gray-900 mb-1">
-              {analytics.totalPeople}
+            <div className="flex items-center gap-1.5">
+              <TrendingUp className="h-[13px] w-[13px] text-gray-400" />
+              <p className="text-[13px] text-gray-500 font-normal">
+                {analytics.addedLastMonth} from last month
+              </p>
             </div>
-            <p className="text-xs text-gray-400">
-              {analytics.totalPeople} People Active
-            </p>
           </div>
 
-          <div className="rounded-lg bg-gray-50 p-5 hover:bg-gray-100 transition-colors">
-            <div className="text-xs font-medium text-gray-500 mb-2">
-              New This Month
+          <div className="rounded-xl bg-white/80 backdrop-blur-2xl border border-gray-200/40 p-7 hover:shadow-[0_4px_24px_rgba(0,0,0,0.06)] transition-all duration-300">
+            <div className="text-[12px] font-semibold text-gray-500 mb-3 uppercase tracking-wider">
+              Active members
             </div>
-            <div className="text-2xl font-semibold text-gray-900 mb-1">
+            <div className="text-[36px] font-bold text-black mb-2 tracking-tight">
+              {analytics.totalPeople}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="h-2 w-2 rounded-full bg-black animate-pulse"></div>
+              <p className="text-[13px] text-gray-500 font-normal">
+                All members active
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-xl bg-white/80 backdrop-blur-2xl border border-gray-200/40 p-7 hover:shadow-[0_4px_24px_rgba(0,0,0,0.06)] transition-all duration-300">
+            <div className="text-[12px] font-semibold text-gray-500 mb-3 uppercase tracking-wider">
+              This month
+            </div>
+            <div className="text-[36px] font-bold text-black mb-2 tracking-tight">
               {analytics.addedThisMonth}
             </div>
-            <p className="text-xs text-gray-400">
-              {analytics.trend == "increased" ? "+" : "-"}
-              {analytics.percentageChange}% from last month
-            </p>
+            <div className="flex items-center gap-1.5">
+              {analytics.trend === "increased" ? (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md  text-black">
+                  <TrendingUp className="h-[11px] w-[11px]" />
+                  <span className="text-[12px] font-semibold">
+                    +{analytics.percentageChange}%
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-100 text-gray-700">
+                  <TrendingDown className="h-[11px] w-[11px]" />
+                  <span className="text-[12px] font-semibold">
+                    -{analytics.percentageChange}%
+                  </span>
+                </div>
+              )}
+              <p className="text-[13px] text-gray-500 font-normal">
+                from last month
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="rounded-lg border border-gray-200 overflow-hidden bg-white">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="h-11 px-4 text-left text-xs font-medium text-gray-500">
-                    Employee
-                  </th>
-                  <th className="h-11 px-4 text-left text-xs font-medium text-gray-500">
-                    Contact
-                  </th>
-                  <th className="h-11 px-4 text-left text-xs font-medium text-gray-500">
-                    Role
-                  </th>
-
-                  <th className="h-11 px-4 text-left text-xs font-medium text-gray-500">
-                    Status
-                  </th>
-                  <th className="h-11 px-4 text-left text-xs font-medium text-gray-500">
-                    <span className="sr-only">Actions</span>
-                  </th>
+        <div className="rounded-xl bg-white/80 backdrop-blur-2xl border border-gray-200/40 overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-100/50 bg-white/40 backdrop-blur-xl">
+                <th className="px-6 py-3.5 text-left text-[11px] font-semibold text-gray-600 uppercase tracking-wider">
+                  Person
+                </th>
+                <th className="px-6 py-3.5 text-left text-[11px] font-semibold text-gray-600 uppercase tracking-wider">
+                  Contact
+                </th>
+                <th className="px-6 py-3.5 text-left text-[11px] font-semibold text-gray-600 uppercase tracking-wider">
+                  Role
+                </th>
+                <th className="px-6 py-3.5 text-left text-[11px] font-semibold text-gray-600 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3.5"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((employee, idx) => (
+                <tr
+                  key={employee.id}
+                  className={`border-b border-gray-100/50 hover:bg-white/60 transition-all duration-150 ${
+                    idx === users.length - 1 ? "border-b-0" : ""
+                  }`}
+                >
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-white to-gray-50 border border-gray-200/60 flex items-center justify-center text-gray-900 text-[13px] font-semibold shadow-sm">
+                        {employee.username?.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="text-[13px] font-semibold text-gray-900">
+                        {employee.username}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center text-[13px] text-gray-700 font-normal">
+                      <Mail className="mr-2 h-[13px] w-[13px] text-gray-400" />
+                      {employee.email}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[12px] font-medium  text-gray-700  ">
+                      {employee.role}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[12px] font-medium  text-black shadow-[0_1px_4px_rgba(0,0,0,0.15)]">
+                      Active
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button className="h-8 w-8 rounded-lg hover:bg-gray-100/60 inline-flex items-center justify-center transition-all duration-150">
+                      <MoreVertical className="h-[15px] w-[15px] text-gray-400" />
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {users?.map((employee: IUser, index: number) => (
-                  <tr
-                    key={index}
-                    className="border-b border-gray-100 bg-gray-50 transition-colors"
-                  >
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="h-8 shadow-2xl w-8 rounded-full bg-white  flex items-center justify-center text-black text-sm font-medium">
-                          {employee?.username?.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {employee?.username}
-                          </div>
-                          <div className="text-xs text-gray-400">
-                            {employee?.email}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="space-y-1">
-                        <div className="flex items-center text-xs text-gray-600">
-                          <Mail className="mr-1.5 h-3 w-3 text-gray-400" />
-                          {employee.email}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="text-sm text-gray-900">
-                        {employee.role}
-                      </div>
-                    </td>
-
-                    <td className="px-4 py-3">
-                      <button className="h-7 w-7 rounded-md hover:bg-gray-100 inline-flex items-center justify-center transition-colors">
-                        <MoreVertical className="h-4 w-4 text-gray-400" />
-                        <span className="sr-only">Open menu</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
