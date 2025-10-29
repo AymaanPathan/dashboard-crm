@@ -32,6 +32,7 @@ const PeopleDashboard: React.FC = () => {
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
   const [isManagerDropdownOpen, setIsManagerDropdownOpen] = useState(false);
   const users = useSelector((state: RootState) => state.user.users);
+  const analytics = useSelector((state: RootState) => state.user.analytics);
   const myManagers = useSelector((state: RootState) => state.user.myManagers);
 
   const [formData, setFormData] = useState<IUser>({
@@ -139,21 +140,34 @@ const PeopleDashboard: React.FC = () => {
             <div className="text-xs font-medium text-gray-500 mb-2">
               Total People
             </div>
-            <div className="text-2xl font-semibold text-gray-900 mb-1">24</div>
-            <p className="text-xs text-gray-400">+2 from last month</p>
+            <div className="text-2xl font-semibold text-gray-900 mb-1">
+              {analytics.totalPeople}
+            </div>
+            <p className="text-xs text-gray-400">
+              {analytics.addedLastMonth} from last month
+            </p>
           </div>
           <div className="rounded-lg bg-gray-50 p-5 hover:bg-gray-100 transition-colors">
             <div className="text-xs font-medium text-gray-500 mb-2">Active</div>
-            <div className="text-2xl font-semibold text-gray-900 mb-1">22</div>
-            <p className="text-xs text-gray-400">91.7% of total</p>
+            <div className="text-2xl font-semibold text-gray-900 mb-1">
+              {analytics.totalPeople}
+            </div>
+            <p className="text-xs text-gray-400">
+              {analytics.totalPeople} People Active
+            </p>
           </div>
 
           <div className="rounded-lg bg-gray-50 p-5 hover:bg-gray-100 transition-colors">
             <div className="text-xs font-medium text-gray-500 mb-2">
               New This Month
             </div>
-            <div className="text-2xl font-semibold text-gray-900 mb-1">3</div>
-            <p className="text-xs text-gray-400">+12.5% from last month</p>
+            <div className="text-2xl font-semibold text-gray-900 mb-1">
+              {analytics.addedThisMonth}
+            </div>
+            <p className="text-xs text-gray-400">
+              {analytics.trend == "increased" ? "+" : "-"}
+              {analytics.percentageChange}% from last month
+            </p>
           </div>
         </div>
 

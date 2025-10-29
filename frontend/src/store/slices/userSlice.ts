@@ -27,6 +27,14 @@ const initialState = {
   } as TeamMembers,
   myManagers: { myManagers: [] as IUser[], myRole: "" } as UserManagers,
   users: [] as IUser[],
+  analytics: {
+    totalPeople: 0,
+    addedThisMonth: 0,
+    addedLastMonth: 0,
+    difference: 0,
+    percentageChange: 0,
+    trend: "no change" as "increased" | "decreased" | "no change",
+  },
   loading: {
     addingUser: false,
     fetchingUsers: false,
@@ -105,7 +113,8 @@ export const UserSlice = createSlice({
       })
       .addCase(getUserSlice.fulfilled, (state, action) => {
         state.loading.fetchingUsers = false;
-        state.users = action.payload.data;
+        state.users = action.payload.data.people;
+        state.analytics = action.payload.data.analytics;
       })
       .addCase(getUserSlice.rejected, (state) => {
         state.loading.fetchingUsers = false;
