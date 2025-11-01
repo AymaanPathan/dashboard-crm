@@ -1,4 +1,4 @@
-import { CheckCircle } from "lucide-react";
+import { Calendar, CheckCircle } from "lucide-react";
 import { TaskCard } from "./TaskCard";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -12,23 +12,19 @@ export const PendingTasksComponent = ({
     (state: RootState) => state.leadTasks.myPendingTasksToday
   );
 
-  const handleComplete = (taskId: string) => {
-    console.log("Completing task:", taskId);
-  };
-
   if (pendingTasks.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16">
-        <div className="p-4 rounded-lg bg-muted mb-6">
-          <CheckCircle className="h-8 w-8 text-emerald-600" />
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="p-3 rounded-lg bg-gray-50 mb-4">
+          <Calendar className="h-6 w-6 text-gray-400" />
         </div>
-        <h3 className="text-lg font-semibold mb-2">
-          {searchQuery ? "No matching pending tasks" : "No pending tasks"}
+        <h3 className="text-base font-medium text-gray-900 mb-1">
+          {searchQuery ? "No tasks match your search" : "No pending tasks"}
         </h3>
-        <p className="text-sm text-muted-foreground mb-6 text-center max-w-sm">
+        <p className="text-sm text-gray-500 text-center max-w-sm">
           {searchQuery
-            ? `No pending tasks match "${searchQuery}". Try adjusting your search.`
-            : "Great work! All tasks are either completed or actively being worked on."}
+            ? `We couldn’t find any tasks for “${searchQuery}”. Try changing your keywords or filters.`
+            : "You’re all caught up! No pending tasks for now — create a new one to stay ahead."}
         </p>
       </div>
     );

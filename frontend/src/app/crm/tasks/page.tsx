@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { CheckCircle, Search, TrendingUp, Activity } from "lucide-react";
 
 import { TodayTasksComponent } from "@/components/leadTask/todayTask";
-import { PendingTasksComponent } from "@/components/leadTask/PendingTask";
+import { PendingTasksComponent } from "@/components/leadTask/AllPendingTask";
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import {

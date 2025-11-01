@@ -16,14 +16,6 @@ export const AllTasksComponent = ({ searchQuery }: { searchQuery: string }) => {
     );
   });
 
-  const completedCount = filteredTasks.filter(
-    (task: LeadTask) => task.status === TaskStatus.completed
-  ).length;
-
-  const pendingCount = filteredTasks.filter(
-    (task: LeadTask) => task.status === TaskStatus.pending
-  ).length;
-
   if (filteredTasks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
@@ -31,12 +23,12 @@ export const AllTasksComponent = ({ searchQuery }: { searchQuery: string }) => {
           <Calendar className="h-6 w-6 text-gray-400" />
         </div>
         <h3 className="text-base font-medium text-gray-900 mb-1">
-          {searchQuery ? "No matching tasks found" : "No tasks found"}
+          {searchQuery ? "No tasks match your search" : "No tasks available"}
         </h3>
         <p className="text-sm text-gray-500 text-center max-w-sm">
           {searchQuery
-            ? `No tasks match "${searchQuery}". Try adjusting your search.`
-            : "Ready to boost your sales pipeline? Create your first task."}
+            ? `We couldn’t find any tasks for “${searchQuery}”. Try refining your search or clearing filters.`
+            : "You don’t have any tasks yet. Start by creating a new one to stay organized and on track."}
         </p>
       </div>
     );
