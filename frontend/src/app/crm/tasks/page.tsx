@@ -71,136 +71,119 @@ const TasksDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#ffffff]">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="border-b border-gray-100 bg-white/80 backdrop-blur-sm sticky top-0 z-40">
-        <div className="mx-auto px-12 py-4">
+      <div className="border-b border-gray-200/50 bg-white/60 backdrop-blur-xl sticky top-0 z-40">
+        <div className="px-6 py-6 max-w-[1600px] mx-auto">
           <div className="flex items-center justify-between">
-            <div className="space-y-0">
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-3">
-                  <h1 className="text-2xl font-semibold text-gray-900">
-                    Tasks
-                  </h1>
-                  <p className="text-sm text-gray-500 font-normal">
-                    {new Date().toLocaleDateString("en-US", {
-                      weekday: "long",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </p>
-                </div>
-              </div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-sm font-semibold text-gray-900">Tasks</h1>
+              <span className="text-xs text-gray-500 font-normal">
+                {new Date().toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </span>
             </div>
 
             <div className="flex items-center gap-2">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Search tasks..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 pr-3 py-1.5 w-64 rounded-md border-0 bg-gray-50 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-200 focus:bg-white transition-all"
+                  className="pl-9 pr-3 py-1.5 w-64 rounded-lg border border-gray-200/50 bg-white/60 backdrop-blur-sm text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gray-300/50 focus:bg-white/80 transition-all shadow-sm"
                 />
               </div>
-
-              <Button
-                size="sm"
-                className="gap-1.5 h-8 text-sm font-normal bg-gray-900 hover:bg-gray-800 text-white rounded-md shadow-sm"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                New
-              </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto px-12 py-8 space-y-6">
+      <div className="px-6 py-6 max-w-[1600px] mx-auto">
         {/* Stats Grid */}
-        <div className="grid gap-3 md:grid-cols-4">
-          <div className="rounded-lg border border-gray-100 bg-white hover:shadow-sm transition-shadow">
-            <div className="p-5 flex flex-row items-center justify-between space-y-0">
-              <div className="space-y-1.5">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+        <div className="grid gap-4 md:grid-cols-3 mb-6">
+          <div className="bg-white/60 backdrop-blur-xl rounded-xl p-5 border border-gray-200/50 hover:border-gray-300/50 transition-all shadow-lg shadow-gray-900/5">
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-gray-600" />
+                <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
                   Total Pipeline
-                </p>
-                <div className="flex items-baseline gap-1.5">
-                  <p className="text-3xl font-semibold text-gray-900">
-                    {allTaskCount}
-                  </p>
-                  <span className="text-sm text-gray-400">tasks</span>
-                </div>
+                </h3>
               </div>
-              <Activity className="h-4 w-4 text-gray-300" />
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <p className="text-2xl font-semibold text-gray-900">
+                {allTaskCount}
+              </p>
+              <span className="text-xs text-gray-500">tasks</span>
             </div>
           </div>
 
-          <div className="rounded-lg border border-gray-100 bg-white hover:shadow-sm transition-shadow">
-            <div className="p-5 flex flex-row items-center justify-between space-y-0">
-              <div className="space-y-1.5">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+          <div className="bg-white/60 backdrop-blur-xl rounded-xl p-5 border border-gray-200/50 hover:border-gray-300/50 transition-all shadow-lg shadow-gray-900/5">
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-gray-600" />
+                <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
                   Completed
-                </p>
-                <div className="flex items-baseline gap-1.5">
-                  <p className="text-3xl font-semibold text-green-600">
-                    {completedCount}
-                  </p>
-                  <span className="text-sm text-gray-400">done</span>
-                </div>
-                <p className="text-xs text-green-600 font-medium">
-                  {Math.round((completedCount / allTask.length) * 100)}%
-                  completion
-                </p>
+                </h3>
               </div>
-              <CheckCircle className="h-4 w-4 text-green-500" />
             </div>
+            <div className="flex items-baseline gap-1.5 mb-1">
+              <p className="text-2xl font-semibold text-gray-900">
+                {completedCount}
+              </p>
+              <span className="text-xs text-gray-500">done</span>
+            </div>
+            <p className="text-xs text-gray-500 font-medium">
+              {Math.round((completedCount / allTask.length) * 100)}% completion
+            </p>
           </div>
 
-          <div className="rounded-lg border border-gray-100 bg-white hover:shadow-sm transition-shadow">
-            <div className="p-5 flex flex-row items-center justify-between space-y-0">
-              <div className="space-y-1.5">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+          <div className="bg-white/60 backdrop-blur-xl rounded-xl p-5 border border-gray-200/50 hover:border-gray-300/50 transition-all shadow-lg shadow-gray-900/5">
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-gray-600" />
+                <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
                   Pending
-                </p>
-                <div className="flex items-baseline gap-1.5">
-                  <p className="text-3xl font-semibold text-amber-600">
-                    {pendingCount}
-                  </p>
-                  <span className="text-sm text-gray-400">waiting</span>
-                </div>
-                <p className="text-xs text-amber-600 font-medium">
-                  Needs attention
-                </p>
+                </h3>
               </div>
-              <TrendingUp className="h-4 w-4 text-amber-500" />
             </div>
+            <div className="flex items-baseline gap-1.5 mb-1">
+              <p className="text-2xl font-semibold text-gray-900">
+                {pendingCount}
+              </p>
+              <span className="text-xs text-gray-500">waiting</span>
+            </div>
+            <p className="text-xs text-gray-500 font-medium">Needs attention</p>
           </div>
         </div>
 
         {/* Tabs and Content */}
-        <div className="rounded-lg border border-gray-100 bg-white">
+        <div className="bg-white/60 backdrop-blur-xl rounded-xl border border-gray-200/50 hover:border-gray-300/50 transition-all shadow-lg shadow-gray-900/5">
           {/* Tab Navigation */}
-          <div className="border-b border-gray-100">
-            <nav className="flex px-1" aria-label="Tabs">
+          <div className="border-b border-gray-200/50">
+            <nav className="flex gap-1 px-2 pt-2" aria-label="Tabs">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`${
+                  className={`cursor-pointer ${
                     activeTab === tab.id
-                      ? "text-gray-900 border-gray-900"
-                      : "text-gray-500 border-transparent hover:text-gray-700"
-                  } flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors`}
+                      ? "bg-gray-900/90  text-white shadow-md"
+                      : "text-gray-600 hover:bg-white/80 hover:shadow-sm"
+                  } flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition-all mb-2`}
                 >
                   {tab.label}
                   <span
                     className={`${
                       activeTab === tab.id
-                        ? "bg-gray-100 text-gray-700"
-                        : "bg-gray-50 text-gray-500"
-                    } rounded-md px-2 py-0.5 text-xs font-medium`}
+                        ? " text-white"
+                        : "bg-gray-100 text-gray-500"
+                    } rounded px-1.5 py-0.5 text-xs font-medium`}
                   >
                     {tab.count}
                   </span>
@@ -210,7 +193,7 @@ const TasksDashboard: React.FC = () => {
           </div>
 
           {/* Dynamic Content */}
-          <div className="p-6">{renderActiveComponent()}</div>
+          <div className="p-5">{renderActiveComponent()}</div>
         </div>
       </div>
     </div>
