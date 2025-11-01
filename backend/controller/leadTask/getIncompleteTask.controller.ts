@@ -2,11 +2,11 @@ import { Request, Response } from "express";
 import { ResponseModel, sendResponse } from "../../utils/response.utils";
 import prisma from "../../utils/prisma";
 
-export const getIncompleteTasks = async (req: Request, res: Response) => {
+export const getPendingTasksToday = async (req: Request, res: Response) => {
   const response: ResponseModel = {
     statusCode: 200,
     showMessage: true,
-    message: "Incomplete tasks fetched successfully",
+    message: "Pending tasks fetched successfully",
     data: {},
   };
 
@@ -22,13 +22,13 @@ export const getIncompleteTasks = async (req: Request, res: Response) => {
     }
 
     // Get start of today for comparison
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
 
     // Base query: due before today AND still pending
     const taskWhere: any = {
       dueDate: {
-        lt: today,
+        lte: endOfToday,
       },
       status: "pending",
       lead: {
@@ -66,9 +66,9 @@ export const getIncompleteTasks = async (req: Request, res: Response) => {
 
     return sendResponse(res, response);
   } catch (error: any) {
-    console.error("getIncompleteTasks error:", error);
+    console.error("getPendingTasksToday error:", error);
     response.statusCode = 500;
-    response.message = "Something went wrong while fetching incomplete tasks";
+    response.message = "Something went wrong while fetching pending tasks";
     return sendResponse(res, response);
   }
 };

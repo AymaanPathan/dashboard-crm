@@ -43,7 +43,18 @@ export const AllTasksComponent = ({ searchQuery }: { searchQuery: string }) => {
   }
 
   return (
-    <div className="space-y-3">
+    <div
+      className="
+        space-y-3 
+        max-h-80 
+        overflow-y-auto 
+        pr-1
+        scrollbar-thin 
+        scrollbar-thumb-gray-300 
+        scrollbar-track-transparent 
+        hover:scrollbar-thumb-gray-400
+      "
+    >
       {filteredTasks.map((task: LeadTask) => (
         <TaskCard key={task.id} task={task} />
       ))}

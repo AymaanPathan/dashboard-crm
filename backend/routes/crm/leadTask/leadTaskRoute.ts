@@ -35,8 +35,8 @@ leadTaskRouter.post(
 );
 leadTaskRouter.get("/allTasks", authenticate, leadTaskController.getAllTask);
 leadTaskRouter.get(
-  "/incompleteTasks",
+  "/getPendingTasksToday",
   authenticate,
-  leadTaskController.getIncompleteTasks
+  leadTaskController.getPendingTasksToday
 );
 export default leadTaskRouter;

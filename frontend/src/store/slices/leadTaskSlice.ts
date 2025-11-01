@@ -5,7 +5,7 @@ import {
   addLeadTaskApi,
   completeTaskApi,
   getAllMyTasksApi,
-  getIncompleteTasksApi,
+  getPendingTasksTodayApi,
   getLeadTasksByLeadIdApi,
   getMissedTaskRemindersApi,
   getTodayLeadTasksApi,
@@ -15,8 +15,8 @@ import { IReminderData } from "@/models/LeadTaskReminder.model";
 
 const initialState = {
   myAllTasks: [] as LeadTask[],
-  myIncompleteTasks: [] as LeadTask[],
-  myIncompleteTaskCount: 0,
+  myPendingTasksToday: [] as LeadTask[],
+  myPendingTasksTodayCount: 0,
   allTaskCount: 0,
   todaysTasks: [] as LeadTask[],
   todayTaskCount: 0,
@@ -32,6 +32,7 @@ const initialState = {
     completeTask: false,
     getTaskReminders: false,
     deleteTask: false,
+    getPendingTasksToday: false,
   },
   error: "",
 };
@@ -131,11 +132,11 @@ export const getAllMyTasksSlice = createAsyncThunk(
     }
   }
 );
-export const getIncompleteTasksSlice = createAsyncThunk(
-  "leadTasks/getIncompleteTasks",
+export const getPendingTasksTodaySlice = createAsyncThunk(
+  "leadTasks/getPendingTasksToday",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await getIncompleteTasksApi();
+      const response = await getPendingTasksTodayApi();
       return response;
     } catch (error: any) {
       return rejectWithValue(error);
@@ -168,14 +169,14 @@ const leadTasksSlice = createSlice({
         todayTask.status = status;
       }
 
-      // Remove from incomplete tasks if completing
+      // Remove from pending tasks if completing
       if (status === "completed" || status === "done") {
-        state.myIncompleteTasks = state.myIncompleteTasks.filter(
+        state.myPendingTasksToday = state.myPendingTasksToday.filter(
           (task) => task.id !== taskId
         );
-        state.myIncompleteTaskCount = Math.max(
+        state.myPendingTasksTodayCount = Math.max(
           0,
-          state.myIncompleteTaskCount - 1
+          state.myPendingTasksTodayCount - 1
         );
       }
     },
@@ -218,12 +219,12 @@ const leadTasksSlice = createSlice({
         originalTask.status !== "completed" &&
         originalTask.status !== "done"
       ) {
-        const existsInIncomplete = state.myIncompleteTasks.some(
+        const existsInIncomplete = state.myPendingTasksToday.some(
           (task) => task.id === taskId
         );
         if (!existsInIncomplete) {
-          state.myIncompleteTasks.push({ ...originalTask });
-          state.myIncompleteTaskCount += 1;
+          state.myPendingTasksToday.push({ ...originalTask });
+          state.myPendingTasksTodayCount += 1;
         }
       }
     },
@@ -327,17 +328,18 @@ const leadTasksSlice = createSlice({
         state.loading.getAllMyTasks = false;
         state.error = action.payload as string;
       })
-      .addCase(getIncompleteTasksSlice.pending, (state) => {
-        state.loading.getIncompleteTasks = true;
+      .addCase(getPendingTasksTodaySlice.pending, (state) => {
+        state.loading.getPendingTasksToday = true;
         state.error = "";
       })
-      .addCase(getIncompleteTasksSlice.fulfilled, (state, action) => {
-        state.loading.getIncompleteTasks = false;
-        state.myIncompleteTasks = action.payload.tasks;
-        state.myIncompleteTaskCount = action.payload.count;
+      .addCase(getPendingTasksTodaySlice.fulfilled, (state, action) => {
+        state.loading.getPendingTasksToday = false;
+        console.log("Fetched pending tasks today:", action.payload);
+        state.myPendingTasksToday = action.payload.tasks;
+        state.myPendingTasksTodayCount = action.payload.count;
       })
-      .addCase(getIncompleteTasksSlice.rejected, (state, action) => {
-        state.loading.getIncompleteTasks = false;
+      .addCase(getPendingTasksTodaySlice.rejected, (state, action) => {
+        state.loading.getPendingTasksToday = false;
         state.error = action.payload as string;
       });
   },

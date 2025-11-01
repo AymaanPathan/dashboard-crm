@@ -44,7 +44,7 @@ export const getTodayLeadTasks = async (req: Request, res: Response) => {
 
     // Only non-admins should be restricted to assigned leads
     if (userRole !== "admin") {
-      taskWhere.lead.assignedToId = userId;
+      taskWhere.createdById = userId;
     }
 
     // Fetch tasks
@@ -54,6 +54,8 @@ export const getTodayLeadTasks = async (req: Request, res: Response) => {
         dueDate: "asc",
       },
       include: {
+        createdBy: { select: { id: true, username: true, email: true } },
+
         lead: {
           select: {
             name: true,

@@ -79,9 +79,9 @@ export const getAllMyTasksApi = async () => {
   }
 };
 
-export const getIncompleteTasksApi = async () => {
+export const getPendingTasksTodayApi = async () => {
   try {
-    const response = await axiosSetup.get("/leadTask/incompleteTasks");
+    const response = await axiosSetup.get("/leadTask/getPendingTasksToday");
     return response.data.data;
   } catch (error: any) {
     throw error.response?.data?.message;

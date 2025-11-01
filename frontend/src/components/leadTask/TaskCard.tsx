@@ -19,30 +19,30 @@ import Link from "next/link";
 const getTaskIcon = (status: string) => {
   switch (status?.toLowerCase()) {
     case "completed":
-      return <CheckCircle className="h-3.5 w-3.5 text-gray-400" />;
+      return <CheckCircle className="h-4 w-4 text-gray-400" />;
     case "in-progress":
-      return <Clock className="h-3.5 w-3.5 text-gray-600" />;
+      return <Clock className="h-4 w-4 text-gray-600" />;
     case "pending":
-      return <AlertCircle className="h-3.5 w-3.5 text-gray-600" />;
+      return <AlertCircle className="h-4 w-4 text-gray-600" />;
     case "cancelled":
-      return <XCircle className="h-3.5 w-3.5 text-gray-400" />;
+      return <XCircle className="h-4 w-4 text-gray-400" />;
     default:
-      return <AlertCircle className="h-3.5 w-3.5 text-gray-400" />;
+      return <AlertCircle className="h-4 w-4 text-gray-400" />;
   }
 };
 
 const getStatusStyle = (status: string) => {
   switch (status?.toLowerCase()) {
     case "completed":
-      return "text-gray-600 bg-gray-50";
+      return "text-gray-500 bg-gray-100";
     case "in-progress":
       return "text-gray-700 bg-gray-100";
     case "pending":
       return "text-gray-700 bg-gray-100";
     case "cancelled":
-      return "text-gray-500 bg-gray-50";
+      return "text-gray-400 bg-gray-50";
     default:
-      return "text-gray-600 bg-gray-50";
+      return "text-gray-500 bg-gray-100";
   }
 };
 
@@ -51,22 +51,22 @@ export const TaskCard = ({ task }: { task: LeadTask }) => {
 
   const handleComplete = async (taskId: string) => {
     dispatch(optimisticCompleteTask({ taskId, status: "completed" }));
-
     await dispatch(completeTaskSlice({ taskId, status: "completed" }));
   };
+
   return (
-    <div className="group rounded-md border border-gray-200 bg-white px-4 py-3 transition-all hover:bg-gray-50">
+    <div className="group bg-white/60 backdrop-blur-sm rounded-lg border border-gray-200/50 hover:border-gray-300/50 hover:bg-white/80 transition-all shadow-sm p-3">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 flex-1 min-w-0">
           <div className="mt-0.5 shrink-0">{getTaskIcon(task.status)}</div>
 
-          <div className="flex-1 min-w-0 space-y-1.5">
+          <div className="flex-1 min-w-0 space-y-2">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-medium text-sm text-gray-900 leading-tight">
+              <h3 className="font-medium text-sm text-gray-900">
                 {task.title}
               </h3>
               <span
-                className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${getStatusStyle(
+                className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${getStatusStyle(
                   task.status
                 )}`}
               >
@@ -75,13 +75,13 @@ export const TaskCard = ({ task }: { task: LeadTask }) => {
             </div>
 
             {task?.description && (
-              <p className="text-sm text-gray-600 leading-snug line-clamp-2">
+              <p className="text-xs text-gray-600 leading-relaxed line-clamp-2">
                 {task.description}
               </p>
             )}
 
-            <div className="flex items-center gap-1.5 text-xs text-gray-500 pt-0.5">
-              <User className="h-3 w-3" />
+            <div className="flex items-center gap-1.5 text-xs text-gray-500">
+              <User className="h-3.5 w-3.5" />
               <span>{task?.createdBy?.username}</span>
             </div>
           </div>
@@ -92,7 +92,7 @@ export const TaskCard = ({ task }: { task: LeadTask }) => {
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 px-2 text-xs font-normal text-gray-700 hover:bg-gray-100"
+              className="h-7 px-2.5 text-xs font-normal text-gray-700 hover:bg-gray-100 rounded-lg"
             >
               View
             </Button>
@@ -100,18 +100,18 @@ export const TaskCard = ({ task }: { task: LeadTask }) => {
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 p-0 hover:bg-gray-100"
+            className="h-7 w-7 p-0 hover:bg-gray-100 rounded-lg"
           >
-            <MoreHorizontal className="h-3.5 w-3.5 text-gray-600" />
+            <MoreHorizontal className="h-4 w-4 text-gray-500" />
           </Button>
 
           {task.status !== "completed" && task.status !== "cancelled" && (
             <Button
               onClick={() => handleComplete(task.id!)}
               size="sm"
-              className="gap-1 h-7 px-2 text-xs font-medium bg-black hover:bg-gray-800 text-white"
+              className="gap-1.5 h-7 px-2.5 text-xs font-medium bg-gray-900/90 backdrop-blur-sm hover:bg-gray-900 text-white rounded-lg shadow-sm"
             >
-              <CheckCircle className="h-3 w-3" />
+              <CheckCircle className="h-3.5 w-3.5" />
               Done
             </Button>
           )}

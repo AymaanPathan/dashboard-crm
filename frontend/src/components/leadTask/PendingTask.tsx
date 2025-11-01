@@ -9,10 +9,7 @@ export const PendingTasksComponent = ({
   searchQuery: string;
 }) => {
   const pendingTasks = useSelector(
-    (state: RootState) => state.leadTasks.myIncompleteTasks
-  );
-  const myPendingTaskCount = useSelector(
-    (state: RootState) => state.leadTasks.myIncompleteTaskCount
+    (state: RootState) => state.leadTasks.myPendingTasksToday
   );
 
   const handleComplete = (taskId: string) => {
@@ -38,15 +35,20 @@ export const PendingTasksComponent = ({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold">Pending Tasks</h2>
-        </div>
-      </div>
-
+    <div
+      className="
+        space-y-3 
+        max-h-80 
+        overflow-y-auto 
+        pr-1
+        scrollbar-thin 
+        scrollbar-thumb-gray-300 
+        scrollbar-track-transparent 
+        hover:scrollbar-thumb-gray-400
+      "
+    >
       {pendingTasks.map((task) => (
-        <TaskCard key={task.id} task={task} onComplete={handleComplete} />
+        <TaskCard key={task.id} task={task} />
       ))}
     </div>
   );
