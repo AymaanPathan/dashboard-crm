@@ -1,7 +1,7 @@
 import { Calendar } from "lucide-react";
 import { TaskCard } from "./TaskCard";
 import { useSelector } from "react-redux";
-import { LeadTask, TaskStatus } from "@/models/leadTask.model";
+import { LeadTask } from "@/models/leadTask.model";
 import { RootState } from "@/store";
 
 export const AllTasksComponent = ({ searchQuery }: { searchQuery: string }) => {

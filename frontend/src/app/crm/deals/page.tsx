@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Plus, Search,  Grid3x3, List } from "lucide-react";
+import { Plus, Search, Grid3x3, List } from "lucide-react";
 
 import { RootDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -70,10 +70,15 @@ const LeadsDashboard: React.FC = () => {
 
   if (!currentOrg) {
     return (
-      <div className="flex h-screen items-center justify-center bg-white">
-        <div className="flex items-center space-x-3">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-200 border-t-gray-900"></div>
-          <span className="text-sm text-gray-600">Loading workspace...</span>
+      <div className="flex h-screen items-center justify-center bg-[#ffffff]">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="relative">
+            <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-gray-200 border-t-gray-800"></div>
+            <div className="absolute inset-0 h-10 w-10 animate-pulse rounded-full border-[3px] border-transparent border-t-gray-400 opacity-40"></div>
+          </div>
+          <span className="text-sm font-medium text-gray-600 animate-pulse">
+            Loading workspace...
+          </span>
         </div>
       </div>
     );
@@ -82,62 +87,76 @@ const LeadsDashboard: React.FC = () => {
   return (
     <>
       <DndProvider backend={HTML5Backend}>
-        <div className="min-h-screen">
-          {/* Top Bar */}
-          <div className="bg-white/80 backdrop-blur-md border-b border-gray-200/60 px-6 py-3 sticky top-0 z-10">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <h1 className="text-[15px] font-semibold text-gray-900">
-                  Deals
-                </h1>
-              </div>
-
-              {/* Right Side Actions */}
-              <div className="flex items-center gap-2.5">
-                {/* Search */}
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
-                  <input
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    type="text"
-                    placeholder="Search deals..."
-                    className="w-64 h-8 pl-9 pr-3 text-[13px] bg-white/60 backdrop-blur-sm border border-gray-200/60 rounded-lg focus:outline-none focus:bg-white focus:border-gray-300 transition-all placeholder:text-gray-400"
-                  />
+        <div className="min-h-screen bg-[#ffffff]">
+          {/* Top Bar - Notion Style */}
+          <div className="sticky top-0 z-50 border-b border-gray-200/80 bg-white/95 backdrop-blur-xl supports-[backdrop-filter]:bg-white/80">
+            <div className="mx-auto max-w-[1600px] px-8 py-3.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-5">
+                  <h1 className="text-base font-semibold tracking-tight text-gray-900">
+                    Deals
+                  </h1>
                 </div>
 
-                {/* Add Button */}
-                <button
-                  onClick={() => setIsAddLeadOptionsOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-all shadow-sm"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>New deal</span>
-                </button>
+                {/* Right Side Actions */}
+                <div className="flex items-center gap-3">
+                  {/* Search - Notion Style */}
+                  <div className="group relative">
+                    <Search className="absolute left-3.5 top-1/2 h-[15px] w-[15px] -translate-y-1/2 text-gray-400 transition-colors group-hover:text-gray-500" />
+                    <input
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      type="text"
+                      placeholder="Search deals..."
+                      className="h-9 w-72 rounded-md border border-gray-200/80 bg-gray-50/50 pl-10 pr-4 text-[13.5px] font-normal text-gray-900 placeholder-gray-400 shadow-sm transition-all duration-200 hover:border-gray-300 hover:bg-white focus:border-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gray-200/50"
+                    />
+                  </div>
 
-                {/* View Toggles */}
-                <div className="flex items-center gap-1 bg-gray-100/60 backdrop-blur-sm p-0.5 rounded-lg border border-gray-200/40">
+                  {/* View Toggles - Notion Style */}
+                  <div className="inline-flex items-center gap-0.5 rounded-lg border border-gray-200/80 bg-gray-50/50 p-0.5 shadow-sm">
+                    <button
+                      onClick={() => setIsListView(true)}
+                      className={`group inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-[13px] font-medium transition-all duration-200 ${
+                        isListView
+                          ? "bg-white text-gray-900 shadow-sm"
+                          : "text-gray-600 hover:bg-gray-100/80 hover:text-gray-900"
+                      }`}
+                    >
+                      <List
+                        className={`h-[15px] w-[15px] transition-all ${
+                          isListView
+                            ? "text-gray-900"
+                            : "text-gray-500 group-hover:text-gray-700"
+                        }`}
+                      />
+                      <span>List</span>
+                    </button>
+                    <button
+                      onClick={() => setIsListView(false)}
+                      className={`group inline-flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-[13px] font-medium transition-all duration-200 ${
+                        !isListView
+                          ? "bg-white text-gray-900 shadow-sm"
+                          : "text-gray-600 hover:bg-gray-100/80 hover:text-gray-900"
+                      }`}
+                    >
+                      <Grid3x3
+                        className={`h-[15px] w-[15px] transition-all ${
+                          !isListView
+                            ? "text-gray-900"
+                            : "text-gray-500 group-hover:text-gray-700"
+                        }`}
+                      />
+                      <span>Board</span>
+                    </button>
+                  </div>
+
+                  {/* Add Button - Notion Style */}
                   <button
-                    onClick={() => setIsListView(true)}
-                    className={`inline-flex cursor-pointer items-center gap-1.5 px-2.5 py-1 text-[12px] font-medium rounded-md transition-all ${
-                      isListView
-                        ? "bg-white text-gray-900 shadow-sm"
-                        : "text-gray-600 hover:text-gray-900"
-                    }`}
+                    onClick={() => setIsAddLeadOptionsOpen(true)}
+                    className="group inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 text-[13px] font-medium text-white shadow-sm transition-all duration-200 hover:bg-gray-800 hover:shadow active:scale-[0.98]"
                   >
-                    <List className="w-3.5 h-3.5" />
-                    <span>List</span>
-                  </button>
-                  <button
-                    onClick={() => setIsListView(false)}
-                    className={`inline-flex cursor-pointer items-center gap-1.5 px-2.5 py-1 text-[12px] font-medium rounded-md transition-all ${
-                      !isListView
-                        ? "bg-white text-gray-900 shadow-sm"
-                        : "text-gray-600 hover:text-gray-900"
-                    }`}
-                  >
-                    <Grid3x3 className="w-3.5 h-3.5" />
-                    <span>Board</span>
+                    <Plus className="h-[15px] w-[15px] transition-transform group-hover:rotate-90 duration-300" />
+                    <span>New deal</span>
                   </button>
                 </div>
               </div>
@@ -163,24 +182,20 @@ const LeadsDashboard: React.FC = () => {
             onClose={() => setIsExcelUploadOpen(false)}
           />
 
-          {/* Kanban Board */}
-          {/* Kanban Board or List View */}
-          <div className="px-6 py-4">
+          {/* Main Content Area - Notion Style */}
+          <div className="mx-auto max-w-[1600px] px-8 py-6">
             {isListView ? (
-              <>
-                {/* Replace this with your actual list view component */}
+              <div className="animate-in fade-in duration-300">
                 <KanbanListView />
-              </>
+              </div>
             ) : (
-              <div
-                className="flex gap-4 overflow-x-auto pb-4"
-                style={{
-                  scrollbarWidth: "thin",
-                  scrollbarColor: "#d1d5db transparent",
-                }}
-              >
+              <div className="flex gap-5 overflow-x-auto pb-6 animate-in fade-in duration-300">
                 {kanbanData?.map((stage: any, index: number) => (
-                  <div key={index} className="flex-shrink-0">
+                  <div
+                    key={index}
+                    className="flex-shrink-0 animate-in fade-in-50 slide-in-from-bottom-4"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
                     <StatusColumn stage={stage} />
                   </div>
                 ))}

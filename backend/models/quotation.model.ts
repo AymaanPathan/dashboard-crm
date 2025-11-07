@@ -35,7 +35,7 @@ export interface IQuotationItem {
 export interface IOrderDetails {
   items: any;
   taxRate: number;
-  validUntil: any; // ISO string
+  validUntil: any;
   quoteNumber: string;
 }
 

@@ -185,12 +185,12 @@ export const createQuotationController = async (
       phone: findLead.phone!,
     };
 
-    const orderDetailsForQuotation: IOrderDetails = {
-      items,
-      taxRate: orderDetails.taxRate || 0.18,
-      validUntil: orderDetails.validUntil,
-      quoteNumber: orderDetails.quoteNumber,
-    };
+      const orderDetailsForQuotation: IOrderDetails = {
+        items,
+        taxRate: orderDetails.taxRate || 0.18,
+        validUntil: orderDetails.validUntil,
+        quoteNumber: orderDetails.quoteNumber,
+      };
 
     const bankDetails = template.bankDetails as {
       ifsc?: string;
