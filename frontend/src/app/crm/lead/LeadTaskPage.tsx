@@ -119,7 +119,7 @@ export const LeadTaskPage: React.FC<LeadTaskProps> = ({
           <div className="mb-6">
             <CustomButton
               onClick={() => setShowAddTask(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-all duration-150 shadow-sm"
+              className="inline-flex cursor-pointer items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-all duration-150 shadow-sm"
             >
               <Plus className="h-4 w-4" />
               Add Task

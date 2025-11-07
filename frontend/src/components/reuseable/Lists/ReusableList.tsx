@@ -91,7 +91,7 @@ export function ReusableListPage<T>({
                 animationDuration: "300ms",
               }}
             >
-              <div className="absolute inset-y-0 left-0 w-[2px] bg-gradient-to-b from-blue-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-l-xl"></div>
+              <div className="absolute inset-y-0 left-0 w-[2px] bg-black opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-l-xl"></div>
               <div className="px-6 py-3">
                 <div className="grid grid-cols-12 gap-5 items-center">
                   {renderRow(item, idx)}
@@ -139,11 +139,11 @@ export function ReusableListPage<T>({
           {onAddClick && emptyState.actionText && (
             <button
               onClick={onAddClick}
-              className="group relative inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-b from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white text-[11.5px] font-semibold rounded-lg transition-all duration-200 shadow-sm shadow-gray-900/20 hover:shadow-md hover:shadow-gray-900/30 hover:translate-y-[-1px] active:scale-[0.98] overflow-hidden tracking-[-0.01em]"
+              className="group cursor-pointer relative inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-b from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white text-[11.5px] font-semibold rounded-lg transition-all duration-200 shadow-sm shadow-gray-900/20 hover:shadow-md hover:shadow-gray-900/30 active:scale-[0.98] overflow-hidden tracking-[-0.01em]"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
               <Plus
-                className="relative h-3 w-3 transition-transform duration-300 group-hover:rotate-90"
+                className="relative h-3 w-3 transition-transform duration-300 "
                 strokeWidth={2.5}
               />
               <span className="relative">{emptyState.actionText}</span>
