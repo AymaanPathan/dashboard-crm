@@ -16,3 +16,17 @@ RUN npm install
 # Expose the port the app runs on
 EXPOSE 8000
 CMD ["npm", "run","dev"]
+
+
+# Now build the docker image using below command
+# Commands:
+    # go to directory where dockerfile is located
+    # docker build . [dot means current directory]
+
+
+# now image is created than list all images using below command
+# docker image ls
+
+
+# now run the image using below command
+# docker run <image_id>
