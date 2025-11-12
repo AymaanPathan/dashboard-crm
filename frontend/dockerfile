@@ -1,5 +1,4 @@
-# A Dockerfile is like a recipe or blueprint that tells Docker how to build a mini isolated computer (container) with everything your app needs — Node.js, dependencies, and environment setup.
-
+# docker file is simple text file with instructions to build a docker image
 
 ## we need a base image with Node.js [we have webapp so we can use node image]
 FROM node
