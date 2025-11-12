@@ -28,5 +28,16 @@ CMD ["npm", "run","dev"]
 # docker image ls
 
 
-# now run the image using below command
+# now run the image using below command [below command will run the app inside the container not on our local machine]
 # docker run <image_id>
+
+
+# Port 1 :which i want to run the app
+# Port 2 : which is exposed in dockerfile using EXPOSE keyword
+
+# now run the image in our local machine using below command
+# docker run -p <port 1>:<port 2> <image_id>
+
+
+# now run the image on detached mode using below command [this helps that even if we close the terminal the app will run in background]
+# docker run -d -p <port 1>:<port 2> <image_id>
