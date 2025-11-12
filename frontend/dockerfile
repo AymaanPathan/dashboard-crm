@@ -41,3 +41,20 @@ CMD ["npm", "run","dev"]
 
 # now run the image on detached mode using below command [this helps that even if we close the terminal the app will run in background]
 # docker run -d -p <port 1>:<port 2> <image_id>
+
+
+# Image naming [how to give name or tag to our image]
+# -t [is for tag]
+# docker build -t <image_name>:<tag> .
+
+
+
+# How to see all the running containers
+# docker ps [list all the running containers]
+# docker ps -a [list all the containers including stopped ones]
+
+# How to stop a running container
+# docker stop <container_id> / docker stop <container_name>:<tag>
+
+# How to delete the image [note first delete all the containers which are running using that image]
+# docker rmi <image_id>  / docker rmi <image_name>:<tag>
