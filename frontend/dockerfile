@@ -1,3 +1,19 @@
 # A Dockerfile is like a recipe or blueprint that tells Docker how to build a mini isolated computer (container) with everything your app needs — Node.js, dependencies, and environment setup.
 
+
+## we need a base image with Node.js [we have webapp so we can use node image]
 FROM node
+
+
+# Create a working directory inside the container
+WORKDIR /app
+
+# COPY entire current [project] to /app
+COPY . /app
+
+# Install dependencies
+RUN npm install
+
+# Expose the port the app runs on
+EXPOSE 8000
+CMD ["npm", "run","dev"]
