@@ -1,0 +1,3 @@
+# A Dockerfile is like a recipe or blueprint that tells Docker how to build a mini isolated computer (container) with everything your app needs — Node.js, dependencies, and environment setup.
+
+FROM node
