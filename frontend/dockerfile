@@ -18,9 +18,10 @@ EXPOSE 8000
 CMD ["npm", "run","dev"]
 
 
+
 # Now build the docker image using below command
 # Commands:
-    # go to directory where dockerfile is located
+    # go to directory where this dockerfile is located
     # docker build . [dot means current directory]
 
 

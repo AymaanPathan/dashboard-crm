@@ -1,0 +1,22 @@
+# take from node
+FROM node
+
+# make a working directory inside the container
+WORKDIR /app
+
+
+# copy from package.json 
+COPY  package*.json .
+COPY package-lock.json .
+
+# install dependencies
+RUN npm install
+RUN npm install -g nodemon
+
+# copy entire project
+COPY . .
+
+EXPOSE 5000
+
+# now when we need to run this image [app] we need to run below command
+CMD ["npm", "start"]
