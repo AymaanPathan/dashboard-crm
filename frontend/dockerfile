@@ -59,3 +59,29 @@ CMD ["npm", "run","dev"]
 
 # How to delete the image [note first delete all the containers which are running using that image]
 # docker rmi <image_id>  / docker rmi <image_name>:<tag>
+
+
+# docker image
+# 1. docker build -t <image_name>:<tag> .
+
+# Docker container
+# 1. docker run  -d —rm -p  <binded port><exposed port we did in docker file> <container id>
+# 2. -rm [means it will remove automatically when we stop the container]
+# 3. docker run -d —rm —name “customer name of container” -p <binded port><exposed port we did in docker file> <image id>
+# 4. add —name [to give a custom name to docker container
+
+
+
+# Push docker image to docker hub
+# 1. docker login [to login to docker hub from terminal]
+# 2. docker tag <image_id> <dockerhub_username>/<repository_name>:<tag>
+# 3. docker push <dockerhub_username>/<repository_name>:<tag>
+
+
+# pull docker image from docker hub
+# now our image is in docker hub anyone can pull it using below command
+# docker pull <dockerhub_username>/<repository_name>:<tag>
+# now after pulling the image anyone can run it using below command
+# docker run -d -p <port 1>:<port 2> <dockerhub_username>/<repository_name>:<tag>
+# Note: port 1 is the port on which we want to run the app on our local machine
+# port 2 is the port which is exposed in dockerfile using EXPOSE keyword
