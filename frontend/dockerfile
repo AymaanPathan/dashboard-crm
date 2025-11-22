@@ -63,6 +63,7 @@ CMD ["npm", "run","dev"]
 
 # docker image
 # 1. docker build -t <image_name>:<tag> .
+# 2. docker inspect 6bc26b31ebc8  
 
 # Docker container
 # 1. docker run  -d —rm -p  <binded port><exposed port we did in docker file> <container id>
@@ -85,3 +86,8 @@ CMD ["npm", "run","dev"]
 # docker run -d -p <port 1>:<port 2> <dockerhub_username>/<repository_name>:<tag>
 # Note: port 1 is the port on which we want to run the app on our local machine
 # port 2 is the port which is exposed in dockerfile using EXPOSE keyword
+
+
+# .dockerignore file
+# 1. create a file named .dockerignore in the same directory where dockerfile is located
+# 2. add all the files and folders which we want to ignore while creating docker image
