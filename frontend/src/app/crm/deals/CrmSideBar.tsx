@@ -218,6 +218,8 @@ const CrmNavbar: React.FC = () => {
             Logout
           </span>
         </div>
+
+        <p className="px-3 pt-2 text-[10px] text-gray-400">v1.0.0</p>
       </div>
     </>
   );
