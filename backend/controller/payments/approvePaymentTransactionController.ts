@@ -49,6 +49,16 @@ export const approvePaymentTransactionController = async (
       return sendResponse(res, response);
     }
 
+    // --- Recalculate amount paid from verified transactions (source of truth) ---
+    const paidAgg = await prisma.paymentTransaction.aggregate({
+      where: { paymentId: transaction.paymentId, status: "completed" },
+      _sum: { amount: true },
+    });
+
+    const totalPaid = paidAgg._sum.amount ?? 0;
+    const totalAmount = transaction.payment.totalAmount ?? 0;
+    const paymentStatus = totalPaid >= totalAmount ? "completed" : "pending";
+
     // --- Approve the transaction ---
     const updatedTransaction = await prisma.paymentTransaction.update({
       where: { id: transactionId },
@@ -60,23 +70,14 @@ export const approvePaymentTransactionController = async (
       },
     });
 
-    // --- Update payment details ---
+    // --- Sync payment record ---
     const updatedPayment = await prisma.payment.update({
       where: { id: transaction.paymentId },
       data: {
-        amountPaid: {
-          increment: transaction.amount,
-        },
+        amountPaid: totalPaid,
+        status: paymentStatus,
       },
     });
-
-    // --- Check if payment fully completed ---
-    if ((updatedPayment.amountPaid ?? 0) >= (updatedPayment.totalAmount ?? 0)) {
-      await prisma.payment.update({
-        where: { id: transaction.paymentId },
-        data: { status: "completed" },
-      });
-    }
 
     response.data = {
       transaction: updatedTransaction,
